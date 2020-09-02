@@ -119,9 +119,7 @@ class SetupDecoder:
             raise ValueError("FATAL ERROR: Transmission must be a value between 0 and 1.")
 
         # Return filter matrix
-        unityMatrix = np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
-
-        return transmission * unityMatrix
+        return transmission * self.unityMatrix()
 
     def halfWavePlate(self, theta):
         """
@@ -149,6 +147,16 @@ class SetupDecoder:
         matrix = self.generalLinearRetarder(theta, delta)
         return matrix
 
+    def unityMatrix(self):
+        """
+        Returns unity matrix. Comments in the input file are decoded as unity matrix (= no operation). The filter matrix also uses the unity matrix.
+        User command: NOP
+        No attributes
+        Return:
+            unity matrix
+        """
+        return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+
     #
     #   Dictionary for correlation user commands to appropriate function
     #
@@ -160,7 +168,8 @@ class SetupDecoder:
         "PRB": ramanTensorOfProbe,
         "FLR": attenuatingFilter,
         "HWP": halfWavePlate,
-        "QWP": quarterWavePlate
+        "QWP": quarterWavePlate,
+        "NOP": unityMatrix
     }
 
     def decode(self, userCommand: str):
@@ -178,17 +187,26 @@ class SetupDecoder:
         args = userCommand
         # Call function
         try:
-            result = self.commandDictionary[command](self, *args)
+            if command[0] == "#":
+                # If the command starts with '#' the line will be ignored and the unity matrix is returned
+                result = self.unityMatrix()
+                log.info("Comment found in input file ('" + commandString + "'). Unity matrix will be returned.")
+            else:
+                # Execute instruction
+                result = self.commandDictionary[command](self, *args)
+
         except TypeError as e:
             # Handle wrong argument list
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Wrong number of arguments! Exiting execution.")
             log.debug(e)
             sys.exit(-1)
+
         except KeyError as e:
             # Handle wrong command
             arguments = str()
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Unknown command! Exiting execution.")
             sys.exit(-1)
+            
         except ValueError as e:
             # Handle wrong values for parameters
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Not permitted value was given! Exiting execution.")
