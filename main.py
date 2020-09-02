@@ -14,13 +14,6 @@ import MuellerSimulator as MSim
 
 
 #
-#   DEFINE input
-#   temporary solution, CLI planned
-#
-test_input_file = "./test_input.txt"
-
-
-#
 #   CREATE COMMAND LINE INTERFACE
 #
 # Construct the commandline arguments
@@ -87,11 +80,11 @@ log = logging.getLogger(__name__)
 def main():
 
     log.info("START SIMULATION")
-    log.info("Instruction File: " + test_input_file)
+    log.info("Instruction File: " + cliArgs.setupFile)
 
     # Read input file
     labratory_setup = []
-    with open(test_input_file, "r") as f:
+    with open(cliArgs.setupFile, "r") as f:
         labratory_setup = f.read().splitlines()
 
 
