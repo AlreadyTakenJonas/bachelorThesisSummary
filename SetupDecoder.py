@@ -102,6 +102,26 @@ class SetupDecoder:
         """
         return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
 
+    def attenuatingFilter(self, transmission):
+        """
+        Attenuating filter for decreasing laser intensity.
+        User command: FLR *
+        Attributes:
+            transmission - percentage of light that can pass through the filter
+        Return:
+            mueller matrix of the filter
+        """
+        # Convert input to float
+        transmission = float(transmission)
+
+        # Check if input valid
+        if transmission > 1 or transmission < 0:
+            raise ValueError("FATAL ERROR: Transmission must be a value between 0 and 1.")
+
+        # Return filter matrix
+        unityMatrix = np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+
+        return transmission * unityMatrix
 
     #
     #   Dictionary for correlation user commands to appropriate function
@@ -111,7 +131,8 @@ class SetupDecoder:
         "LHP": linearHorizontalPolariser,
         "LVP": linearVerticalPolariser,
         "LSR": initialStokesVector,
-        "PRB": ramanTensorOfProbe
+        "PRB": ramanTensorOfProbe,
+        "FLR": attenuatingFilter
     }
 
     def decode(self, userCommand: str):
@@ -138,6 +159,11 @@ class SetupDecoder:
             # Handle wrong command
             arguments = str()
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Unknown command! Exiting execution.")
+            sys.exit(-1)
+        except ValueError as e:
+            # Handle wrong values for parameters
+            log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Not permitted value was given! Exiting execution.")
+            log.critical(e)
             sys.exit(-1)
 
         # Return result of function call
