@@ -98,6 +98,8 @@ class SetupDecoder:
         Returns unity matrix for now
         """
         return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+
+
     #
     #   Dictionary for correlation user commands to appropriate function
     #
@@ -139,9 +141,56 @@ class SetupDecoder:
             sys.exit(-1)
 
         # Return result of function call
-        print(result)
         return result
 
+
+#
+#   CLASS for calculating the simulation
+#
+class MuellerSimulator:
+    """
+    Docstring I need to write
+    """
+
+    def __init__(self, simulationPlan: List[List[str]], simulationStep = 0):
+        self.simulationPlan = simulationPlan
+        self.simulationStep = simulationStep
+        self.stokesVector = np.array("0 0 0 0")
+        self.initialStokesVecotr = np.array("0 0 0 0")
+        self.decoder = SetupDecoder()
+
+    def step(self):
+        """
+        Calculate one step in the simulation
+        """
+        # Print info about progress
+        encodedInstruction =  self.simulationPlan[self.simulationStep][:]
+        instructionString = encodedInstruction.pop(0)
+        for i in encodedInstruction:
+            instructionString = instructionString + " " + i
+        print("Simulation Step: " + str(self.simulationStep) + "    Instruction: " + instructionString)
+
+        # Pass encoded instruction by value ([:]) and decode it into mueller matrix or stokes vector
+        encodedInstruction = self.simulationPlan[self.simulationStep][:]
+        decodedInstruction = self.decoder.decode(encodedInstruction)
+
+        # Check if instruction is a new stokes vector or a mueller matrix to add
+        if decodedInstruction.ndim == 1:
+            self.stokesVector = decodedInstruction
+            self.initialStokesVecotr = decodedInstruction
+        elif decodedInstruction.ndim == 2:
+            self.stokesVector = self.stokesVector * decodedInstruction
+            pass
+        elif decodedInstruction.ndmim == 3:
+            # Handle List of raman tensors
+            pass
+        else:
+            # Handle unexpected behaviour
+            print("FATAL ERROR: Mueller matrix exceeds expected dimensions! '" + instructionString + "' in line " + str(self.simulationStep+1) + " can't be executed. Exiting execution.")
+            sys.exit(-1)
+
+        print(self.stokesVector)
+        self.simulationStep = self.simulationStep + 1
 
 
 
@@ -149,7 +198,6 @@ class SetupDecoder:
 #   DEFINE input
 #   temporary solution, CLI planned
 #
-input_stokes = np.array([1, 0, 0, 0])
 test_input_file = "./test_input.txt"
 
 
@@ -164,11 +212,13 @@ def main():
         for line in f:
             labratory_setup.append( line.split() )
 
-    Decoder = SetupDecoder()
+
+    # Decode and calculate simulation
+    # Get instance of simulator class
+    simulation = MuellerSimulator(labratory_setup)
+    # Calculate the simulation command by command
     for step in labratory_setup:
-        Decoder.decode(step)
-
-
+        simulation.step()
 
 
 
