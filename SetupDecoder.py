@@ -182,7 +182,13 @@ class SetupDecoder:
 
     def rotateMatrix(self, angle: float, matrix: np.matrix):
         """
-        DOCSTRING: Rotation like quaternions
+        Returns the rotated matrix of any given mueller matrix. The rotation works like the rotation of hypersphears in 4d space and quaternions.
+        No user command
+        Attributes:
+            angle - the magnitute of the angle of rotation in degrees
+            matrix - the mueller matrix to rotate
+        Return:
+            rotated matrix
         """
         # Convert angle to radians
         angle = math.radians(angle)
