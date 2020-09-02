@@ -51,31 +51,54 @@ class SetupDecoder:
         cosDelta = np.cos(delta)
         sinDelta = np.sin(delta)
         muellerMatrix = np.matrix([ [1, 0, 0, 0],
-                                [0, cosTwoTheta**2 + sinTwoTheta**2 * cosDelta, cosTwoTheta*sinTwoTheta*(1-cosDelta), sinTwoTheta*sinDelta],
-                                [0, cosTwoTheta*sinTwoTheta*(1-cosDelta), cosTwoTheta**2 * cosDelta + sinTwoTheta**2, -cosTwoTheta*sinDelta],
-                                [0, -sinTwoTheta*sinDelta, cosTwoTheta*sinDelta, cosDelta]
-                            ])
+                                    [0, cosTwoTheta**2 + sinTwoTheta**2 * cosDelta  , cosTwoTheta*sinTwoTheta*(1-cosDelta)      , sinTwoTheta*sinDelta],
+                                    [0, cosTwoTheta*sinTwoTheta*(1-cosDelta)        , cosTwoTheta**2 * cosDelta + sinTwoTheta**2, -cosTwoTheta*sinDelta],
+                                    [0, -sinTwoTheta*sinDelta                       , cosTwoTheta*sinDelta                      , cosDelta]  ])
         return muellerMatrix
 
-    def linearHorizontalPolariser(self):
+    def linearHorizontalPolariser(self, angle = 0):
         """
-        Mueller Matrix for linear polariser with horizontal transmission.
-        User command: LHP
-        No Attributes
+        Mueller Matrix for linear polariser with horizontal transmission. The angle of transmission can be changed by an optional angle.
+        User command: LHP *
+        Attributes:
+            angle - angle of the fast axis measured from the horizontal line in degrees
         Return:
             mueller matrix
         """
-        return  0.5 * np.matrix("1 1 0 0;     1 1 0 0;    0 0 0 0;    0 0 0 0")
 
-    def linearVerticalPolariser(self):
+        # Convert the angle to float
+        angle = float(angle)
+
+        # Declare the matrix for a horizontal linear polariser
+        matrix = 0.5 * np.matrix("1 1 0 0;     1 1 0 0;    0 0 0 0;    0 0 0 0")
+
+        # Rotate thepolariser if needed
+        if angle != 0:
+            matrix = self.rotateMatrix(angle, matrix)
+
+        return  matrix
+
+    def linearVerticalPolariser(self, angle = 0):
         """
-        Mueller Matrix for linear polariser with vertical transmission
-        User command: LVP
-        No Attributes
+        Mueller Matrix for linear polariser with vertical transmission. The angle of transmission can be changed by an optional angle.
+        User command: LVP *
+        Attributes:
+            angle - angle of the fast axis measured from the vertical line in degrees
         Return:
             mueller matrix
         """
-        return 0.5 * np.matrix("1 -1 0 0;     -1 1 0 0;    0 0 0 0;    0 0 0 0")
+
+        # Convert the angle to float
+        angle = float(angle)
+
+        # Declare the matrix for a horizontal linear polariser
+        matrix = 0.5 * np.matrix("1 -1 0 0;     -1 1 0 0;    0 0 0 0;    0 0 0 0")
+
+        # Rotate thepolariser if needed
+        if angle != 0:
+            matrix = self.rotateMatrix(angle, matrix)
+
+        return  matrix
 
     def initialStokesVector(self, s0, s1, s2, s3):
         """
@@ -157,6 +180,24 @@ class SetupDecoder:
         """
         return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
 
+    def rotateMatrix(self, angle: float, matrix: np.matrix):
+        """
+        DOCSTRING: Rotation like quaternions
+        """
+        # Convert angle to radians
+        angle = math.radians(angle)
+
+        # Declare rotation matrix
+        rotationMatrix = lambda angle : np.matrix([ [1, 0               , 0              , 0],
+                                                    [0,  np.cos(2*angle), np.sin(2*angle), 0],
+                                                    [0, -np.sin(2*angle), np.cos(2*angle), 0],
+                                                    [0, 0               , 0              , 1]   ])
+
+        # Compute the rotation
+        rotatedMatrix = rotationMatrix(angle) * matrix * rotationMatrix(-angle)
+
+        return rotatedMatrix
+
     #
     #   Dictionary for correlation user commands to appropriate function
     #
@@ -206,7 +247,7 @@ class SetupDecoder:
             arguments = str()
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Unknown command! Exiting execution.")
             sys.exit(-1)
-            
+
         except ValueError as e:
             # Handle wrong values for parameters
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Not permitted value was given! Exiting execution.")

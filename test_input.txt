@@ -1,6 +1,6 @@
 LSR 1 1 0 0
-# Test
-QWP 90
-PRB
 LVP
-FLR 0.25
+LSR 1 1 0 0
+LVP 45
+LSR 1 1 0 0
+LVP 90
