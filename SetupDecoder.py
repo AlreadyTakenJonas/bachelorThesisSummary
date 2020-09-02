@@ -22,7 +22,7 @@ log.addHandler(logging.NullHandler())
 #
 class SetupDecoder:
     """
-    Some docstring I need to write
+    This class contains functions to create mueller matrices and stokes vectors as representation of optical elements and lasers. The decode method translates assembly-like commands into mentioned matrices and vectors.
     """
 
     def __init__(self):
@@ -134,7 +134,6 @@ class SetupDecoder:
         """
         delta = math.degrees(np.pi)
         matrix = self.generalLinearRetarder(theta, delta)
-        log.debug(matrix)
         return matrix
 
     def quarterWavePlate(self, theta):
@@ -148,7 +147,6 @@ class SetupDecoder:
         """
         delta = math.degrees(np.pi/2)
         matrix = self.generalLinearRetarder(theta, delta)
-        log.debug(matrix)
         return matrix
 
     #

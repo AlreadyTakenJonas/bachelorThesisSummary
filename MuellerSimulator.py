@@ -34,7 +34,7 @@ log.addHandler(logging.NullHandler())
 #
 class MuellerSimulator:
     """
-    Docstring I need to write
+    This class contains a method for performing matrix operations on a stokes vector to describe the interaction of a laser beam with optical elements. This class uses the SetupDecoder class.
     """
 
     def __init__(self, simulationPlan: List[str], simulationStep = 0):
@@ -46,7 +46,7 @@ class MuellerSimulator:
 
     def step(self):
         """
-        Calculate one step in the simulation
+        Calculate one step in the simulation by decoding the simulationPlan and performing a matrix-vector-multiplication on a mueller matrix and a stokes vector.
         """
         # Print info about progress
         encodedInstruction =  self.simulationPlan[self.simulationStep][:]
@@ -59,10 +59,12 @@ class MuellerSimulator:
 
         # Check if instruction is a new stokes vector or a mueller matrix to multiply or multiple martrices to multiply
         if decodedInstruction.ndim == 1:
+            # Save stokes vector as attribute
             self.stokesVector = decodedInstruction
             self.initialStokesVecotr = decodedInstruction
 
         elif decodedInstruction.ndim == 2:
+            # Alter stokes vector with the mueller matrix
             self.stokesVector = self.stokesVector * decodedInstruction
 
         elif decodedInstruction.ndmim == 3:
