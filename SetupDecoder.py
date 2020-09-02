@@ -6,6 +6,17 @@
 import numpy as np
 import math as math
 
+# Purpose: Termiante execution when fatal error occurs
+import sys
+
+# Purpose: logging
+import logging
+
+# Enables logging with the logging module
+log = logging.getLogger(__name__)
+# Tells the logging module to ignore all logging message, if a program using this library does not use the logging module.
+log.addHandler(logging.NullHandler())
+
 #
 #   CLASS for decding the user input that describes the labratory setup
 #
@@ -121,12 +132,12 @@ class SetupDecoder:
             result = self.commandDictionary[command](self, *args)
         except TypeError as e:
             # Handle wrong argument list
-            print("FATAL ERROR: Unable to decode '" +commandString + "'. Wrong number of arguments! Exiting execution.")
+            log.critical("FATAL ERROR: Unable to decode '" +commandString + "'. Wrong number of arguments! Exiting execution.")
             sys.exit(-1)
         except KeyError as e:
             # Handle wrong command
             arguments = str()
-            print("FATAL ERROR: Unable to decode '" + commandString + "'. Unknown command! Exiting execution.")
+            log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Unknown command! Exiting execution.")
             sys.exit(-1)
 
         # Return result of function call

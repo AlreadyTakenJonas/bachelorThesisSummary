@@ -13,10 +13,21 @@ from typing import List
 # Purpose: Termiante execution when fatal error occurs
 import sys
 
+# Purpose: logging
+import logging
+
 #
 #   INTERNAL MODULES
 #
 import SetupDecoder as SetDec
+
+
+# Enables logging with the logging module
+log = logging.getLogger(__name__)
+# Tells the logging module to ignore all logging message, if a program using this library does not use the logging module.
+log.addHandler(logging.NullHandler())
+
+
 
 #
 #   CLASS for calculating the simulation
@@ -40,7 +51,7 @@ class MuellerSimulator:
         # Print info about progress
         encodedInstruction =  self.simulationPlan[self.simulationStep][:]
         instructionString = encodedInstruction
-        print("Simulation Step: " + str(self.simulationStep) + "    Instruction: " + instructionString)
+        log.info("Simulation Step: " + str(self.simulationStep) + "    Instruction: " + instructionString)
 
         # Pass encoded instruction by value ([:]) and decode it into mueller matrix or stokes vector
         encodedInstruction = self.simulationPlan[self.simulationStep][:]
@@ -60,8 +71,8 @@ class MuellerSimulator:
 
         else:
             # Handle unexpected behaviour
-            print("FATAL ERROR: Mueller matrix exceeds expected dimensions! '" + instructionString + "' in line " + str(self.simulationStep+1) + " can't be executed. Exiting execution.")
+            log.error("FATAL ERROR: Mueller matrix exceeds expected dimensions! '" + instructionString + "' in line " + str(self.simulationStep+1) + " can't be executed. Exiting execution.")
             sys.exit(-1)
 
-        print(self.stokesVector)
+        log.info("Current stokes vector: " + str(self.stokesVector))
         self.simulationStep = self.simulationStep + 1
