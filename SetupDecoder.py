@@ -36,7 +36,7 @@ class SetupDecoder:
         Mueller Matrix for linear retarders in its general form. Used for calculation of wave plates. The arguments will be converted to floats and radians.
         User command: GLR * *
         Attributes:
-            theta - Angle between slow and fast axis in degrees
+            theta - Angle of the fast axis in degrees
             delta - Phase difference between fast and slow axis in degrees
         Return:
             special form of a mueller matrix
@@ -123,6 +123,34 @@ class SetupDecoder:
 
         return transmission * unityMatrix
 
+    def halfWavePlate(self, theta):
+        """
+        Mueller Matrix for a half wave plate. Derived from general linear retarder. The arguments will be converted to floats and radians.
+        User command: HWP *
+        Attributes:
+            theta - Phase difference between fast and slow axis in degrees
+        Return:
+            special form of a mueller matrix
+        """
+        delta = math.degrees(np.pi)
+        matrix = self.generalLinearRetarder(theta, delta)
+        log.debug(matrix)
+        return matrix
+
+    def quarterWavePlate(self, theta):
+        """
+        Mueller Matrix for a quarter wave plate. Derived from general linear retarder. The arguments will be converted to floats and radians.
+        User command: HWP *
+        Attributes:
+            theta - Phase difference between fast and slow axis in degrees
+        Return:
+            special form of a mueller matrix
+        """
+        delta = math.degrees(np.pi/2)
+        matrix = self.generalLinearRetarder(theta, delta)
+        log.debug(matrix)
+        return matrix
+
     #
     #   Dictionary for correlation user commands to appropriate function
     #
@@ -132,7 +160,9 @@ class SetupDecoder:
         "LVP": linearVerticalPolariser,
         "LSR": initialStokesVector,
         "PRB": ramanTensorOfProbe,
-        "FLR": attenuatingFilter
+        "FLR": attenuatingFilter,
+        "HWP": halfWavePlate,
+        "QWP": quarterWavePlate
     }
 
     def decode(self, userCommand: str):
@@ -153,7 +183,8 @@ class SetupDecoder:
             result = self.commandDictionary[command](self, *args)
         except TypeError as e:
             # Handle wrong argument list
-            log.critical("FATAL ERROR: Unable to decode '" +commandString + "'. Wrong number of arguments! Exiting execution.")
+            log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Wrong number of arguments! Exiting execution.")
+            log.debug(e)
             sys.exit(-1)
         except KeyError as e:
             # Handle wrong command
