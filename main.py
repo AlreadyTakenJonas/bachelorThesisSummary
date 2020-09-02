@@ -111,7 +111,7 @@ class SetupDecoder:
         "PRB": ramanTensorOfProbe
     }
 
-    def decode(self, userCommand: List[str]):
+    def decode(self, userCommand: str):
         """
         Decodes user commands. Takes in one line of the input file as a list of strings and calls appropriate function with the help of commandDictionary.
         Attributes:
@@ -120,6 +120,8 @@ class SetupDecoder:
             Return value of the function. Usually a stokes vector or a mueller matrix
         """
         # Isolate command and arguments
+        commandString = userCommand
+        userCommand = userCommand.split()
         command = userCommand.pop(0)
         args = userCommand
         # Call function
@@ -127,17 +129,12 @@ class SetupDecoder:
             result = self.commandDictionary[command](self, *args)
         except TypeError as e:
             # Handle wrong argument list
-            arguments = str()
-            for i in args:
-                arguments = arguments + " " + i
-            print("FATAL ERROR: Unable to decode '" + command + arguments + "'. Wrong number of arguments! Exiting execution.")
+            print("FATAL ERROR: Unable to decode '" +commandString + "'. Wrong number of arguments! Exiting execution.")
             sys.exit(-1)
         except KeyError as e:
             # Handle wrong command
             arguments = str()
-            for i in args:
-                arguments = arguments + " " + i
-            print("FATAL ERROR: Unable to decode '" + command + arguments + "'. Unknown command! Exiting execution.")
+            print("FATAL ERROR: Unable to decode '" + commandString + "'. Unknown command! Exiting execution.")
             sys.exit(-1)
 
         # Return result of function call
@@ -152,7 +149,7 @@ class MuellerSimulator:
     Docstring I need to write
     """
 
-    def __init__(self, simulationPlan: List[List[str]], simulationStep = 0):
+    def __init__(self, simulationPlan: List[str], simulationStep = 0):
         self.simulationPlan = simulationPlan
         self.simulationStep = simulationStep
         self.stokesVector = np.array("0 0 0 0")
@@ -165,25 +162,25 @@ class MuellerSimulator:
         """
         # Print info about progress
         encodedInstruction =  self.simulationPlan[self.simulationStep][:]
-        instructionString = encodedInstruction.pop(0)
-        for i in encodedInstruction:
-            instructionString = instructionString + " " + i
+        instructionString = encodedInstruction
         print("Simulation Step: " + str(self.simulationStep) + "    Instruction: " + instructionString)
 
         # Pass encoded instruction by value ([:]) and decode it into mueller matrix or stokes vector
         encodedInstruction = self.simulationPlan[self.simulationStep][:]
         decodedInstruction = self.decoder.decode(encodedInstruction)
 
-        # Check if instruction is a new stokes vector or a mueller matrix to add
+        # Check if instruction is a new stokes vector or a mueller matrix to multiply or multiple martrices to multiply
         if decodedInstruction.ndim == 1:
             self.stokesVector = decodedInstruction
             self.initialStokesVecotr = decodedInstruction
+
         elif decodedInstruction.ndim == 2:
             self.stokesVector = self.stokesVector * decodedInstruction
-            pass
+
         elif decodedInstruction.ndmim == 3:
             # Handle List of raman tensors
             pass
+
         else:
             # Handle unexpected behaviour
             print("FATAL ERROR: Mueller matrix exceeds expected dimensions! '" + instructionString + "' in line " + str(self.simulationStep+1) + " can't be executed. Exiting execution.")
@@ -209,8 +206,7 @@ def main():
     # Read input file
     labratory_setup = []
     with open(test_input_file, "r") as f:
-        for line in f:
-            labratory_setup.append( line.split() )
+        labratory_setup = f.read().splitlines()
 
 
     # Decode and calculate simulation
