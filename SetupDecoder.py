@@ -138,6 +138,8 @@ class SetupDecoder:
         WORK IN PROGRESS. Describtion of the sample as raman tensor. The tensor needs to be translated into the mueller formalism.
         Returns unity matrix for now
         """
+
+        # TODO: EVERYTHING plus unittest
         return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
 
     def attenuatingFilter(self, transmission):
@@ -145,10 +147,14 @@ class SetupDecoder:
         Attenuating filter for decreasing laser intensity.
         User command: FLR *
         Attributes:
-            transmission - percentage of light that can pass through the filter
+            transmission - amount of light that can pass through the filter (ranges from 0 to 1)
         Return:
             mueller matrix of the filter
         """
+
+        if type(transmission) == bool:
+            raise TypeError("Arguments for the attenuating filter can't be bool!")
+            
         # Convert input to float
         transmission = float(transmission)
 
@@ -157,7 +163,7 @@ class SetupDecoder:
             raise ValueError("FATAL ERROR: Transmission must be a value between 0 and 1.")
 
         # Return filter matrix
-        return transmission * self.unityMatrix()
+        return transmission * self.unityMatrix(self)
 
     def halfWavePlate(self, theta):
         """

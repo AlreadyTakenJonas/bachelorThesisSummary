@@ -209,3 +209,43 @@ class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, [1,1,1,1])
         self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, True, True, True, True)
         self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, 1+1j, 1+1j, 1+1j, 1+1j)
+
+
+class TestSetupDecoder_attenuatingFilter(unittest.TestCase):
+    """
+    Test the attenuatingFilter method in SetupDecoder
+    """
+
+    def flr(self, transmission):
+        """
+        Build mueller matrix for filters
+        """
+        return transmission * np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+
+    def test_output(self):
+        """
+        Make sure output is correct
+        """
+
+        for t in [0, 0.1, 0.2, 0.5, 0.7, 1]:
+            self.assertEqual( SetupDecoder.attenuatingFilter(SetupDecoder, t).tolist(), self.flr(t).tolist() )
+
+    def test_values(self):
+        """
+        Make sure a value error is raised if necessary
+        """
+
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, "string")
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, "True")
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, "False")
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, -1)
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, 2)
+
+    def test_types(self):
+        """
+        Make sure type errors are raised if necessary
+        """
+
+        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, True)
+        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, [1,1])
