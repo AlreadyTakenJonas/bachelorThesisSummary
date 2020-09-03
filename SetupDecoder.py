@@ -123,9 +123,9 @@ class SetupDecoder:
 
         return stokes_vector
 
-    def ramanTensorOfProbe(self):
+    def ramanTensorOfSample(self):
         """
-        WORK IN PROGRESS. Describtion of the probe as raman tensor. The tensor needs to be translated into the mueller formalism.
+        WORK IN PROGRESS. Describtion of the sample as raman tensor. The tensor needs to be translated into the mueller formalism.
         Returns unity matrix for now
         """
         return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
@@ -217,7 +217,7 @@ class SetupDecoder:
         "LHP": linearHorizontalPolariser,
         "LVP": linearVerticalPolariser,
         "LSR": initialStokesVector,
-        "PRB": ramanTensorOfProbe,
+        "SMP": ramanTensorOfSample,
         "FLR": attenuatingFilter,
         "HWP": halfWavePlate,
         "QWP": quarterWavePlate,

@@ -19,7 +19,7 @@ import MuellerSimulator as MSim
 # Construct the commandline arguments
 # Initialise and set helping information
 ap = argparse.ArgumentParser(
-                description = "This program simulates the influence of a raman active probe and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
+                description = "This program simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
                 epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
 
 # Adding arguments
