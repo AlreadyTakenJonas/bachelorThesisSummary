@@ -69,7 +69,7 @@ class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
 
 class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
     """
-    Test the linearHorizontalPolariser method in TestSetupDecoder
+    Test the linearHorizontalPolariser method in SetupDecoder
     """
 
     def lhp(self, theta):
@@ -116,3 +116,55 @@ class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, [1,1])
         self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, True)
         self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, 1+1j)
+
+
+class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
+    """
+    Test the linearVerticalPolariser method in SetupDecoder
+    """
+
+    def lvp(self, theta):
+        """
+        Build mueller martrix for linear vertical polariser
+        Takes degrees as argument!
+        Returns the matrix of a linear horizontal polariser with an angle of theta+90°
+        """
+        t = math.radians(theta + 90)
+
+        return 0.5 * np.matrix([ [1              , np.cos(2*t)       , -np.sin(2*t)      , 0],
+                                 [np.cos(2*t)    , (np.cos(4*t)+1)/2 , -np.sin(4*t)/2    , 0],
+                                 [-np.sin(2*t)   , -np.sin(4*t)/2    , (-np.cos(4*t)+1)/2, 0],
+                                 [0              , 0                 , 0                 , 0]    ])
+
+    def test_output(self):
+        """
+        Check if output is correct
+        """
+
+        # Check if function returns correct answer for various inputs in degrees
+        for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
+
+            # Convert matrices into 1d-lists and check every element
+            for program, tester in zip( SetupDecoder.linearVerticalPolariser(SetupDecoder, t).ravel().tolist()[0], self.lvp(t).ravel().tolist()[0] ):
+                self.assertAlmostEqual( program, tester )
+
+            # Check sizes
+            self.assertEqual( SetupDecoder.linearVerticalPolariser(SetupDecoder, t).shape, self.lvp(t).shape )
+
+    def test_values(self):
+        """
+        Make sure value errors are raised if necessary
+        """
+
+        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, SetupDecoder, "string")
+        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, SetupDecoder, "True")
+        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, SetupDecoder, "False")
+
+    def test_types(self):
+        """
+        Make sure type errors are raised if necessary
+        """
+
+        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, [1,1])
+        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, True)
+        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, 1+1j)
