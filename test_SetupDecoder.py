@@ -168,3 +168,34 @@ class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, [1,1])
         self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, True)
         self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, 1+1j)
+
+
+class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
+    """
+    Test the initialStokesVector method in SetupDecoder
+    """
+
+    def sv(self, s0, s1, s2, s3):
+        """
+        Build stokes vector
+        """
+        return np.array([s0, s1, s2, s3])/s0
+
+    def test_output(self):
+        """
+        Check if output is correct
+        """
+
+        for s0 in [-10, -7, -5, 0, 5, 7, 10]:
+            for s1 in [-10, -7, -5, 0, 5, 7, 10]:
+                for s2 in [-10, -7, -5, 0, 5, 7, 10]:
+                    for s3 in [-10, -7, -5, 0, 5, 7, 10]:
+                        self.assertAlmostEqual( SetupDecoder.initialStokesVector(SetupDecoder, s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all() )
+
+    def test_values(self):
+        # TODO
+        pass
+
+    def test_types(self):
+        # TODO
+        pass
