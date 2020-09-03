@@ -41,6 +41,8 @@ class SetupDecoder:
         Return:
             special form of a mueller matrix
         """
+        if type(theta) == bool or type(delta) == bool:
+            raise TypeError("Arguments for the general linear retarder can't be bool!")
         # Convert input
         theta = math.radians(float(theta))
         delta = math.radians(float(delta))
@@ -66,6 +68,9 @@ class SetupDecoder:
             mueller matrix
         """
 
+        if type(angle) == bool:
+            raise TypeError("Arguments for the general linear retarder can't be bool!")
+
         # Convert the angle to float
         angle = float(angle)
 
@@ -74,7 +79,7 @@ class SetupDecoder:
 
         # Rotate thepolariser if needed
         if angle != 0:
-            matrix = self.rotateMatrix(angle, matrix)
+            matrix = self.rotateMatrix(self, angle, matrix)
 
         return  matrix
 
