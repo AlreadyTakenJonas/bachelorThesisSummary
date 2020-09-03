@@ -193,9 +193,19 @@ class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
                         self.assertAlmostEqual( SetupDecoder.initialStokesVector(SetupDecoder, s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all() )
 
     def test_values(self):
-        # TODO
-        pass
+        """
+        Make sure value errors are raised if necessary
+        """
+
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, SetupDecoder, "string", "string", "string", "string")
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, SetupDecoder, "True", "True", "True", "True")
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, SetupDecoder, "False", "False", "False", "False")
 
     def test_types(self):
-        # TODO
-        pass
+        """
+        Make sure type errors are raised if necessary
+        """
+
+        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, [1,1,1,1])
+        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, True, True, True, True)
+        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, 1+1j, 1+1j, 1+1j, 1+1j)

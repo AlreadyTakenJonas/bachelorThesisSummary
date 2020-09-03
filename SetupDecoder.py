@@ -120,6 +120,13 @@ class SetupDecoder:
         Return:
             stokes vector of initial laser polarisation
         """
+
+        if type(s0) == bool or type(s1) == bool or type(s2) == bool or type(s3) == bool:
+            raise TypeError("Argument for stokes vector can't be bool!")
+
+        if np.iscomplex(s0) == True or np.iscomplex(s1) == True or np.iscomplex(s2) == True or np.iscomplex(s3) == True:
+            raise TypeError("Argument for stokes vector can't be complex!")
+
         # Converting input to float and normalising with s0
         stokes_vector = np.array([s0, s1, s2, s3]).astype(float)
         stokes_vector = stokes_vector / stokes_vector[0]
