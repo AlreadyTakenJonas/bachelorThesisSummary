@@ -69,7 +69,7 @@ class SetupDecoder:
         """
 
         if type(angle) == bool:
-            raise TypeError("Arguments for the general linear retarder can't be bool!")
+            raise TypeError("Arguments for the linear horizontal retarder can't be bool!")
 
         # Convert the angle to float
         angle = float(angle)
@@ -94,7 +94,7 @@ class SetupDecoder:
         """
 
         if type(angle) == bool:
-            raise TypeError("Arguments for the general linear retarder can't be bool!")
+            raise TypeError("Arguments for the linear vertical retarder can't be bool!")
 
         # Convert the angle to float
         angle = float(angle)
