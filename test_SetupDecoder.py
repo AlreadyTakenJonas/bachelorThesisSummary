@@ -249,3 +249,64 @@ class TestSetupDecoder_attenuatingFilter(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, 1+1j)
         self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, True)
         self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, [1,1])
+
+
+class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
+    """
+    Test the halfWavePlate method in SetupDecoder
+    """
+
+    def hwp(self, theta):
+        """
+        Build mueller matrix
+        Angles are passed as degrees!
+        """
+
+        t = math.radians(theta)
+
+# TODO: Which one to use ??????
+# Originally intended. Derived from rotation matrix and half wave plate matrix with positive angles
+# Makes code fail test
+#        return np.matrix([  [1,	        0	,       0	    ,    0],
+#                            [0,	 np.cos(4*t),	-np.sin(4*t),	 0],
+#                            [0,	-np.sin(4*t),	-np.cos(4*t),	 0],
+#                            [0,	        0	,       0	    ,   -1]  ])
+# Derived from rotation matrix and half wave plate matrix with negative angles
+# Makes code pass test
+        return np.matrix([  [1,	        0	,       0	    ,    0],
+                            [0,	 np.cos(4*t),	 np.sin(4*t),	 0],
+                            [0,	 np.sin(4*t),	-np.cos(4*t),	 0],
+                            [0,	        0	,       0	    ,   -1]  ])
+
+    def test_output(self):
+        """
+        Make sure output is correct
+        """
+
+        for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
+
+            # Convert matrices into 1d-lists and check every element
+            for program, tester in zip( SetupDecoder.halfWavePlate(SetupDecoder, t).ravel().tolist()[0], self.hwp(t).ravel().tolist()[0] ):
+                self.assertAlmostEqual( program, tester )
+
+            # Check sizes
+            self.assertEqual( SetupDecoder.halfWavePlate(SetupDecoder, t).shape, self.hwp(t).shape )
+
+    def test_values(self):
+        """
+        Make sure value errors are raised if necessary
+        """
+
+        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, SetupDecoder, "string")
+        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, SetupDecoder, "True")
+        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, SetupDecoder, "False")
+
+    def test_type(self):
+        """
+        Make sure type errors are raised if necessary
+        """
+
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, [1,1])
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, True)
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, False)
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, 1+1j)

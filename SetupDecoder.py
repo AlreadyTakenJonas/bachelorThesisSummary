@@ -154,7 +154,7 @@ class SetupDecoder:
 
         if type(transmission) == bool:
             raise TypeError("Arguments for the attenuating filter can't be bool!")
-            
+
         # Convert input to float
         transmission = float(transmission)
 
@@ -175,7 +175,7 @@ class SetupDecoder:
             special form of a mueller matrix
         """
         delta = math.degrees(np.pi)
-        matrix = self.generalLinearRetarder(theta, delta)
+        matrix = self.generalLinearRetarder(self, theta, delta)
         return matrix
 
     def quarterWavePlate(self, theta):
