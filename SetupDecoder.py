@@ -79,7 +79,7 @@ class SetupDecoder:
 
         # Rotate thepolariser if needed
         if angle != 0:
-            matrix = self.rotateMatrix(self, angle, matrix)
+            matrix = self.rotateMatrix(angle, matrix)
 
         return  matrix
 
@@ -104,7 +104,7 @@ class SetupDecoder:
 
         # Rotate thepolariser if needed
         if angle != 0:
-            matrix = self.rotateMatrix(self, angle, matrix)
+            matrix = self.rotateMatrix(angle, matrix)
 
         return  matrix
 
@@ -163,7 +163,7 @@ class SetupDecoder:
             raise ValueError("FATAL ERROR: Transmission must be a value between 0 and 1.")
 
         # Return filter matrix
-        return transmission * self.unityMatrix(self)
+        return transmission * self.unityMatrix()
 
     def halfWavePlate(self, theta):
         """
@@ -175,7 +175,7 @@ class SetupDecoder:
             special form of a mueller matrix
         """
         delta = math.degrees(np.pi)
-        matrix = self.generalLinearRetarder(self, theta, delta)
+        matrix = self.generalLinearRetarder(theta, delta)
         return matrix
 
     def quarterWavePlate(self, theta):

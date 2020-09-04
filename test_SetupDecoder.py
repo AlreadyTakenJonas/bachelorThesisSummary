@@ -3,13 +3,17 @@
 #
 import unittest
 
+# Import class that shall be tested and create an instance of it
 from SetupDecoder import SetupDecoder
+SetupDecoder = SetupDecoder()
 
 #
 #   EXTERNAL LIBARIES
 #
 import numpy as np
 import math
+
+
 
 class TestSetupDecoder_UnitMatrix(unittest.TestCase):
     """
@@ -20,7 +24,7 @@ class TestSetupDecoder_UnitMatrix(unittest.TestCase):
         """
         Check if the output is correct
         """
-        self.assertEqual( SetupDecoder.unityMatrix(SetupDecoder).tolist(), np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1").tolist() )
+        self.assertEqual( SetupDecoder.unityMatrix().tolist(), np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1").tolist() )
 
 class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
     """
@@ -47,25 +51,25 @@ class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
         # Check if function returns correct answer for various inputs in degrees
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
             for d in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
-                    self.assertEqual( SetupDecoder.generalLinearRetarder(SetupDecoder, t, d).tolist(), self.glr(t, d).tolist() )
+                    self.assertEqual( SetupDecoder.generalLinearRetarder(t, d).tolist(), self.glr(t, d).tolist() )
 
     def test_values(self):
         """
         Make sure value errors are raised if necessary
         """
 
-        self.assertRaises(ValueError, SetupDecoder.generalLinearRetarder, SetupDecoder, "string", "string")
-        self.assertRaises(ValueError, SetupDecoder.generalLinearRetarder, SetupDecoder, "True", "False")
-        self.assertRaises(ValueError, SetupDecoder.generalLinearRetarder, SetupDecoder, "False", "True")
+        self.assertRaises(ValueError, SetupDecoder.generalLinearRetarder, "string", "string")
+        self.assertRaises(ValueError, SetupDecoder.generalLinearRetarder, "True", "False")
+        self.assertRaises(ValueError, SetupDecoder.generalLinearRetarder, "False", "True")
 
     def test_types(self):
         """
         Make sure type errors are raised if necessary
         """
 
-        self.assertRaises(TypeError, SetupDecoder.generalLinearRetarder, SetupDecoder, [1,1], [1,1])
-        self.assertRaises(TypeError, SetupDecoder.generalLinearRetarder, SetupDecoder, True, False)
-        self.assertRaises(TypeError, SetupDecoder.generalLinearRetarder, SetupDecoder, 1+1j, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.generalLinearRetarder, [1,1], [1,1])
+        self.assertRaises(TypeError, SetupDecoder.generalLinearRetarder, True, False)
+        self.assertRaises(TypeError, SetupDecoder.generalLinearRetarder, 1+1j, 1+1j)
 
 class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
     """
@@ -93,29 +97,29 @@ class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.linearHorizontalPolariser(SetupDecoder, t).ravel().tolist()[0], self.lhp(t).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.linearHorizontalPolariser(t).ravel().tolist()[0], self.lhp(t).ravel().tolist()[0] ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
-            self.assertEqual( SetupDecoder.linearHorizontalPolariser(SetupDecoder, t).shape, self.lhp(t).shape )
+            self.assertEqual( SetupDecoder.linearHorizontalPolariser(t).shape, self.lhp(t).shape )
 
     def test_values(self):
         """
         Make sure value errors are raised if necessary
         """
 
-        self.assertRaises(ValueError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, "string")
-        self.assertRaises(ValueError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, "True")
-        self.assertRaises(ValueError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, "False")
+        self.assertRaises(ValueError, SetupDecoder.linearHorizontalPolariser, "string")
+        self.assertRaises(ValueError, SetupDecoder.linearHorizontalPolariser, "True")
+        self.assertRaises(ValueError, SetupDecoder.linearHorizontalPolariser, "False")
 
     def test_types(self):
         """
         Make sure type errors are raised if necessary
         """
 
-        self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, [1,1])
-        self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, True)
-        self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, SetupDecoder, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, [1,1])
+        self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, True)
+        self.assertRaises(TypeError, SetupDecoder.linearHorizontalPolariser, 1+1j)
 
 
 class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
@@ -145,29 +149,29 @@ class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.linearVerticalPolariser(SetupDecoder, t).ravel().tolist()[0], self.lvp(t).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.linearVerticalPolariser(t).ravel().tolist()[0], self.lvp(t).ravel().tolist()[0] ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
-            self.assertEqual( SetupDecoder.linearVerticalPolariser(SetupDecoder, t).shape, self.lvp(t).shape )
+            self.assertEqual( SetupDecoder.linearVerticalPolariser(t).shape, self.lvp(t).shape )
 
     def test_values(self):
         """
         Make sure value errors are raised if necessary
         """
 
-        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, SetupDecoder, "string")
-        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, SetupDecoder, "True")
-        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, SetupDecoder, "False")
+        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, "string")
+        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, "True")
+        self.assertRaises(ValueError, SetupDecoder.linearVerticalPolariser, "False")
 
     def test_types(self):
         """
         Make sure type errors are raised if necessary
         """
 
-        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, [1,1])
-        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, True)
-        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, SetupDecoder, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, [1,1])
+        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, True)
+        self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, 1+1j)
 
 
 class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
@@ -190,25 +194,25 @@ class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
             for s1 in [-10, -7, -5, 0, 5, 7, 10]:
                 for s2 in [-10, -7, -5, 0, 5, 7, 10]:
                     for s3 in [-10, -7, -5, 0, 5, 7, 10]:
-                        self.assertAlmostEqual( SetupDecoder.initialStokesVector(SetupDecoder, s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all() )
+                        self.assertAlmostEqual( SetupDecoder.initialStokesVector(s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all() )
 
     def test_values(self):
         """
         Make sure value errors are raised if necessary
         """
 
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, SetupDecoder, "string", "string", "string", "string")
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, SetupDecoder, "True", "True", "True", "True")
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, SetupDecoder, "False", "False", "False", "False")
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "string", "string", "string", "string")
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "True", "True", "True", "True")
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "False", "False", "False", "False")
 
     def test_types(self):
         """
         Make sure type errors are raised if necessary
         """
 
-        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, [1,1,1,1])
-        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, True, True, True, True)
-        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, SetupDecoder, 1+1j, 1+1j, 1+1j, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, [1,1,1,1])
+        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, True, True, True, True)
+        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, 1+1j, 1+1j, 1+1j, 1+1j)
 
 
 class TestSetupDecoder_attenuatingFilter(unittest.TestCase):
@@ -228,27 +232,27 @@ class TestSetupDecoder_attenuatingFilter(unittest.TestCase):
         """
 
         for t in [0, 0.1, 0.2, 0.5, 0.7, 1]:
-            self.assertEqual( SetupDecoder.attenuatingFilter(SetupDecoder, t).tolist(), self.flr(t).tolist() )
+            self.assertEqual( SetupDecoder.attenuatingFilter(t).tolist(), self.flr(t).tolist() )
 
     def test_values(self):
         """
         Make sure a value error is raised if necessary
         """
 
-        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, "string")
-        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, "True")
-        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, "False")
-        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, -1)
-        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, SetupDecoder, 2)
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, "string")
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, "True")
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, "False")
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter, -1)
+        self.assertRaises(ValueError, SetupDecoder.attenuatingFilter,  2)
 
     def test_types(self):
         """
         Make sure type errors are raised if necessary
         """
 
-        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, 1+1j)
-        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, True)
-        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, SetupDecoder, [1,1])
+        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, True)
+        self.assertRaises(TypeError, SetupDecoder.attenuatingFilter, [1,1])
 
 
 class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
@@ -277,27 +281,27 @@ class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.halfWavePlate(SetupDecoder, t).ravel().tolist()[0], self.hwp(t).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.halfWavePlate(t).ravel().tolist()[0], self.hwp(t).ravel().tolist()[0] ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
-            self.assertEqual( SetupDecoder.halfWavePlate(SetupDecoder, t).shape, self.hwp(t).shape )
+            self.assertEqual( SetupDecoder.halfWavePlate(t).shape, self.hwp(t).shape )
 
     def test_values(self):
         """
         Make sure value errors are raised if necessary
         """
 
-        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, SetupDecoder, "string")
-        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, SetupDecoder, "True")
-        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, SetupDecoder, "False")
+        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, "string")
+        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, "True")
+        self.assertRaises(ValueError, SetupDecoder.halfWavePlate, "False")
 
     def test_type(self):
         """
         Make sure type errors are raised if necessary
         """
 
-        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, [1,1])
-        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, True)
-        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, False)
-        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, SetupDecoder, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, [1,1])
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, True)
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, False)
+        self.assertRaises(TypeError, SetupDecoder.halfWavePlate, 1+1j)
