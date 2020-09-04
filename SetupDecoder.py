@@ -36,7 +36,7 @@ class SetupDecoder:
         Mueller Matrix for linear retarders in its general form. Used for calculation of wave plates. The arguments will be converted to floats and radians.
         User command: GLR * *
         Attributes:
-            theta - Angle of the fast axis in degrees
+            theta - Angle of the fast axis in degrees. 0° means a vertical orientation.
             delta - Phase difference between fast and slow axis in degrees
         Return:
             special form of a mueller matrix
@@ -170,7 +170,7 @@ class SetupDecoder:
         Mueller Matrix for a half wave plate. Derived from general linear retarder. The arguments will be converted to floats and radians.
         User command: HWP *
         Attributes:
-            theta - Phase difference between fast and slow axis in degrees
+            theta - Phase difference between fast axis and the coordinate system of the labratory setup in dregrees. 0° means a vertical or horizontal orientation.
         Return:
             special form of a mueller matrix
         """
@@ -183,7 +183,7 @@ class SetupDecoder:
         Mueller Matrix for a quarter wave plate. Derived from general linear retarder. The arguments will be converted to floats and radians.
         User command: HWP *
         Attributes:
-            theta - Phase difference between fast and slow axis in degrees
+            theta - Phase difference between fast axis and the coordinate system of the labratory setup in dregrees. 0° means a vertical orientation.
         Return:
             special form of a mueller matrix
         """
