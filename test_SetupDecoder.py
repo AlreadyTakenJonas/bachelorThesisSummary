@@ -79,9 +79,9 @@ class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
         """
         t = math.radians(theta)
 
-        return 0.5 * np.matrix([ [1              , np.cos(2*t)       , -np.sin(2*t)      , 0],
-                                 [np.cos(2*t)    , (np.cos(4*t)+1)/2 , -np.sin(4*t)/2    , 0],
-                                 [-np.sin(2*t)   , -np.sin(4*t)/2    , (-np.cos(4*t)+1)/2, 0],
+        return 0.5 * np.matrix([ [1              , np.cos(2*t)       ,  np.sin(2*t)      , 0],
+                                 [np.cos(2*t)    , (np.cos(4*t)+1)/2 ,  np.sin(4*t)/2    , 0],
+                                 [np.sin(2*t)    , np.sin(4*t)/2     , (-np.cos(4*t)+1)/2, 0],
                                  [0              , 0                 , 0                 , 0]    ])
 
     def test_output(self):
@@ -131,9 +131,9 @@ class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
         """
         t = math.radians(theta + 90)
 
-        return 0.5 * np.matrix([ [1              , np.cos(2*t)       , -np.sin(2*t)      , 0],
-                                 [np.cos(2*t)    , (np.cos(4*t)+1)/2 , -np.sin(4*t)/2    , 0],
-                                 [-np.sin(2*t)   , -np.sin(4*t)/2    , (-np.cos(4*t)+1)/2, 0],
+        return 0.5 * np.matrix([ [1              , np.cos(2*t)       , np.sin(2*t)       , 0],
+                                 [np.cos(2*t)    , (np.cos(4*t)+1)/2 , np.sin(4*t)/2     , 0],
+                                 [np.sin(2*t)    , np.sin(4*t)/2     , (-np.cos(4*t)+1)/2, 0],
                                  [0              , 0                 , 0                 , 0]    ])
 
     def test_output(self):
@@ -264,15 +264,6 @@ class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
 
         t = math.radians(theta)
 
-# TODO: Which one to use ??????
-# Originally intended. Derived from rotation matrix and half wave plate matrix with positive angles
-# Makes code fail test
-#        return np.matrix([  [1,	        0	,       0	    ,    0],
-#                            [0,	 np.cos(4*t),	-np.sin(4*t),	 0],
-#                            [0,	-np.sin(4*t),	-np.cos(4*t),	 0],
-#                            [0,	        0	,       0	    ,   -1]  ])
-# Derived from rotation matrix and half wave plate matrix with negative angles
-# Makes code pass test
         return np.matrix([  [1,	        0	,       0	    ,    0],
                             [0,	 np.cos(4*t),	 np.sin(4*t),	 0],
                             [0,	 np.sin(4*t),	-np.cos(4*t),	 0],

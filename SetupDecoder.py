@@ -216,8 +216,8 @@ class SetupDecoder:
 
         # Declare rotation matrix
         rotationMatrix = lambda angle : np.matrix([ [1, 0               , 0              , 0],
-                                                    [0,  np.cos(2*angle), np.sin(2*angle), 0],
-                                                    [0, -np.sin(2*angle), np.cos(2*angle), 0],
+                                                    [0,  np.cos(2*angle), -np.sin(2*angle), 0],
+                                                    [0, np.sin(2*angle) , np.cos(2*angle), 0],
                                                     [0, 0               , 0              , 1]   ])
 
         # Compute the rotation
