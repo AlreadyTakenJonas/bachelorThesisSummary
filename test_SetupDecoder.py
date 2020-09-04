@@ -305,3 +305,54 @@ class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.halfWavePlate, True)
         self.assertRaises(TypeError, SetupDecoder.halfWavePlate, False)
         self.assertRaises(TypeError, SetupDecoder.halfWavePlate, 1+1j)
+
+class TestSetupDecoder_QuarterWavePlate(unittest.TestCase):
+    """
+    Test the quarterWavePlate method in SetupDecoder
+    """
+
+    def qwp(self, theta):
+        """
+        Build mueller matrix
+        Angles are passed as degrees!
+        """
+
+        t = math.radians(theta)
+
+        return np.matrix([  [1,	             0      ,	              0   ,	            0],
+                            [0,	(np.cos(4*t)+1)/2   ,	     np.sin(4*t)/2,   np.sin(2*t)],
+                            [0,	    np.sin(4*t)/2   ,	(-np.cos(4*t)+1)/2,	 -np.cos(2*t)],
+                            [0,	     -np.sin(2*t)   ,	       np.cos(2*t),	            0]  ])
+
+    def test_output(self):
+        """
+        Make sure output is correct
+        """
+
+        for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
+
+            # Convert matrices into 1d-lists and check every element
+            for program, tester in zip( SetupDecoder.quarterWavePlate(t).ravel().tolist()[0], self.qwp(t).ravel().tolist()[0] ):
+                self.assertAlmostEqual( program, tester )
+
+            # Check sizes
+            self.assertEqual( SetupDecoder.quarterWavePlate(t).shape, self.qwp(t).shape )
+
+    def test_values(self):
+        """
+        Make sure value errors are raised if necessary
+        """
+
+        self.assertRaises(ValueError, SetupDecoder.quarterWavePlate, "string")
+        self.assertRaises(ValueError, SetupDecoder.quarterWavePlate, "True")
+        self.assertRaises(ValueError, SetupDecoder.quarterWavePlate, "False")
+
+    def test_type(self):
+        """
+        Make sure type errors are raised if necessary
+        """
+
+        self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, [1,1])
+        self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, True)
+        self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, False)
+        self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, 1+1j)
