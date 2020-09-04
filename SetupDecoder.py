@@ -211,6 +211,13 @@ class SetupDecoder:
         Return:
             rotated matrix
         """
+
+        if type(angle) == bool:
+            raise TypeError("Arguments for the matrix rotation can't be bool!")
+
+        if type(matrix) != np.matrix:
+            raise TypeError("Matrices for the matrix rotation needs to be type numpy.matrix!")
+
         # Convert angle to radians
         angle = math.radians(angle)
 

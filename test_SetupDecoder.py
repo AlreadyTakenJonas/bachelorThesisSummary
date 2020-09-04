@@ -356,3 +356,70 @@ class TestSetupDecoder_QuarterWavePlate(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, True)
         self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, False)
         self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, 1+1j)
+
+class TestSetupDecoder_RotateMatrix(unittest.TestCase):
+    """
+    Test the rotateMatrix method in SetupDecoder
+    """
+
+    def rotate(self, angle, matrix):
+        """
+        Rotate matrix by a certain angle in degrees
+        """
+
+        # Convert angle to radians
+        a = math.radians(angle)
+        # Declare rotation matrix
+        rotationMatrix = lambda angle : np.matrix([ [1, 0               , 0              , 0],
+                                                    [0,  np.cos(2*angle), -np.sin(2*angle), 0],
+                                                    [0, np.sin(2*angle) , np.cos(2*angle), 0],
+                                                    [0, 0               , 0              , 1]   ])
+
+        return rotationMatrix(a) * matrix * rotationMatrix(-a)
+
+    def test_output(self):
+        """
+        Make sure the output is correct
+        """
+
+        # Build matrix to rotate
+        m = np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+
+        for a in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360, -30, -45, -60, -90, -135, -180, -210, -225, -240, -270, -315, -360]:
+
+            # Convert matrices into 1d-lists and check every element
+            for program, tester in zip( SetupDecoder.rotateMatrix(a, m).ravel().tolist()[0], self.rotate(a, m).ravel().tolist()[0] ):
+                self.assertAlmostEqual( program, tester )
+
+            # Check sizes
+            self.assertEqual( SetupDecoder.rotateMatrix(a, m).shape, self.rotate(a, m).shape )
+
+    def test_values(self):
+        """
+        Make sure value errors are raised if necessary
+        """
+
+        self.assertRaises(ValueError, SetupDecoder.rotateMatrix, 0, np.matrix("1 0 0; 0 1 0; 0 0 1"))
+        self.assertRaises(ValueError, SetupDecoder.rotateMatrix, 0, np.matrix("1 0 0 0 0; 0 1 0 0 0; 0 0 1 0 0; 0 0 0 1 0; 0 0 0 0 1"))
+
+    def test_types(self):
+        """
+        Make sure type errors are raised if necessary
+        """
+
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 1+1j, np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "string", np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, True, np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, False, np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "True", np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "False", np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, [1,1], np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, 0)
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, "string")
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, "True")
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, "False")
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, True)
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, False)
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, 1.0)
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, 1+1j)
