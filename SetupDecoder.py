@@ -6,9 +6,6 @@
 import numpy as np
 import math as math
 
-# Purpose: Termiante execution when fatal error occurs
-import sys
-
 # Purpose: logging
 import logging
 
@@ -255,6 +252,10 @@ class SetupDecoder:
         Return:
             Return value of the function. Usually a stokes vector or a mueller matrix
         """
+
+        if type(userCommand) != type("string"):
+            raise TypeError("SetupDecoder can only decode strings!")
+
         # Isolate command and arguments
         commandString = userCommand
         userCommand = userCommand.split()
@@ -273,20 +274,20 @@ class SetupDecoder:
         except TypeError as e:
             # Handle wrong argument list
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Wrong number of arguments! Exiting execution.")
-            log.debug(e)
-            sys.exit(-1)
+            log.exception(e, exc_info = True)
+            raise
 
         except KeyError as e:
             # Handle wrong command
-            arguments = str()
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Unknown command! Exiting execution.")
-            sys.exit(-1)
+            log.exception(e, exc_info = True)
+            raise
 
         except ValueError as e:
             # Handle wrong values for parameters
             log.critical("FATAL ERROR: Unable to decode '" + commandString + "'. Not permitted value was given! Exiting execution.")
-            log.critical(e)
-            sys.exit(-1)
+            log.exception(e, exc_info = True)
+            raise
 
         # Return result of function call
         return result
