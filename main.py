@@ -7,6 +7,9 @@ import logging
 # Purpose: CLI
 import argparse
 
+# Terminate program on exception
+import sys
+
 #
 #   INTERNAL MODULES
 #
@@ -83,9 +86,13 @@ def main():
 
     # Read input file
     labratory_setup = []
-    with open(cliArgs.inputfile, "r") as f:
-        labratory_setup = f.read().splitlines()
-
+    try:
+        with open(cliArgs.inputfile, "r") as f:
+            labratory_setup = f.read().splitlines()
+    except FileNotFoundError as e:
+        log.critical("FATAL ERROR: File " + cliArgs.inputfile + " not found!")
+        log.exception(e, exc_info = True)
+        sys.exit(-1)
 
     # Decode and calculate simulation
     # Get instance of simulator class
