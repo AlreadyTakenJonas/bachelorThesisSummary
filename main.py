@@ -34,8 +34,7 @@ ap.add_argument("-l", "--logfile",
                 default = "./muellersimulation.log",
                 help = "defines path and name of a custom .log file. Default=./muellersimulation.log")
 # Add input file for labratory setup
-ap.add_argument("-i", "--inputfile",
-                required = True,
+ap.add_argument("inputfile",
                 help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
 # Store command line arguments
 cliArgs = ap.parse_args()
