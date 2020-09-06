@@ -146,7 +146,7 @@ class SetupDecoder:
         Returns unity matrix for now
         """
 
-        # TODO: EVERYTHING plus unittest
+        # TODO: EVERYTHING plus unittest for this method and decode()
         return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
 
     def attenuatingFilter(self, transmission):
