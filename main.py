@@ -80,11 +80,11 @@ log = logging.getLogger(__name__)
 def main():
 
     log.info("START SIMULATION")
-    log.info("Instruction File: " + cliArgs.setupFile)
+    log.info("Instruction File: " + cliArgs.inputfile)
 
     # Read input file
     labratory_setup = []
-    with open(cliArgs.setupFile, "r") as f:
+    with open(cliArgs.inputfile, "r") as f:
         labratory_setup = f.read().splitlines()
 
 
