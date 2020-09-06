@@ -29,12 +29,12 @@ ap.add_argument("-v", "--verbose",
                 help = "runs programm and shows status and error messages",
                 action = "store_true")
 # Add logfile (default defined)
-ap.add_argument("-lgf", "--logfile",
+ap.add_argument("-l", "--logfile",
                 required = False,
                 default = "./muellersimulation.log",
                 help = "defines path and name of a custom .log file. Default=./muellersimulation.log")
 # Add input file for labratory setup
-ap.add_argument("-sf", "--setupFile",
+ap.add_argument("-i", "--inputfile",
                 required = True,
                 help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
 # Store command line arguments
