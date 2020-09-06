@@ -202,7 +202,7 @@ class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
                         # Make sure to only input physical meaningful values
                         if s0**2 >= (s1**2 + s2**2 + s3**2):
                             self.assertAlmostEqual(SetupDecoder.initialStokesVector(s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all(), msg = "Input: (" + str(s0) + "," + str(s1) + "," + str(s2) + "," + str(s3) + ")")
-                            
+
     def test_values(self):
         """
         Make sure value errors are raised if necessary
@@ -460,12 +460,39 @@ class TestSetupDecoder_Decode(unittest.TestCase):
                          LSR 1+1j 1+1j 1+1j 1+1j
                          LSR [1,1] [1,1] [1,1] [1,1]
                          LSR -1 0 0 0
+                         LSR 0 1 1 1
+                         FLR string
+                         FLR True
+                         FLR False
+                         FLR -1
+                         FLR 2
+                         HWP string
+                         HWP True
+                         HWP False
+                         QWP string
+                         QWP True
+                         QWP False
                       """.splitlines()
     # Remove empty lines and leading white spaces
     valueErrorInput = [line.lstrip() for line in valueErrorInput if line.lstrip()]
 
-    # typeErrorInput = """# Test input file to test decode function with wrong number of arguments """.splitlines()
-
+    # Test input file to test decode functions with wrong number of parameters
+    typeErrorInput = """GLR 0
+                        GLR 0 0 0
+                        LHP 0 0
+                        LVP 0 0
+                        LSR 0 0 0
+                        LSR 0 0 0 0 0
+                        FLR
+                        FLR 0 0
+                        HWP 0 0
+                        HWP
+                        QWP 0 0
+                        QWP
+                        NOP 0
+                     """.splitlines()
+    # Remove empty lines and leading white spaces
+    typeErrorInput = [line.lstrip() for line in typeErrorInput if line.lstrip()]
 
     def test_keys(self):
         """
@@ -498,3 +525,7 @@ class TestSetupDecoder_Decode(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.decode, 1+1j)
         self.assertRaises(TypeError, SetupDecoder.decode, ["str", "str"])
         self.assertRaises(TypeError, SetupDecoder.decode, [1, 1])
+
+        for line in self.typeErrorInput:
+            with self.assertRaises(TypeError, msg = "No error while testing SetupDecoder.decode('" + line + "')"):
+                SetupDecoder.decode(line)
