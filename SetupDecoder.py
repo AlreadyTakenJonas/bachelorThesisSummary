@@ -124,9 +124,19 @@ class SetupDecoder:
         if np.iscomplex(s0) == True or np.iscomplex(s1) == True or np.iscomplex(s2) == True or np.iscomplex(s3) == True:
             raise TypeError("Argument for stokes vector can't be complex!")
 
-        # Converting input to float and normalising with s0
+
+        # Converting input to float
         stokes_vector = np.array([s0, s1, s2, s3]).astype(float)
-        stokes_vector = stokes_vector / stokes_vector[0]
+
+        # Make sure the parameters are physical possible
+        if stokes_vector[0] < 0:
+            raise ValueError("The first stokes parameter s_0 can't be negativ!")
+        if stokes_vector[0]**2 < sum([ s**2 for s in stokes_vector[1:] ]):
+            raise ValueError("The square sum of the last three stokes parameters can't be greater than the squared first stokes parameter!")
+
+        # Normalise with s0
+        if stokes_vector[0] != 0:
+            stokes_vector = stokes_vector / stokes_vector[0]
 
         return stokes_vector
 
@@ -255,6 +265,9 @@ class SetupDecoder:
 
         if type(userCommand) != type("string"):
             raise TypeError("SetupDecoder can only decode strings!")
+
+        if len(userCommand.strip()) == 0:
+            raise ValueError("SetupDecoder can't decode empty strings!")
 
         # Isolate command and arguments
         commandString = userCommand

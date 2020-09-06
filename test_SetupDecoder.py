@@ -183,19 +183,26 @@ class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
         """
         Build stokes vector
         """
-        return np.array([s0, s1, s2, s3])/s0
+        vector = np.array([s0, s1, s2, s3])
+        if s0 != 0:
+            vector = vector/s0
+
+        return vector
 
     def test_output(self):
         """
         Check if output is correct
         """
 
-        for s0 in [-10, -7, -5, 0, 5, 7, 10]:
+        for s0 in [0, 5, 7, 10]:
             for s1 in [-10, -7, -5, 0, 5, 7, 10]:
                 for s2 in [-10, -7, -5, 0, 5, 7, 10]:
                     for s3 in [-10, -7, -5, 0, 5, 7, 10]:
-                        self.assertAlmostEqual( SetupDecoder.initialStokesVector(s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all() )
 
+                        # Make sure to only input physical meaningful values
+                        if s0**2 >= (s1**2 + s2**2 + s3**2):
+                            self.assertAlmostEqual(SetupDecoder.initialStokesVector(s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all(), msg = "Input: (" + str(s0) + "," + str(s1) + "," + str(s2) + "," + str(s3) + ")")
+                            
     def test_values(self):
         """
         Make sure value errors are raised if necessary
@@ -204,6 +211,8 @@ class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
         self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "string", "string", "string", "string")
         self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "True", "True", "True", "True")
         self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "False", "False", "False", "False")
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, -1, 0, 0, 0)
+        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, 1, 10, 0, 0)
 
     def test_types(self):
         """
@@ -423,3 +432,69 @@ class TestSetupDecoder_RotateMatrix(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, False)
         self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, 1.0)
         self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, 1+1j)
+
+class TestSetupDecoder_Decode(unittest.TestCase):
+    """
+    Test the decode method in SetupDecoder
+    """
+
+    # Test input file to test decode functions with wrong parameters
+    valueErrorInput = """GLR string string
+                         GLR True True
+                         GLR False False
+                         GLR 1+1j 1+1j
+                         GLR [1,1] [1,1]
+                         LHP string
+                         LHP True
+                         LHP False
+                         LHP 1+1j
+                         LHP [1,1]
+                         LVP string
+                         LVP True
+                         LVP False
+                         LVP 1+1j
+                         LVP [1,1]
+                         LSR string string string string
+                         LSR True True True True
+                         LSR False False False False
+                         LSR 1+1j 1+1j 1+1j 1+1j
+                         LSR [1,1] [1,1] [1,1] [1,1]
+                         LSR -1 0 0 0
+                      """.splitlines()
+    # Remove empty lines and leading white spaces
+    valueErrorInput = [line.lstrip() for line in valueErrorInput if line.lstrip()]
+
+    # typeErrorInput = """# Test input file to test decode function with wrong number of arguments """.splitlines()
+
+
+    def test_keys(self):
+        """
+        Make sure key errrors are raised if necessary
+        """
+
+        self.assertRaises(KeyError, SetupDecoder.decode, "FakeCommand")
+
+    def test_values(self):
+        """
+        Make sure value error are raised if necessary
+        """
+
+        self.assertRaises(ValueError, SetupDecoder.decode, "")
+        self.assertRaises(ValueError, SetupDecoder.decode, "     ")
+
+        for line in self.valueErrorInput:
+            with self.assertRaises(ValueError, msg = "No error while testing SetupDecoder.decode('" + line + "')"):
+                SetupDecoder.decode(line)
+
+    def test_types(self):
+        """
+        Make sure type error are raised if necessary
+        """
+
+        self.assertRaises(TypeError, SetupDecoder.decode, 1)
+        self.assertRaises(TypeError, SetupDecoder.decode, 1.0)
+        self.assertRaises(TypeError, SetupDecoder.decode, True)
+        self.assertRaises(TypeError, SetupDecoder.decode, False)
+        self.assertRaises(TypeError, SetupDecoder.decode, 1+1j)
+        self.assertRaises(TypeError, SetupDecoder.decode, ["str", "str"])
+        self.assertRaises(TypeError, SetupDecoder.decode, [1, 1])
