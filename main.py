@@ -54,7 +54,8 @@ mueller_parser.add_argument("inputfile",
 monteCarlo_parser.add_argument("-l", "--log",
                                required = False,
                                default = "./tensorConversion.log",
-                               help = "defines path and name of a custom .log file. Default=./tensorConversion.log")
+                               help = "defines path and name of a custom .log file. Default=./tensorConversion.log",
+                               dest = "logfile")
 # Add input file for tensors
 monteCarlo_parser.add_argument("tensorfile",
                                help = "text file containing the raman tensor that needs to be converted. Details are given in the README.")
