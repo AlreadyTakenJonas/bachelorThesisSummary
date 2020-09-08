@@ -1,0 +1,2 @@
+# Run simulation
+python3 main.py $@

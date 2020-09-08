@@ -21,9 +21,9 @@ import MuellerSimulator as MSim
 #
 # Construct the commandline arguments
 # Initialise and set helping information
-ap = argparse.ArgumentParser(
-                description = "This program simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
-                epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
+ap = argparse.ArgumentParser(prog = "simulate",
+                             description = "This program simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
+                             epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
 
 # Adding arguments
 # Add verbose
@@ -32,10 +32,11 @@ ap.add_argument("-v", "--verbose",
                 help = "runs programm and shows status and error messages",
                 action = "store_true")
 # Add logfile (default defined)
-ap.add_argument("-l", "--logfile",
+ap.add_argument("-l", "--log",
                 required = False,
                 default = "./muellersimulation.log",
-                help = "defines path and name of a custom .log file. Default=./muellersimulation.log")
+                help = "defines path and name of a custom .log file. Default=./muellersimulation.log",
+                dest = "logfile")
 # Add input file for labratory setup
 ap.add_argument("inputfile",
                 help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
