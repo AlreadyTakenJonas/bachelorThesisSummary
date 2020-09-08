@@ -103,7 +103,7 @@ class MuellerSimulator:
 
         elif decodedInstruction.ndim == 2:
             # Alter stokes vector with the mueller matrix
-            self.stokesVector = self.stokesVector * decodedInstruction
+            self.stokesVector = decodedInstruction @ self.stokesVector
 
         elif decodedInstruction.ndmim == 3:
             # Handle List of raman tensors

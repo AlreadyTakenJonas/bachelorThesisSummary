@@ -24,7 +24,7 @@ class TestSetupDecoder_UnitMatrix(unittest.TestCase):
         """
         Check if the output is correct
         """
-        self.assertEqual( SetupDecoder.unityMatrix().tolist(), np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1").tolist() )
+        self.assertEqual( SetupDecoder.unityMatrix().tolist(), np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]).tolist() )
 
 class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
     """
@@ -38,7 +38,7 @@ class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
         """
         t = math.radians(theta)
         d = math.radians(delta)
-        return  np.matrix([ [1, 0                                           , 0                                             , 0                     ],
+        return  np.array([  [1, 0                                           , 0                                             , 0                     ],
                             [0, np.cos(2*t)**2 + np.sin(2*t)**2 * np.cos(d) , np.cos(2*t)*np.sin(2*t)*(1-np.cos(d))         , np.sin(2*t)*np.sin(d) ],
                             [0, np.cos(2*t)*np.sin(2*t)*(1-np.cos(d))       , np.cos(2*t)**2 * np.cos(d) + np.sin(2*t)**2   , -np.cos(2*t)*np.sin(d)],
                             [0, -np.sin(2*t)*np.sin(d)                      , np.cos(2*t)*np.sin(d)                         , np.cos(d)             ]        ])
@@ -83,7 +83,7 @@ class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
         """
         t = math.radians(theta)
 
-        return 0.5 * np.matrix([ [1              , np.cos(2*t)       ,  np.sin(2*t)      , 0],
+        return 0.5 * np.array([  [1              , np.cos(2*t)       ,  np.sin(2*t)      , 0],
                                  [np.cos(2*t)    , (np.cos(4*t)+1)/2 ,  np.sin(4*t)/2    , 0],
                                  [np.sin(2*t)    , np.sin(4*t)/2     , (-np.cos(4*t)+1)/2, 0],
                                  [0              , 0                 , 0                 , 0]    ])
@@ -97,7 +97,7 @@ class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.linearHorizontalPolariser(t).ravel().tolist()[0], self.lhp(t).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.linearHorizontalPolariser(t).ravel().tolist(), self.lhp(t).ravel().tolist() ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
@@ -135,7 +135,7 @@ class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
         """
         t = math.radians(theta + 90)
 
-        return 0.5 * np.matrix([ [1              , np.cos(2*t)       , np.sin(2*t)       , 0],
+        return 0.5 * np.array([  [1              , np.cos(2*t)       , np.sin(2*t)       , 0],
                                  [np.cos(2*t)    , (np.cos(4*t)+1)/2 , np.sin(4*t)/2     , 0],
                                  [np.sin(2*t)    , np.sin(4*t)/2     , (-np.cos(4*t)+1)/2, 0],
                                  [0              , 0                 , 0                 , 0]    ])
@@ -149,7 +149,7 @@ class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.linearVerticalPolariser(t).ravel().tolist()[0], self.lvp(t).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.linearVerticalPolariser(t).ravel().tolist(), self.lvp(t).ravel().tolist() ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
@@ -233,7 +233,7 @@ class TestSetupDecoder_attenuatingFilter(unittest.TestCase):
         """
         Build mueller matrix for filters
         """
-        return transmission * np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+        return transmission * np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ])
 
     def test_output(self):
         """
@@ -277,7 +277,7 @@ class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
 
         t = math.radians(theta)
 
-        return np.matrix([  [1,	        0	,       0	    ,    0],
+        return np.array([   [1,	        0	,       0	    ,    0],
                             [0,	 np.cos(4*t),	 np.sin(4*t),	 0],
                             [0,	 np.sin(4*t),	-np.cos(4*t),	 0],
                             [0,	        0	,       0	    ,   -1]  ])
@@ -290,7 +290,7 @@ class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.halfWavePlate(t).ravel().tolist()[0], self.hwp(t).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.halfWavePlate(t).ravel().tolist(), self.hwp(t).ravel().tolist() ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
@@ -328,7 +328,7 @@ class TestSetupDecoder_QuarterWavePlate(unittest.TestCase):
 
         t = math.radians(theta)
 
-        return np.matrix([  [1,	             0      ,	              0   ,	            0],
+        return np.array([   [1,	             0      ,	              0   ,	            0],
                             [0,	(np.cos(4*t)+1)/2   ,	     np.sin(4*t)/2,   np.sin(2*t)],
                             [0,	    np.sin(4*t)/2   ,	(-np.cos(4*t)+1)/2,	 -np.cos(2*t)],
                             [0,	     -np.sin(2*t)   ,	       np.cos(2*t),	            0]  ])
@@ -341,7 +341,7 @@ class TestSetupDecoder_QuarterWavePlate(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.quarterWavePlate(t).ravel().tolist()[0], self.qwp(t).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.quarterWavePlate(t).ravel().tolist(), self.qwp(t).ravel().tolist() ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
@@ -379,12 +379,12 @@ class TestSetupDecoder_RotateMatrix(unittest.TestCase):
         # Convert angle to radians
         a = math.radians(angle)
         # Declare rotation matrix
-        rotationMatrix = lambda angle : np.matrix([ [1, 0               , 0              , 0],
-                                                    [0,  np.cos(2*angle), -np.sin(2*angle), 0],
+        rotationMatrix = lambda angle : np.array([  [1, 0               , 0              , 0],
+                                                    [0, np.cos(2*angle) ,-np.sin(2*angle), 0],
                                                     [0, np.sin(2*angle) , np.cos(2*angle), 0],
                                                     [0, 0               , 0              , 1]   ])
 
-        return rotationMatrix(a) * matrix * rotationMatrix(-a)
+        return rotationMatrix(a) @ matrix @ rotationMatrix(-a)
 
     def test_output(self):
         """
@@ -392,12 +392,12 @@ class TestSetupDecoder_RotateMatrix(unittest.TestCase):
         """
 
         # Build matrix to rotate
-        m = np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+        m = np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ])
 
         for a in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360, -30, -45, -60, -90, -135, -180, -210, -225, -240, -270, -315, -360]:
 
             # Convert matrices into 1d-lists and check every element
-            for program, tester in zip( SetupDecoder.rotateMatrix(a, m).ravel().tolist()[0], self.rotate(a, m).ravel().tolist()[0] ):
+            for program, tester in zip( SetupDecoder.rotateMatrix(a, m).ravel().tolist(), self.rotate(a, m).ravel().tolist() ):
                 self.assertAlmostEqual( program, tester )
 
             # Check sizes
@@ -408,22 +408,22 @@ class TestSetupDecoder_RotateMatrix(unittest.TestCase):
         Make sure value errors are raised if necessary
         """
 
-        self.assertRaises(ValueError, SetupDecoder.rotateMatrix, 0, np.matrix("1 0 0; 0 1 0; 0 0 1"))
-        self.assertRaises(ValueError, SetupDecoder.rotateMatrix, 0, np.matrix("1 0 0 0 0; 0 1 0 0 0; 0 0 1 0 0; 0 0 0 1 0; 0 0 0 0 1"))
+        self.assertRaises(ValueError, SetupDecoder.rotateMatrix, 0, np.array([ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]))
+        self.assertRaises(ValueError, SetupDecoder.rotateMatrix, 0, np.array([ [1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1] ]))
 
     def test_types(self):
         """
         Make sure type errors are raised if necessary
         """
 
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 1+1j, np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "string", np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, True, np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, False, np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "True", np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "False", np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, [1,1], np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1"))
-        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 1+1j,       np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "string",   np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, True,       np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, False,      np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "True",     np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, "False",    np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, [1,1],      np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
+        self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, np.matrix([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]))
         self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, 0)
         self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, "string")
         self.assertRaises(TypeError, SetupDecoder.rotateMatrix, 0, "True")

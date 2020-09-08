@@ -49,7 +49,7 @@ class SetupDecoder:
         sinTwoTheta = np.sin(2*theta)
         cosDelta = np.cos(delta)
         sinDelta = np.sin(delta)
-        muellerMatrix = np.matrix([ [1, 0, 0, 0],
+        muellerMatrix = np.array([  [1, 0, 0, 0],
                                     [0, cosTwoTheta**2 + sinTwoTheta**2 * cosDelta  , cosTwoTheta*sinTwoTheta*(1-cosDelta)      , sinTwoTheta*sinDelta],
                                     [0, cosTwoTheta*sinTwoTheta*(1-cosDelta)        , cosTwoTheta**2 * cosDelta + sinTwoTheta**2, -cosTwoTheta*sinDelta],
                                     [0, -sinTwoTheta*sinDelta                       , cosTwoTheta*sinDelta                      , cosDelta]  ])
@@ -72,7 +72,10 @@ class SetupDecoder:
         angle = float(angle)
 
         # Declare the matrix for a horizontal linear polariser
-        matrix = 0.5 * np.matrix("1 1 0 0;     1 1 0 0;    0 0 0 0;    0 0 0 0")
+        matrix = 0.5 * np.array([ [1, 1, 0, 0],
+                                  [1, 1, 0, 0],
+                                  [0, 0, 0, 0],
+                                  [0, 0, 0, 0] ])
 
         # Rotate thepolariser if needed
         if angle != 0:
@@ -97,7 +100,10 @@ class SetupDecoder:
         angle = float(angle)
 
         # Declare the matrix for a horizontal linear polariser
-        matrix = 0.5 * np.matrix("1 -1 0 0;     -1 1 0 0;    0 0 0 0;    0 0 0 0")
+        matrix = 0.5 * np.array([ [ 1, -1, 0, 0],
+                                  [-1,  1, 0, 0],
+                                  [ 0,  0, 0, 0],
+                                  [ 0,  0, 0, 0] ])
 
         # Rotate thepolariser if needed
         if angle != 0:
@@ -147,7 +153,10 @@ class SetupDecoder:
         """
 
         # TODO: EVERYTHING plus unittest for this method and decode()
-        return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+        return np.array([ [1, 0, 0, 0],
+                          [0, 1, 0, 0],
+                          [0, 0, 1, 0],
+                          [0, 0, 0, 1] ])
 
     def attenuatingFilter(self, transmission):
         """
@@ -206,7 +215,10 @@ class SetupDecoder:
         Return:
             unity matrix
         """
-        return np.matrix("1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1")
+        return np.array([ [1, 0, 0, 0],
+                          [0, 1, 0, 0],
+                          [0, 0, 1, 0],
+                          [0, 0, 0, 1] ])
 
     def rotateMatrix(self, angle: float, matrix: np.matrix):
         """
@@ -222,20 +234,20 @@ class SetupDecoder:
         if type(angle) == bool:
             raise TypeError("Arguments for the matrix rotation can't be bool!")
 
-        if type(matrix) != np.matrix:
-            raise TypeError("Matrices for the matrix rotation needs to be type numpy.matrix!")
+        if type(matrix) != np.ndarray:
+            raise TypeError("Matrices for the matrix rotation needs to be type numpy.ndarray!")
 
         # Convert angle to radians
         angle = math.radians(angle)
 
         # Declare rotation matrix
-        rotationMatrix = lambda angle : np.matrix([ [1, 0               , 0              , 0],
-                                                    [0,  np.cos(2*angle), -np.sin(2*angle), 0],
+        rotationMatrix = lambda angle : np.array([  [1, 0               , 0              , 0],
+                                                    [0, np.cos(2*angle) ,-np.sin(2*angle), 0],
                                                     [0, np.sin(2*angle) , np.cos(2*angle), 0],
                                                     [0, 0               , 0              , 1]   ])
 
         # Compute the rotation
-        rotatedMatrix = rotationMatrix(angle) * matrix * rotationMatrix(-angle)
+        rotatedMatrix = rotationMatrix(angle) @ matrix @ rotationMatrix(-angle)
 
         return rotatedMatrix
 
