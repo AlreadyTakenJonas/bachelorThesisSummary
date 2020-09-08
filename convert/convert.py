@@ -19,31 +19,39 @@ import numpy as np
 def main():
 
     log.info("START RAMAN TENSOR CONVERSION")
+
     # Read tensor file
     try:
         log.info("Read tensor from file " + cliArgs.tensorfile)
         with open(cliArgs.tensorfile, "r") as f:
             input = f.read()
 
-            # Convert tensor file to list of tensors with descritive messages
-                # Split file in seperate tensors and remove comments
-                # Comments start with '#' and tensors with '!'
-            input = [tensor.strip().split("\n") for tensor in input.split("!") if tensor.strip()[0] != "#"]
-                # Build a list of dictionaries
-                # Each dictionary contains a head with a descriptive message extracted from the file and a tensor extracted from the file
-            tensorlist = [ { "head": tensor.pop(0),
-                             "tensor": np.array([ tensor[0].split(),
-                                                  tensor[1].split(),
-                                                  tensor[2].split() ]).astype(np.float)
-                           } for tensor in input ]
-
-        print(tensorlist)
-
     # Handle file not found
     except FileNotFoundError as e:
         log.critical("FATAL ERROR: File " + cliArgs.tensorfile + " not found!")
         log.exception(e, exc_info = True)
         sys.exit(-1)
+
+    # Convert tensor file to list of tensors with descritive messages
+    try:
+        # Split file in seperate tensors and remove comments
+        # Comments start with '#' and tensors with '!'
+        input = [tensor.strip().split("\n") for tensor in input.split("!") if tensor.strip()[0] != "#"]
+        # Build a list of dictionaries
+        # Each dictionary contains a head with a descriptive message extracted from the file and a tensor extracted from the file
+        tensorlist = [ { "head": tensor.pop(0),
+                         "tensor": np.array([ tensor[0].split(),
+                                              tensor[1].split(),
+                                              tensor[2].split() ]).astype(np.float)
+                       } for tensor in input ]
+
+    # Handle unexprected error
+    except:
+        log.critical("FATAL ERROR: Raman tensors can't be read from file. Is the file format correct?")
+        log.exception(sys.exc_info()[0])
+        raise
+
+    print(tensorlist)
 
     log.info("STOPPED RAMAN TENSOR CONVERSION SUCCESSFULLY")
 
@@ -76,6 +84,14 @@ if __name__ == "__main__":
     # Add input file for labratory setup
     ap.add_argument("tensorfile",
                     help = "text file containing the raman tensors that will be converted. Details are given in the README.")
+    # Add iteration limit for monte carlo simulation
+    ap.add_argument("-i", "--iterations",
+                    help = "number of iterations the simulation will calculate. Default = 10",
+                    required = False,
+                    type = int,
+                    nargs = 1,
+                    default = 10,
+                    dest = "iterationLimit")
     # Store command line arguments
     cliArgs = ap.parse_args()
 
