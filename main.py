@@ -15,7 +15,6 @@ import sys
 #
 import MuellerSimulator as MSim
 
-
 #
 #   CREATE COMMAND LINE INTERFACE
 #
@@ -40,9 +39,9 @@ ap.add_argument("-l", "--log",
 # Add input file for labratory setup
 ap.add_argument("inputfile",
                 help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
+
 # Store command line arguments
 cliArgs = ap.parse_args()
-
 
 
 
@@ -78,11 +77,13 @@ log = logging.getLogger(__name__)
 
 
 #
-# MAIN PROGRAMM
+# MAIN PROGRAM
 #
 def main():
-
-    log.info("START SIMULATION")
+    """
+    Function will be called by the subcommand 'run' and runs the main program: the mueller simulation
+    """
+    log.info("START MUELLER SIMULATION")
     log.info("Instruction File: " + cliArgs.inputfile)
 
     # Read input file
@@ -102,11 +103,10 @@ def main():
     for step in labratory_setup:
         simulation.step()
 
-    log.info("STOPPED SIMULATION SUCCESSFULLY")
-
+    log.info("STOPPED MUELLER SIMULATION SUCCESSFULLY")
 
 #
-#   START OF PROGRAMM
+# START PROGRAM EXECUTION
 #
 if __name__ == "__main__":
     main()
