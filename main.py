@@ -27,18 +27,18 @@ sub = ap.add_subparsers(title = "subcommands",
                         dest = "command")
 # Create sub-commands
 mueller_parser = sub.add_parser("run",
-                                help = "starts mueller simulation.")
+                                help = "starts mueller simulation. Default command.")
 monteCarlo_parser = sub.add_parser("convert",
                                    help = "transforms raman tensors from molecular to labratory coordinate system")
-
-# Adding arguments to main parser
-# Add verbose
-ap.add_argument("-v", "--verbose",
-                required = False,
-                help = "runs programm and shows status and error messages",
-                action = "store_true")
+# Default command
+sub.default = "run"
 
 # Adding arguments to subcommand run
+# Add verbose
+mueller_parser.add_argument("-v", "--verbose",
+                            required = False,
+                            help = "runs programm and shows status and error messages",
+                            action = "store_true")
 # Add logfile (default defined)
 mueller_parser.add_argument("-l", "--log",
                             required = False,
@@ -50,6 +50,11 @@ mueller_parser.add_argument("inputfile",
                             help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
 
 # Adding arguments to subcommand convert
+# Add verbose
+monteCarlo_parser.add_argument("-v", "--verbose",
+                               required = False,
+                               help = "runs programm and shows status and error messages",
+                               action = "store_true")
 # Add logfile (default defined)
 monteCarlo_parser.add_argument("-l", "--log",
                                required = False,
