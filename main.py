@@ -99,11 +99,13 @@ log = logging.getLogger(__name__)
 
 
 #
-# MAIN PROGRAMM
+# MAIN PROGRAM
 #
-def main():
-
-    log.info("START SIMULATION")
+def runMuellerSimulation():
+    """
+    Function will be called by the subcommand 'run' and runs the main program: the mueller simulation
+    """
+    log.info("START MUELLER SIMULATION")
     log.info("Instruction File: " + cliArgs.inputfile)
 
     # Read input file
@@ -123,11 +125,34 @@ def main():
     for step in labratory_setup:
         simulation.step()
 
-    log.info("STOPPED SIMULATION SUCCESSFULLY")
+    log.info("STOPPED MUELLER SIMULATION SUCCESSFULLY")
+
+#
+#   AUXILLIARY PROGRAM
+#
+def runRamanTensorConversion():
+    """
+    Function will be called by the subcommand 'convert' and runs an auxilliary program:
+    the conversion of raman tensors from the molecular to the labratory coordinate system
+    """
+    log.info("START RAMAN TENSOR CONVERSION")
+
+    log.info("STOPPED RAMAN TENSOR CONVERSION SUCCESSFULLY")
 
 
 #
 #   START OF PROGRAMM
 #
+def main():
+    """
+    Main function gets called if __name__ == "__main__". Determines which subcommand was given to argparse and runs appropriate function
+    """
+    if cliArgs.command == "run":
+        runMuellerSimulation()
+    elif cliArgs.command == "convert":
+        runRamanTensorConversion()
+    else:
+        log.critical("ERROR: Unknown command '" + cliArgs.command + "'! Exit program execution.")
+
 if __name__ == "__main__":
     main()
