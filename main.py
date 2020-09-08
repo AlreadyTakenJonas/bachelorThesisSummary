@@ -15,7 +15,6 @@ import sys
 #
 import MuellerSimulator as MSim
 
-
 #
 #   CREATE COMMAND LINE INTERFACE
 #
@@ -24,24 +23,47 @@ import MuellerSimulator as MSim
 ap = argparse.ArgumentParser(
                 description = "This program simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
                 epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
+sub = ap.add_subparsers(title = "subcommands",
+                        dest = "command")
+# Create sub-commands
+mueller_parser = sub.add_parser("run",
+                                help = "starts mueller simulation.")
+monteCarlo_parser = sub.add_parser("convert",
+                                   help = "transforms raman tensors from molecular to labratory coordinate system")
 
-# Adding arguments
+# Adding arguments to main parser
 # Add verbose
 ap.add_argument("-v", "--verbose",
                 required = False,
                 help = "runs programm and shows status and error messages",
                 action = "store_true")
+
+# Adding arguments to subcommand run
 # Add logfile (default defined)
-ap.add_argument("-l", "--logfile",
-                required = False,
-                default = "./muellersimulation.log",
-                help = "defines path and name of a custom .log file. Default=./muellersimulation.log")
+mueller_parser.add_argument("-l", "--log",
+                            required = False,
+                            default = "./muellersimulation.log",
+                            help = "defines path and name of a custom .log file. Default=./muellersimulation.log",
+                            dest = "logfile")
 # Add input file for labratory setup
-ap.add_argument("inputfile",
-                help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
+mueller_parser.add_argument("inputfile",
+                            help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
+
+# Adding arguments to subcommand convert
+# Add logfile (default defined)
+monteCarlo_parser.add_argument("-l", "--log",
+                               required = False,
+                               default = "./tensorConversion.log",
+                               help = "defines path and name of a custom .log file. Default=./tensorConversion.log")
+# Add input file for tensors
+monteCarlo_parser.add_argument("tensorfile",
+                               help = "text file containing the raman tensor that needs to be converted. Details are given in the README.")
+# Add otput file
+monteCarlo_parser.add_argument("output",
+                               help = "text file containing the raman tensor that needs to be converted. Details are given in the README.")
+
 # Store command line arguments
 cliArgs = ap.parse_args()
-
 
 
 
