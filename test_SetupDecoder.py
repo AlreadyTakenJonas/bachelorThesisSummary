@@ -25,6 +25,7 @@ class TestSetupDecoder_UnitMatrix(unittest.TestCase):
         Check if the output is correct
         """
         self.assertEqual( SetupDecoder.unityMatrix().tolist(), np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]).tolist() )
+        self.assertTrue( type( SetupDecoder.unityMatrix() ) is np.ndarray )
 
 class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
     """
@@ -52,6 +53,7 @@ class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
         for t in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
             for d in [0, 30, 45, 60, 90, 135, 180, 210, 225, 240, 270, 315, 360]:
                     self.assertEqual( SetupDecoder.generalLinearRetarder(t, d).tolist(), self.glr(t, d).tolist() )
+                    self.assertTrue( type( SetupDecoder.generalLinearRetarder(t, d) ) is np.ndarray )
 
     def test_values(self):
         """
@@ -102,6 +104,9 @@ class TestSetupDecoder_LinearHorizontalPolariser(unittest.TestCase):
 
             # Check sizes
             self.assertEqual( SetupDecoder.linearHorizontalPolariser(t).shape, self.lhp(t).shape )
+
+            # Check type
+            self.assertTrue( type(SetupDecoder.linearHorizontalPolariser(t) ) is np.ndarray )
 
     def test_values(self):
         """
@@ -155,6 +160,9 @@ class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
             # Check sizes
             self.assertEqual( SetupDecoder.linearVerticalPolariser(t).shape, self.lvp(t).shape )
 
+            # Check type
+            self.assertTrue( type(SetupDecoder.linearVerticalPolariser(t) ) is np.ndarray )
+
     def test_values(self):
         """
         Make sure value errors are raised if necessary
@@ -203,6 +211,8 @@ class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
                         if s0**2 >= (s1**2 + s2**2 + s3**2):
                             self.assertAlmostEqual(SetupDecoder.initialStokesVector(s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all(), msg = "Input: (" + str(s0) + "," + str(s1) + "," + str(s2) + "," + str(s3) + ")")
 
+                            self.assertTrue( type( SetupDecoder.initialStokesVector(s0, s1, s2, s3) ) is np.ndarray )
+
     def test_values(self):
         """
         Make sure value errors are raised if necessary
@@ -242,6 +252,7 @@ class TestSetupDecoder_attenuatingFilter(unittest.TestCase):
 
         for t in [0, 0.1, 0.2, 0.5, 0.7, 1]:
             self.assertEqual( SetupDecoder.attenuatingFilter(t).tolist(), self.flr(t).tolist() )
+            self.assertTrue( type(SetupDecoder.attenuatingFilter(t)) is np.ndarray )
 
     def test_values(self):
         """
@@ -296,6 +307,9 @@ class TestSetupDecoder_HalfWavePlate(unittest.TestCase):
             # Check sizes
             self.assertEqual( SetupDecoder.halfWavePlate(t).shape, self.hwp(t).shape )
 
+            # Check type
+            self.assertTrue( type(SetupDecoder.halfWavePlate(t)) is np.ndarray )
+
     def test_values(self):
         """
         Make sure value errors are raised if necessary
@@ -346,6 +360,9 @@ class TestSetupDecoder_QuarterWavePlate(unittest.TestCase):
 
             # Check sizes
             self.assertEqual( SetupDecoder.quarterWavePlate(t).shape, self.qwp(t).shape )
+
+            # Check type
+            self.assertTrue( type(SetupDecoder.quarterWavePlate(t)) is np.ndarray )
 
     def test_values(self):
         """
@@ -402,6 +419,9 @@ class TestSetupDecoder_RotateMatrix(unittest.TestCase):
 
             # Check sizes
             self.assertEqual( SetupDecoder.rotateMatrix(a, m).shape, self.rotate(a, m).shape )
+
+            # Check type
+            self.assertTrue( type(SetupDecoder.rotateMatrix(a, m)) is np.ndarray )
 
     def test_values(self):
         """
