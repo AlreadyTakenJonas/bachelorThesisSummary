@@ -20,53 +20,25 @@ import MuellerSimulator as MSim
 #
 # Construct the commandline arguments
 # Initialise and set helping information
-ap = argparse.ArgumentParser(
-                description = "This program simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
-                epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
-sub = ap.add_subparsers(title = "subcommands",
-                        dest = "command")
-# Create sub-commands
-mueller_parser = sub.add_parser("run",
-                                help = "starts mueller simulation. Default command.")
-monteCarlo_parser = sub.add_parser("convert",
-                                   help = "transforms raman tensors from molecular to labratory coordinate system")
-# Default command
-sub.default = "run"
+ap = argparse.ArgumentParser(prog = "simulate",
+                             description = "This program simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
+                             epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
 
-# Adding arguments to subcommand run
+# Adding arguments
 # Add verbose
-mueller_parser.add_argument("-v", "--verbose",
-                            required = False,
-                            help = "runs programm and shows status and error messages",
-                            action = "store_true")
+ap.add_argument("-v", "--verbose",
+                required = False,
+                help = "runs programm and shows status and error messages",
+                action = "store_true")
 # Add logfile (default defined)
-mueller_parser.add_argument("-l", "--log",
-                            required = False,
-                            default = "./muellersimulation.log",
-                            help = "defines path and name of a custom .log file. Default=./muellersimulation.log",
-                            dest = "logfile")
+ap.add_argument("-l", "--log",
+                required = False,
+                default = "./muellersimulation.log",
+                help = "defines path and name of a custom .log file. Default=./muellersimulation.log",
+                dest = "logfile")
 # Add input file for labratory setup
-mueller_parser.add_argument("inputfile",
-                            help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
-
-# Adding arguments to subcommand convert
-# Add verbose
-monteCarlo_parser.add_argument("-v", "--verbose",
-                               required = False,
-                               help = "runs programm and shows status and error messages",
-                               action = "store_true")
-# Add logfile (default defined)
-monteCarlo_parser.add_argument("-l", "--log",
-                               required = False,
-                               default = "./tensorConversion.log",
-                               help = "defines path and name of a custom .log file. Default=./tensorConversion.log",
-                               dest = "logfile")
-# Add input file for tensors
-monteCarlo_parser.add_argument("tensorfile",
-                               help = "text file containing the raman tensor that needs to be converted. Details are given in the README.")
-# Add otput file
-monteCarlo_parser.add_argument("output",
-                               help = "text file containing the raman tensor that needs to be converted. Details are given in the README.")
+ap.add_argument("inputfile",
+                help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
 
 # Store command line arguments
 cliArgs = ap.parse_args()
@@ -107,7 +79,7 @@ log = logging.getLogger(__name__)
 #
 # MAIN PROGRAM
 #
-def runMuellerSimulation():
+def main():
     """
     Function will be called by the subcommand 'run' and runs the main program: the mueller simulation
     """
@@ -134,31 +106,7 @@ def runMuellerSimulation():
     log.info("STOPPED MUELLER SIMULATION SUCCESSFULLY")
 
 #
-#   AUXILLIARY PROGRAM
+# START PROGRAM EXECUTION
 #
-def runRamanTensorConversion():
-    """
-    Function will be called by the subcommand 'convert' and runs an auxilliary program:
-    the conversion of raman tensors from the molecular to the labratory coordinate system
-    """
-    log.info("START RAMAN TENSOR CONVERSION")
-
-    log.info("STOPPED RAMAN TENSOR CONVERSION SUCCESSFULLY")
-
-
-#
-#   START OF PROGRAMM
-#
-def main():
-    """
-    Main function gets called if __name__ == "__main__". Determines which subcommand was given to argparse and runs appropriate function
-    """
-    if cliArgs.command == "run":
-        runMuellerSimulation()
-    elif cliArgs.command == "convert":
-        runRamanTensorConversion()
-    else:
-        log.critical("ERROR: Unknown command '" + cliArgs.command + "'! Exit program execution.")
-
 if __name__ == "__main__":
     main()
