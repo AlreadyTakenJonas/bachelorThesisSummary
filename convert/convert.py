@@ -4,18 +4,48 @@
 # Purpose loggging
 import logging
 
-# Purpose: CLI
+# Purpose: CLIFileNotFoundError:
 import argparse
 
+# Terminate program on exception
+import sys
 
-
+import numpy as np
 
 
 #
 #   MAIN PROGRAM
 #
 def main():
-    pass
+
+    log.info("START RAMAN TENSOR CONVERSION")
+    # Read tensor file
+    try:
+        log.info("Read tensor from file " + cliArgs.tensorfile)
+        with open(cliArgs.tensorfile, "r") as f:
+            input = f.read()
+
+            # Convert tensor file to list of tensors with descritive messages
+                # Split file in seperate tensors and remove comments
+                # Comments start with '#' and tensors with '!'
+            input = [tensor.strip().split("\n") for tensor in input.split("!") if tensor.strip()[0] != "#"]
+                # Build a list of dictionaries
+                # Each dictionary contains a head with a descriptive message extracted from the file and a tensor extracted from the file
+            tensorlist = [ { "head": tensor.pop(0),
+                             "tensor": np.array([ tensor[0].split(),
+                                                  tensor[1].split(),
+                                                  tensor[2].split() ]).astype(np.float)
+                           } for tensor in input ]
+
+        print(tensorlist)
+
+    # Handle file not found
+    except FileNotFoundError as e:
+        log.critical("FATAL ERROR: File " + cliArgs.tensorfile + " not found!")
+        log.exception(e, exc_info = True)
+        sys.exit(-1)
+
+    log.info("STOPPED RAMAN TENSOR CONVERSION SUCCESSFULLY")
 
 #
 #   START OF PROGRAM EXECUTION AS MAIN PROGRAM
