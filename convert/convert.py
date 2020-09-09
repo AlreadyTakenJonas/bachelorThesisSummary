@@ -16,6 +16,12 @@ import numpy as np
 # Pseudo-random number generator
 import random as rand
 
+# Handling file paths
+import pathlib
+
+# Get time and date for output file
+from datetime import datetime
+
 #
 # UTILITIES
 #
@@ -60,13 +66,14 @@ def main():
 
     # Read tensor file
     try:
-        log.info("Read tensor from file " + cliArgs.tensorfile)
-        with open(cliArgs.tensorfile, "r") as f:
-            input = f.read()
+        log.info("Read tensor from file " + str(cliArgs.tensorfile))
+        input = cliArgs.tensorfile.read_text()
+        #with open(cliArgs.tensorfile, "r") as f:
+        #    input = f.read()
 
     # Handle file not found
     except FileNotFoundError as e:
-        log.critical("FATAL ERROR: File " + cliArgs.tensorfile + " not found!")
+        log.critical("FATAL ERROR: File " + str(cliArgs.tensorfile) + " not found!")
         log.exception(e, exc_info = True)
         sys.exit(-1)
 
@@ -149,12 +156,23 @@ def main():
 
         # Rotate every raman tensor and add the result to convertedTensorlist
         for tensor, convertedTensor in zip(tensorlist, convertedTensorlist):
+            log.debug("Rotate tensor '" + tensor["head"] + "'")
             rotatedTensor = transposed @ tensor["tensor"] @ Rx @ Ry @ Rz
             convertedTensor["tensor"] += rotatedTensor
 
         log.debug("End iteration " + str(i) + "/" + str(cliArgs.iterationLimit))
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
+
+    # Convert results into lovely text
+    output_text = "# convert " + str(cliArgs.tensorfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --iterations " + str(cliArgs.iterationLimit) + "\n# Execution time: " + str(datetime.now())
+    for tensor in convertedTensorlist:
+        output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["tensor"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
+
+    # Log and write text to file
+    log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
+    print(output_text)
+    cliArgs.outputfile.write_text(output_text)
 
     log.info("STOPPED RAMAN TENSOR CONVERSION SUCCESSFULLY")
 
@@ -194,10 +212,26 @@ if __name__ == "__main__":
                     type = int,
                     default = 10,
                     dest = "iterationLimit")
+    # Add path to output file
+    ap.add_argument("-o", "--output",
+                    help = "path to output file. Defaults to path of conveted_tensorfile.txt",
+                    required = False,
+                    default = False,
+                    dest = "outputfile")
     # Store command line arguments
     cliArgs = ap.parse_args()
 
+    # Create output file path if none is given
+    # or covert to pathlib.Paht if given
+    if cliArgs.outputfile == False:
+        tensorPath = pathlib.Path(cliArgs.tensorfile)
+        cliArgs.outputfile = pathlib.Path(tensorPath.parent, f"converted_{tensorPath.stem}.txt")
+    else:
+        cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
 
+    # Convert all paths to pathlib.Path
+    cliArgs.tensorfile = pathlib.Path(cliArgs.tensorfile)
+    cliArgs.logfile = pathlib.Path(cliArgs.logfile)
 
 
     #
@@ -208,7 +242,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s : %(name)s : %(levelname)s : %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
-                        filename= cliArgs.logfile,
+                        filename= str(cliArgs.logfile.resolve()),
                         filemode='a')
 
     # Define a Handler which writes DEBUG messages or higher to the sys.stderr, if the commandline flag -v is given
