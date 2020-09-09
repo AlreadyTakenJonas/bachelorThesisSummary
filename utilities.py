@@ -38,6 +38,7 @@ def update_progress(progress):
     if not isinstance(progress, float):
         progress = 0
         status = "error: progress var must be float\r\n"
+        log.debug("utilities.update_progress expects int or float as input. Given argument: " + str(progress))
     if progress < 0:
         progress = 0
         status = "Halt...\r\n"
@@ -79,36 +80,37 @@ def readFileAsText(path):
         log.exception(sys.exc_info()[0])
         raise
 
-def readFileAsMatrices(path):
+def convertTextToMatrices(string):
     """
-    Read a text file by calling readFileAsText and converting the content into a list of dictionaries.
-    Each dictionary contains a matrix and a head. The head is a descriptive header extracted from the text file.
-    The originial file must follow this syntax:
+    Converting a string into a list of dictionaries. Each dictionary contains a matrix and a head.
+    The head is a descriptive header extracted from the text file.
+    The text must follow this syntax:
     1. Lines starting with # will be ignored
     2. Lines starting with ! mark the beginning of a header, every header marks the beginning of a matrix
     3. The lines following the header define the headers matrix
     4. Matrix rows are seperated by a linebreak and columns by a white space
 
     Arguments:
-    path - pathlib.Path object pointing to the file (passed to readFileAsText)
+    string - string that will be converted into matrices
 
     Returns: list of dictionary with matrices and descriptive headers
     """
-    # Read file as text
-    text = readFileAsText(path)
+    if not isinstance(string, str):
+        log.critical("FATAL ERROR: convertTextToMatrices expects a string as argument! Type'" + type(path) + "' was passed.")
+        raise TypeError("Function convertTextToMatrices expects a string as argument!")
 
     # Convert matrix file to list of matrices with descritive messages
     try:
         # Split file in seperate matrices and remove comments
         # Comments start with '#' and matrices with '!'
-        input = [matrix.strip().split("\n") for matrix in text.split("!") if matrix.strip()[0] != "#"]
+        matrixlist = [matrix.strip().split("\n") for matrix in string.split("!") if matrix.strip()[0] != "#"]
         # Build a list of dictionaries
         # Each dictionary contains a head with a descriptive message extracted from the file and a matrix extracted from the file
         matrixlist = [ { "head": matrix.pop(0),
                          "matrix": np.array([ matrix[0].split(),
                                               matrix[1].split(),
                                               matrix[2].split() ]).astype(np.float)
-                       } for matrix in input ]
+                       } for matrix in matrixlist ]
 
         return matrixlist
 
@@ -117,3 +119,10 @@ def readFileAsMatrices(path):
         log.critical("FATAL ERROR: Raman matrices can't be read from file. Is the file format correct?")
         log.exception(sys.exc_info()[0])
         raise
+
+def readFileAsMatrices(path):
+    """
+    Shorthand for convertTextToMatrices(readFileAsText)
+    """
+    text = readFileAsText(path)
+    return convertTextToMatrices(text)
