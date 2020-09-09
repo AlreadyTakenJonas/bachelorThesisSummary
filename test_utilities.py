@@ -42,12 +42,12 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
         """
         Make sure type errors are raised if necessary
         """
-        self.assertRaises(TypeError, util.readFileAsMatrices, pathlib.Path("some/path"))
-        self.assertRaises(TypeError, util.readFileAsMatrices, 1)
-        self.assertRaises(TypeError, util.readFileAsMatrices, True)
-        self.assertRaises(TypeError, util.readFileAsMatrices, False)
-        self.assertRaises(TypeError, util.readFileAsMatrices, 1.0)
-        self.assertRaises(TypeError, util.readFileAsMatrices, 1+1j)
+        self.assertRaises(TypeError, util.convertTextToMatrices, pathlib.Path("test_utilities.py"))
+        self.assertRaises(TypeError, util.convertTextToMatrices, 1)
+        self.assertRaises(TypeError, util.convertTextToMatrices, True)
+        self.assertRaises(TypeError, util.convertTextToMatrices, False)
+        self.assertRaises(TypeError, util.convertTextToMatrices, 1.0)
+        self.assertRaises(TypeError, util.convertTextToMatrices, 1+1j)
 
     def test_output(self):
         """
@@ -58,22 +58,27 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
         teststring = """# Comment
 
                         ! first matrix
-                        1 0
-                        0 1
+                        1 0 0
+                        0 1 0
+                        0 0 1
                         ! second matrix
-                        10 3
-                        1 -1
+                        10 3 0
+                        1 -1 0
+                        0  0 0
                      """
+        #print("\n\n" + teststring + "\n\n")
         # Correct result
         correctoutput = [ {"head": "first matrix",
-                           "matrix": np.array([ [1, 0], [0, 1] ]) },
+                           "matrix": np.array([ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]) },
                           {"head": "second matrix",
-                           "matrix": np.array([ [10, 3], [1, -1] ]) }]
+                           "matrix": np.array([ [10, 3, 0], [1, -1, 0], [0, 0, 0] ]) }]
+
         # Function output
         output = util.convertTextToMatrices(teststring)
 
         # Check type and identitiy
-        self.assertIsInstance(util.convertTextToMatrices(teststring), list)
+        self.assertIsInstance(output, list)
         for index, matrix in enumerate(output):
             self.assertIsInstance(matrix, dict)
-            self.assertDictEqual(output, correctoutput[index])
+            self.assertEqual(matrix["head"], correctoutput[index]["head"])
+            self.assertEqual(matrix["matrix"].any(), correctoutput[index]["matrix"].any())

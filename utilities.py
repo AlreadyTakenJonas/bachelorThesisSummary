@@ -82,7 +82,7 @@ def readFileAsText(path):
 
 def convertTextToMatrices(string):
     """
-    Converting a string into a list of dictionaries. Each dictionary contains a matrix and a head.
+    Converting a string into a list of dictionaries. Each dictionary contains a 3x3 matrix and a head.
     The head is a descriptive header extracted from the text file.
     The text must follow this syntax:
     1. Lines starting with # will be ignored
@@ -96,7 +96,7 @@ def convertTextToMatrices(string):
     Returns: list of dictionary with matrices and descriptive headers
     """
     if not isinstance(string, str):
-        log.critical("FATAL ERROR: convertTextToMatrices expects a string as argument! Type'" + type(path) + "' was passed.")
+        log.critical("FATAL ERROR: convertTextToMatrices expects a string as argument! Type'" + type(string) + "' was passed.")
         raise TypeError("Function convertTextToMatrices expects a string as argument!")
 
     # Convert matrix file to list of matrices with descritive messages
