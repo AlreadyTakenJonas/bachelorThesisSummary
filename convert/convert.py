@@ -69,7 +69,6 @@ def main():
         log.info("Read tensor from file " + str(cliArgs.tensorfile))
         input = cliArgs.tensorfile.read_text()
 
-
     # Handle file not found
     except FileNotFoundError as e:
         log.critical("FATAL ERROR: File " + str(cliArgs.tensorfile) + " not found!")
@@ -209,7 +208,7 @@ if __name__ == "__main__":
                     help = "number of iterations the simulation will calculate. Default = 10",
                     required = False,
                     type = int,
-                    default = 10,
+                    default = 10000,
                     dest = "iterationLimit")
     # Add path to output file
     ap.add_argument("-o", "--output",
@@ -220,17 +219,17 @@ if __name__ == "__main__":
     # Store command line arguments
     cliArgs = ap.parse_args()
 
-    # Create output file path if none is given
-    # or covert to pathlib.Paht if given
-    if cliArgs.outputfile == False:
-        tensorPath = pathlib.Path(cliArgs.tensorfile)
-        cliArgs.outputfile = pathlib.Path(tensorPath.parent, f"converted_{tensorPath.stem}.txt")
-    else:
-        cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
 
     # Convert all paths to pathlib.Path
     cliArgs.tensorfile = pathlib.Path(cliArgs.tensorfile)
     cliArgs.logfile = pathlib.Path(cliArgs.logfile)
+
+    # Create output file path if none is given
+    # or covert to pathlib.Paht if given
+    if cliArgs.outputfile == False:
+        cliArgs.outputfile = pathlib.Path(cliArgs.tensorfile.parent, f"converted_{cliArgs.tensorfile.stem}.txt")
+    else:
+        cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
 
 
     #
