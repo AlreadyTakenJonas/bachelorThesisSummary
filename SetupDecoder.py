@@ -22,16 +22,8 @@ class SetupDecoder:
     This class contains functions to create mueller matrices and stokes vectors as representation of optical elements and lasers. The decode method translates assembly-like commands into mentioned matrices and vectors.
     """
 
-    def __init__(self, sampleMatrix):
-        """
-        Initialises the SetupDecoder. SetupDecoder requires one parameter
-        Attribute:
-        sampleMatrix - a list of dictionaries. Each dictionary contains a 'head' with a descriptive string
-                       and a 'matrix' with the raman matrix of one of the samples vibrational modes
-        No return value
-        """
-        # TODO: untitest and checks
-        self.sampleMatrix = sampleMatrix
+    def __init__(self):
+        pass
 
     #
     #   Mueller Matrices for optical elements
@@ -159,10 +151,8 @@ class SetupDecoder:
         WORK IN PROGRESS. Describtion of the sample as raman tensor. The tensor needs to be translated into the mueller formalism.
         Returns unity matrix for now
         """
-
         # TODO: EVERYTHING plus unittest for this method and decode()
-        # Converts 3 dimensional to 4 dimensional matrix. Just for testing purposes
-        return [ { "head": matrix["head"], "matrix": np.append(matrix["matrix"], [0,0,0,0,0,0,0]).reshape((4,4)) } for matrix in self.sampleMatrix ]
+        return "SMP"
 
     def attenuatingFilter(self, transmission):
         """

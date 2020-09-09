@@ -58,7 +58,7 @@ def main():
     currentState = [ { "head": matrix["head"], "state": np.array([0, 0, 0, 0]) } for matrix in sampleMatrix ]
 
     # Get instruction decoder
-    decoder = SetDec.SetupDecoder(sampleMatrix)
+    decoder = SetDec.SetupDecoder()
 
 # RUN SIMULATION
 
@@ -83,8 +83,12 @@ def main():
             # Alter stokes vector with the mueller matrix
             currentState = [ { "head": state["head"], "state": decodedInstruction @ state["state"] } for state in currentState ]
 
-        elif isinstance(decodedInstruction, list):
+        elif decodedInstruction == "SMP":
             # SMP command detected
+
+            # DUMMY CODE: Converts 3 dimensional to 4 dimensional matrix. Just for testing purposes.
+            decodedInstruction = [ { "head": matrix["head"], "matrix": np.append(matrix["matrix"], [0,0,0,0,0,0,0]).reshape((4,4)) } for matrix in sampleMatrix ]
+
             # Alter stokes vector with every mueller matrix of the sample
             for index, (state, matrix) in enumerate( zip(currentState, decodedInstruction) ):
 
