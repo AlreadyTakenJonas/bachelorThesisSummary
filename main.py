@@ -31,19 +31,8 @@ def main():
     """
     log.info("START MUELLER SIMULATION")
     log.info("Instruction File: " + str(cliArgs.inputfile) )
-    if cliArgs.matrixfile == False:
-        log.info("No matrix file given.")
-    else:
-        log.info("Matrix File: " + str(cliArgs.matrixfile) )
 
     # Read input file
-    #try:
-    #    labratory_setup = cliArgs.inputfile.read_text().splitlines()
-    #except FileNotFoundError as e:
-        # Handle file not found
-    #    log.critical("FATAL ERROR: File " + str(cliArgs.inputfile) + " not found!")
-    #    log.exception(e, exc_info = True)
-    #    sys.exit(-1)
     labratory_setup = util.readFileAsText(cliArgs.inputfile).splitlines()
 
     # Read matrix file if given
@@ -53,31 +42,16 @@ def main():
         sampleMatrix = [{"head": "No Sample Defined", "matrix": np.array([ [1, 0, 0],
                                                                            [0, 1, 0],
                                                                            [0, 0, 1]  ]) }]
+        log.critical("NO MATRIX FILE GIVEN. The SMP instruction will act as NOP!")
     else:
+        # Read matrices from file
+        # Result is a list of dictionaries containing the matrices and descriptive headers
         sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile)
-    #    try:
-    #        # Read matrix file
-    #        sampleMatrix = cliArgs.matrixfile.read_text()
-#
-#            # Convert text to matrices
-#            # Split file in seperate matrices and remove comments
-#            # Comments start with '#' and matrices with '!'
-#            sampleMatrix = [matrix.strip().split("\n") for matrix in sampleMatrix.split("!") if matrix.strip()[0] != "#"]
-#            # Build a list of dictionaries
-#            # Each dictionary contains a head with a descriptive message extracted from the file and a matrix extracted from the file
-#            sampleMatrix = [ { "head": matrix.pop(0),
-#                               "matrix": np.array([ matrix[0].split(),
-#                                                    matrix[1].split(),
-#                                                    matrix[2].split() ]).astype(np.float)
-#                             } for matrix in sampleMatrix ]
 
-        # Handle unexprected error
-#        except:
-#            log.critical("FATAL ERROR: Raman matrix can't be read from file. Is the file format correct?")
-#            log.exception(sys.exc_info()[0])
-#            raise
+        log.info("Matrix File: " + str(cliArgs.matrixfile) )
 
-    # Initialise simulation
+# INITIALISE SIMULATION
+
     # Declare one stokes vector for every raman matrix
     # Include the header information of sampleMatrix in state values
     initialState = [ { "head": matrix["head"], "state": np.array([0, 0, 0, 0]) } for matrix in sampleMatrix ]
@@ -86,8 +60,10 @@ def main():
     # Get instruction decoder
     decoder = SetDec.SetupDecoder(sampleMatrix)
 
+# RUN SIMULATION
+
     # Decode instructions and calculate simulation
-    for encodedInstruction, step in zip(labratory_setup, range(1, len(labratory_setup)+1)):
+    for step, encodedInstruction in enumerate(labratory_setup, 1):
 
         # Print info about progress
         log.info("Simulation Step: " + str(step) + "    Instruction: " + encodedInstruction)
@@ -97,20 +73,23 @@ def main():
 
         # Check if instruction is a new stokes vector or a mueller matrix to multiply or the raman matrix of the sample to multiply
         if isinstance(decodedInstruction, np.ndarray) and decodedInstruction.ndim == 1:
+            # LSR command detected
             # Reinitialsise the state of the simulation
             currentState = [ { "head": state["head"], "state": decodedInstruction } for state in currentState ]
             initialState = [ { "head": state["head"], "state": decodedInstruction } for state in initialState ]
 
         elif isinstance(decodedInstruction, np.ndarray) and decodedInstruction.ndim == 2:
+            # Mueller matrix of optical element detected
             # Alter stokes vector with the mueller matrix
             currentState = [ { "head": state["head"], "state": decodedInstruction @ state["state"] } for state in currentState ]
 
         elif isinstance(decodedInstruction, list):
-            # Alter stokes vector with the mueller matrix of the sample
+            # SMP command detected
+            # Alter stokes vector with every mueller matrix of the sample
             for index, (state, matrix) in enumerate( zip(currentState, decodedInstruction) ):
 
                 if state["head"] == matrix["head"]:
-                    # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector are the same
+                    # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector match
                     currentState[index] = { "head": state["head"], "state": matrix["matrix"] @ state["state"] }
 
                 else:
@@ -120,12 +99,14 @@ def main():
 
         else:
             # Handle unexpected behaviour
-            log.error("FATAL ERROR: Unexprected mueller matrix! '" + encodedInstruction + "' in line " + str(step) + " can't be executed. Exiting execution.")
+            log.critical("INTERNAL ERROR: Unexprected mueller matrix! '" + encodedInstruction + "' in line " + str(step) + " can't be executed. Exiting execution.")
             sys.exit(-1)
 
-        log.info("Current stokes vector: " + str(currentState))
-
-
+        # Log current state of simulation
+        log.info("State of Simulation")
+        logstring = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
+        for index, state in enumerate(currentState):
+            log.info("[ " + logstring[index] + " ] " + str(state["head"]))
 
 
 

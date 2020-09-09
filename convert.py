@@ -32,7 +32,7 @@ import utilities as util
 #
 def main():
     """
-    Reads input file and runs monte carlo simulation to convert molecular to labratory coordinate system
+    Reads input file and runs monte carlo simulation to convert raman tensors from molecular to labratory coordinates
     """
 
     log.info("START RAMAN TENSOR CONVERSION")
@@ -40,7 +40,8 @@ def main():
     # Read tensor file as matrices
     tensorlist = util.readFileAsMatrices(cliArgs.tensorfile)
 
-    # Prepare simulation
+# PREPARE SIMULATION
+
     log.info("Prepare simulation")
 
     # Define rotation matrices
@@ -62,16 +63,17 @@ def main():
                                                  [0, 0, 0],
                                                  [0, 0, 0]  ]).astype(np.float)
                            } for tensor in tensorlist]
-    # Scale the original tensorlist down by a factor of iterationLimit to make sure that the sum over all iterations will be the mean over all iterations
+    # Scale the original tensorlist down by a factor of iterationLimit to make sure that the sum over all iterations will equal the mean over all iterations
     tensorlist = [{ "head": tensor["head"],
                     "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist]
 
-    # Run monte carlo simulation
-    # Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
-    #               2. a_lab = < M >
-    # Description:  1. Calculate for random rotation angles around all axis (x,y,z) the rotated molecular raman tensor (a_mol).
-    #                  Use the roation matrices R_x, R_y and R_z.
-    #               2. Calculate the mean over all rotation angles
+# RUN MONTE-CARLO SIMULATION
+# Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
+#                  Calculate for random rotation angles around all axis (x,y,z) the rotated molecular raman tensor (a_mol).
+#                  Use the roation matrices R_x, R_y and R_z.
+#               2. a_lab = < M >
+#                  Calculate the mean over all random rotation angles
+
     log.info("START MONTE CARLO SIMULATION")
 
     # Print progress bar
@@ -99,7 +101,9 @@ def main():
 
         # Rotate every raman tensor and add the result to convertedTensorlist
         for index, tensor in enumerate(tensorlist):
+
             log.debug("Rotate tensor '" + tensor["head"] + "'")
+
             rotatedTensor = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
             convertedTensorlist[index]["matrix"] += rotatedTensor
 
@@ -107,8 +111,12 @@ def main():
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
 
-    # Convert results into lovely text
+# CONVERT RESULTS TO TEXT
+
+    # Write the commandline parameters and the execution time in a string
     output_text = "# convert " + str(cliArgs.tensorfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --iterations " + str(cliArgs.iterationLimit) + "\n# Execution time: " + str(datetime.now())
+
+    # Add the calculated tensors to the string. The tensors are formated like the tensor input file
     for tensor in convertedTensorlist:
         output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["matrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
 
