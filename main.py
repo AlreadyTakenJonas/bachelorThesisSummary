@@ -10,11 +10,14 @@ import argparse
 # Terminate program on exception
 import sys
 
+# Purpose: Math
+import numpy as np
+
 #
 #   INTERNAL MODULES
 #
 import MuellerSimulator as MSim
-
+import SetupDecoder as SetDec
 
 
 #
@@ -37,12 +40,47 @@ def main():
         log.exception(e, exc_info = True)
         sys.exit(-1)
 
-    # Decode and calculate simulation
-    # Get instance of simulator class
-    simulation = MSim.MuellerSimulator(labratory_setup)
-    # Calculate the simulation command by command
-    for step in labratory_setup:
-        simulation.step()
+
+    # Initialise simulation
+    # Initialise stokes vector
+    initialState = np.array([0, 0, 0, 0])
+    currentState = initialState
+    # Get instruction decoder
+    decoder = SetDec.SetupDecoder()
+
+    # Decode instructions and calculate simulation
+    for encodedInstruction, step in zip(labratory_setup, range(1, len(labratory_setup)+1)):
+
+        # Print info about progress
+        log.info("Simulation Step: " + str(step) + "    Instruction: " + encodedInstruction)
+
+        # Decode encoded into mueller matrix or stokes vector
+        decodedInstruction = decoder.decode(encodedInstruction)
+
+        # Check if instruction is a new stokes vector or a mueller matrix to multiply or multiple martrices to multiply
+        if decodedInstruction.ndim == 1:
+            # Save stokes vector as attribute
+            currentState = decodedInstruction
+            initialState = decodedInstruction
+
+        elif decodedInstruction.ndim == 2:
+            # Alter stokes vector with the mueller matrix
+            currentState = decodedInstruction @ currentState
+
+        elif decodedInstruction.ndmim == 3:
+            # Handle List of raman tensors
+            pass
+
+        else:
+            # Handle unexpected behaviour
+            log.error("FATAL ERROR: Mueller matrix exceeds expected dimensions! '" + encodedInstruction + "' in line " + str(step) + " can't be executed. Exiting execution.")
+            sys.exit(-1)
+
+        log.info("Current stokes vector: " + str(currentState))
+
+
+
+
 
     log.info("STOPPED MUELLER SIMULATION SUCCESSFULLY")
 
