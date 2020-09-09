@@ -86,13 +86,14 @@ class MuellerSimulator:
         """
         Calculate one step in the simulation by decoding the simulationPlan and performing a matrix-vector-multiplication on a mueller matrix and a stokes vector.
         """
-        # Print info about progress
-        encodedInstruction =  self.simulationPlan[self.simulationStep][:]
-        instructionString = encodedInstruction
-        log.info("Simulation Step: " + str(self.simulationStep) + "    Instruction: " + instructionString)
 
-        # Pass encoded instruction by value ([:]) and decode it into mueller matrix or stokes vector
-        encodedInstruction = self.simulationPlan[self.simulationStep][:]
+        # Get next encoded instruction
+        encodedInstruction =  self.simulationPlan[self.simulationStep]
+
+        # Print info about progress
+        log.info("Simulation Step: " + str(self.simulationStep) + "    Instruction: " + encodedInstruction)
+
+        # Decode encoded into mueller matrix or stokes vector
         decodedInstruction = self.decoder.decode(encodedInstruction)
 
         # Check if instruction is a new stokes vector or a mueller matrix to multiply or multiple martrices to multiply
@@ -111,7 +112,7 @@ class MuellerSimulator:
 
         else:
             # Handle unexpected behaviour
-            log.error("FATAL ERROR: Mueller matrix exceeds expected dimensions! '" + instructionString + "' in line " + str(self.simulationStep+1) + " can't be executed. Exiting execution.")
+            log.error("FATAL ERROR: Mueller matrix exceeds expected dimensions! '" + encodedInstruction + "' in line " + str(self.simulationStep+1) + " can't be executed. Exiting execution.")
             sys.exit(-1)
 
         log.info("Current stokes vector: " + str(self.stokesVector))

@@ -266,26 +266,24 @@ class SetupDecoder:
         "NOP": unityMatrix
     }
 
-    def decode(self, userCommand: str):
+    def decode(self, commandString: str):
         """
-        Decodes user commands. Takes in one line of the input file as a list of strings and calls appropriate function with the help of commandDictionary.
+        Decodes user commands. Takes in one line of the input file as a string and calls appropriate function with the help of commandDictionary.
         Attributes:
-            userCommand - List of strings with the command for a specific function and its arguments
+            commandString - String with the command for a specific function and its arguments
         Return:
             Return value of the function. Usually a stokes vector or a mueller matrix
         """
 
-        if type(userCommand) != type("string"):
+        if type(commandString) != type("string"):
             raise TypeError("SetupDecoder can only decode strings!")
 
-        if len(userCommand.strip()) == 0:
+        if len(commandString.strip()) == 0:
             raise ValueError("SetupDecoder can't decode empty strings!")
 
         # Isolate command and arguments
-        commandString = userCommand
-        userCommand = userCommand.split()
-        command = userCommand.pop(0)
-        args = userCommand
+        command = commandString.split()[0]
+        args = commandString.split()[1:]
         # Call function
         try:
             if command[0] == "#":
