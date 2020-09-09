@@ -205,7 +205,7 @@ if __name__ == "__main__":
                     help = "text file containing the raman tensors that will be converted. Details are given in the README.")
     # Add iteration limit for monte carlo simulation
     ap.add_argument("-i", "--iterations",
-                    help = "number of iterations the simulation will calculate. Default = 10",
+                    help = "number of iterations the simulation will calculate. Default = 10000",
                     required = False,
                     type = int,
                     default = 10000,
