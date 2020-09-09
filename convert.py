@@ -98,10 +98,10 @@ def main():
         transposed = Rz.T @ Ry.T @ Rx.T
 
         # Rotate every raman tensor and add the result to convertedTensorlist
-        for tensor, convertedTensor in zip(tensorlist, convertedTensorlist):
+        for index, tensor in enumerate(tensorlist):
             log.debug("Rotate tensor '" + tensor["head"] + "'")
             rotatedTensor = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
-            convertedTensor["matrix"] += rotatedTensor
+            convertedTensorlist[index]["matrix"] += rotatedTensor
 
         log.debug("End iteration " + str(i) + "/" + str(cliArgs.iterationLimit))
 
