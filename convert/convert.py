@@ -68,8 +68,7 @@ def main():
     try:
         log.info("Read tensor from file " + str(cliArgs.tensorfile))
         input = cliArgs.tensorfile.read_text()
-        #with open(cliArgs.tensorfile, "r") as f:
-        #    input = f.read()
+
 
     # Handle file not found
     except FileNotFoundError as e:
