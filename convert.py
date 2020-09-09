@@ -23,36 +23,9 @@ import pathlib
 from datetime import datetime
 
 #
-# UTILITIES
+#   INTERNAL MODULES
 #
-
-# Displays or updates a console progress bar
-def update_progress(progress):
-    """
-    update_progress() : Displays or updates a console progress bar
-    Accepts a float between 0 and 1. Any int will be converted to a float.
-    A value under 0 represents a 'halt'.
-    A value at 1 or bigger represents 100%
-    """
-    barLength = 20 # Modify this to change the length of the progress bar
-    status = ""
-    if isinstance(progress, int):
-        progress = float(progress)
-    if not isinstance(progress, float):
-        progress = 0
-        status = "error: progress var must be float\r\n"
-    if progress < 0:
-        progress = 0
-        status = "Halt...\r\n"
-    if progress >= 1:
-        progress = 1
-        status = "Done...\r\n"
-    block = int(round(barLength*progress))
-    text = "\rRunning: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), round(progress*100, 1), status)
-    sys.stdout.write(text)
-    sys.stdout.flush()
-
-
+import utilities as util
 
 #
 #   MAIN PROGRAM
@@ -64,37 +37,8 @@ def main():
 
     log.info("START RAMAN TENSOR CONVERSION")
 
-    # Read tensor file
-    try:
-        log.info("Read tensor from file " + str(cliArgs.tensorfile))
-        input = cliArgs.tensorfile.read_text()
-
-    # Handle file not found
-    except FileNotFoundError as e:
-        log.critical("FATAL ERROR: File " + str(cliArgs.tensorfile) + " not found!")
-        log.exception(e, exc_info = True)
-        sys.exit(-1)
-
-    # Convert tensor file to list of tensors with descritive messages
-    try:
-        # Split file in seperate tensors and remove comments
-        # Comments start with '#' and tensors with '!'
-        input = [tensor.strip().split("\n") for tensor in input.split("!") if tensor.strip()[0] != "#"]
-        # Build a list of dictionaries
-        # Each dictionary contains a head with a descriptive message extracted from the file and a tensor extracted from the file
-        tensorlist = [ { "head": tensor.pop(0),
-                         "tensor": np.array([ tensor[0].split(),
-                                              tensor[1].split(),
-                                              tensor[2].split() ]).astype(np.float)
-                       } for tensor in input ]
-
-    # Handle unexprected error
-    except:
-        log.critical("FATAL ERROR: Raman tensors can't be read from file. Is the file format correct?")
-        log.exception(sys.exc_info()[0])
-        raise
-
-
+    # Read tensor file as matrices
+    tensorlist = util.readFileAsMatrices(cliArgs.tensorfile)
 
     # Prepare simulation
     log.info("Prepare simulation")
@@ -114,13 +58,13 @@ def main():
 
     # Copy the structure of tensorlist with empty arrays. This copy will be filled with the result of the simulation
     convertedTensorlist = [{"head": tensor["head"],
-                            "tensor": np.array([ [0, 0, 0],
+                            "matrix": np.array([ [0, 0, 0],
                                                  [0, 0, 0],
                                                  [0, 0, 0]  ]).astype(np.float)
                            } for tensor in tensorlist]
     # Scale the original tensorlist down by a factor of iterationLimit to make sure that the sum over all iterations will be the mean over all iterations
     tensorlist = [{ "head": tensor["head"],
-                    "tensor": tensor["tensor"]/cliArgs.iterationLimit } for tensor in tensorlist]
+                    "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist]
 
     # Run monte carlo simulation
     # Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
@@ -130,14 +74,15 @@ def main():
     #               2. Calculate the mean over all rotation angles
     log.info("START MONTE CARLO SIMULATION")
 
-    # Print progress
-    update_progress(0)
+    # Print progress bar
+    util.update_progress(0)
 
+    # Run simulation
     for i in range(1, cliArgs.iterationLimit+1):
         log.debug("Start iteration " + str(i) + "/" + str(cliArgs.iterationLimit))
 
-        # Print progress
-        update_progress(i / cliArgs.iterationLimit)
+        # Update progress bar
+        util.update_progress(i / cliArgs.iterationLimit)
 
         # Get random rotation angles
         phi   = rand.random() * 2*np.pi
@@ -155,8 +100,8 @@ def main():
         # Rotate every raman tensor and add the result to convertedTensorlist
         for tensor, convertedTensor in zip(tensorlist, convertedTensorlist):
             log.debug("Rotate tensor '" + tensor["head"] + "'")
-            rotatedTensor = transposed @ tensor["tensor"] @ Rx @ Ry @ Rz
-            convertedTensor["tensor"] += rotatedTensor
+            rotatedTensor = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
+            convertedTensor["matrix"] += rotatedTensor
 
         log.debug("End iteration " + str(i) + "/" + str(cliArgs.iterationLimit))
 
@@ -165,7 +110,7 @@ def main():
     # Convert results into lovely text
     output_text = "# convert " + str(cliArgs.tensorfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --iterations " + str(cliArgs.iterationLimit) + "\n# Execution time: " + str(datetime.now())
     for tensor in convertedTensorlist:
-        output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["tensor"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
+        output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["matrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
 
     # Log and write text to file
     log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")

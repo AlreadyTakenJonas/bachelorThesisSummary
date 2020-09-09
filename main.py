@@ -20,7 +20,7 @@ import pathlib
 #   INTERNAL MODULES
 #
 import SetupDecoder as SetDec
-
+import utilities as util
 
 #
 # MAIN PROGRAM
@@ -37,13 +37,14 @@ def main():
         log.info("Matrix File: " + str(cliArgs.matrixfile) )
 
     # Read input file
-    try:
-        labratory_setup = cliArgs.inputfile.read_text().splitlines()
-    except FileNotFoundError as e:
+    #try:
+    #    labratory_setup = cliArgs.inputfile.read_text().splitlines()
+    #except FileNotFoundError as e:
         # Handle file not found
-        log.critical("FATAL ERROR: File " + str(cliArgs.inputfile) + " not found!")
-        log.exception(e, exc_info = True)
-        sys.exit(-1)
+    #    log.critical("FATAL ERROR: File " + str(cliArgs.inputfile) + " not found!")
+    #    log.exception(e, exc_info = True)
+    #    sys.exit(-1)
+    labratory_setup = util.readFileAsText(cliArgs.inputfile).splitlines()
 
     # Read matrix file if given
     if cliArgs.matrixfile == False:
@@ -53,27 +54,28 @@ def main():
                                                                            [0, 1, 0],
                                                                            [0, 0, 1]  ]) }]
     else:
-        try:
-            # Read matrix file
-            sampleMatrix = cliArgs.matrixfile.read_text()
-
-            # Convert text to matrices
-            # Split file in seperate matrices and remove comments
-            # Comments start with '#' and matrices with '!'
-            sampleMatrix = [matrix.strip().split("\n") for matrix in sampleMatrix.split("!") if matrix.strip()[0] != "#"]
-            # Build a list of dictionaries
-            # Each dictionary contains a head with a descriptive message extracted from the file and a matrix extracted from the file
-            sampleMatrix = [ { "head": matrix.pop(0),
-                               "matrix": np.array([ matrix[0].split(),
-                                                    matrix[1].split(),
-                                                    matrix[2].split() ]).astype(np.float)
-                             } for matrix in sampleMatrix ]
+        sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile)
+    #    try:
+    #        # Read matrix file
+    #        sampleMatrix = cliArgs.matrixfile.read_text()
+#
+#            # Convert text to matrices
+#            # Split file in seperate matrices and remove comments
+#            # Comments start with '#' and matrices with '!'
+#            sampleMatrix = [matrix.strip().split("\n") for matrix in sampleMatrix.split("!") if matrix.strip()[0] != "#"]
+#            # Build a list of dictionaries
+#            # Each dictionary contains a head with a descriptive message extracted from the file and a matrix extracted from the file
+#            sampleMatrix = [ { "head": matrix.pop(0),
+#                               "matrix": np.array([ matrix[0].split(),
+#                                                    matrix[1].split(),
+#                                                    matrix[2].split() ]).astype(np.float)
+#                             } for matrix in sampleMatrix ]
 
         # Handle unexprected error
-        except:
-            log.critical("FATAL ERROR: Raman matrix can't be read from file. Is the file format correct?")
-            log.exception(sys.exc_info()[0])
-            raise
+#        except:
+#            log.critical("FATAL ERROR: Raman matrix can't be read from file. Is the file format correct?")
+#            log.exception(sys.exc_info()[0])
+#            raise
 
     # Initialise simulation
     # Declare one stokes vector for every raman matrix
