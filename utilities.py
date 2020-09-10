@@ -126,3 +126,54 @@ def readFileAsMatrices(path):
     """
     text = readFileAsText(path)
     return convertTextToMatrices(text)
+
+def electricalFieldToStokes(eVector):
+    """
+    Convert a 3x1 vector describing the electrical field of the laser light into the stokes formalism (4x1 vector)
+    """
+
+    # TODO: Check type and physical validity (Ez == 0)
+
+    # Electrical field in x and y axis
+    Ex = eVector[0]
+    Ey = eVector[1]
+
+    # Conversion into stokes formalism
+    stokes = np.array([ Ex**2 + Ey**2,
+                        Ex**2 - Ey**2,
+                        2*Ex*Ey,
+                        0           ])
+
+    # TODO: Check polarisation grade
+
+    # Return result
+    return stokes
+
+def stokesToElectricalField(sVector):
+    """
+    Convert a 4x1 stokes vector into 3x1 electrical field vector
+    """
+
+    # TODO: Check type and polarisation grade
+    # s_3 must be zero
+    # Formulas only works for completly polarised light if the light is not vertically or horizontally polarised
+
+    # Check polarisation
+    if (sVector[2] == 0):
+        # Light horizontally or vertically polarised
+        eVector = np.array([ np.sqrt( 0.5 * (sVector[0] + sVector[1]) ),
+                             np.sqrt( 0.5 * (sVector[0] - sVector[1]) ),
+                             0                                          ])
+
+    elif (sVector[0]^2 == sVector[1]^2 + sVector[2]^2):
+        # Light is (partially) diagonially polarised and totally polarised
+        eVector = np.array([ sVector[2]/ np.sqrt( 2*(sVector[0] - sVector[1]) ),
+                             sVector[2]/ np.sqrt( 2*(sVector[0] + sVector[1]) ),
+                             0                                                  ])
+
+    else:
+        # Throw error: Stokes vector can't be converted
+        raise Error("SOME ERROR MESSAGE I NEED TO WRITE")
+
+    # Return result
+    return eVector

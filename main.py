@@ -86,20 +86,23 @@ def main():
         elif decodedInstruction == "SMP":
             # SMP command detected
 
-            # DUMMY CODE: Converts 3 dimensional to 4 dimensional matrix. Just for testing purposes.
-            decodedInstruction = [ { "head": matrix["head"], "matrix": np.append(matrix["matrix"], [0,0,0,0,0,0,0]).reshape((4,4)) } for matrix in sampleMatrix ]
+            # Convert state of simulation to the electrical field vector
+            electricalField = [ { "head": state["head"], "state": util.stokesToElectricalField(state["state"]) } for state in currentState ]
 
             # Alter stokes vector with every mueller matrix of the sample
-            for index, (state, matrix) in enumerate( zip(currentState, decodedInstruction) ):
+            for index, (state, matrix) in enumerate( zip(electricalField, sampleMatrix) ):
 
                 if state["head"] == matrix["head"]:
                     # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector match
-                    currentState[index] = { "head": state["head"], "state": matrix["matrix"] @ state["state"] }
+                    electricalField[index] = { "head": state["head"], "state": matrix["matrix"] @ state["state"] }
 
                 else:
                     # Raise an exception if headers don't match
                     log.critical("INTERNAL ERROR: The headers of the samples mueller matrix and the current state of the simulation don't match.")
                     raise ValueError("INTERNAL ERROR: The headers of the samples mueller matrix and the current state of the simulation don't match.")
+
+            # Convert electrical field vector back to stokes formalism
+            currentState = [ { "head": state["head"], "state": util.electricalFieldToStokes(state["state"]) } for state in electricalField ]
 
         else:
             # Handle unexpected behaviour
