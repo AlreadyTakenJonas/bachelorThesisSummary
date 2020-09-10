@@ -163,13 +163,13 @@ def stokesToElectricalField(sVector):
         # Light horizontally or vertically polarised
         eVector = np.array([ np.sqrt( 0.5 * (sVector[0] + sVector[1]) ),
                              np.sqrt( 0.5 * (sVector[0] - sVector[1]) ),
-                             0                                          ])
+                                                0                       ])
 
     elif (sVector[0]^2 == sVector[1]^2 + sVector[2]^2):
         # Light is (partially) diagonially polarised and totally polarised
-        eVector = np.array([ sVector[2]/ np.sqrt( 2*(sVector[0] - sVector[1]) ),
-                             sVector[2]/ np.sqrt( 2*(sVector[0] + sVector[1]) ),
-                             0                                                  ])
+        eVector = np.array([      sVector[2] / np.sqrt( 2*(sVector[0] - sVector[1]) )  ,
+                             abs( sVector[2] / np.sqrt( 2*(sVector[0] + sVector[1]) ) ),
+                                                    0                                     ])
 
     else:
         # Throw error: Stokes vector can't be converted
