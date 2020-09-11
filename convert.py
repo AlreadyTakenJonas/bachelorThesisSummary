@@ -121,6 +121,10 @@ def main():
     # Write the commandline parameters and the execution time in a string
     output_text = "# convert " + str(cliArgs.tensorfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --iterations " + str(cliArgs.iterationLimit) + "\n# Execution time: " + str(datetime.now())
 
+    # Add user comment to string
+    if cliArgs.comment != "":
+        output_text += "\n\n# " + str(cliArgs.comment)
+
     # Add the calculated tensors to the string. The tensors are formated like the tensor input file
     for tensor in convertedTensorlist:
         output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["matrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
@@ -174,6 +178,14 @@ if __name__ == "__main__":
                     required = False,
                     default = False,
                     dest = "outputfile")
+    # Add argument that will be written as comment in the output file
+    ap.add_argument("-c", "--comment",
+                    dest = "comment",
+                    help = "comment that will be added to the output file",
+                    required = False,
+                    type = str,
+                    default = "")
+
     # Store command line arguments
     cliArgs = ap.parse_args()
 
