@@ -30,6 +30,8 @@ def main():
 
     log.info("START RAMAN TENSOR EXTRACTION")
 
+# READ AND CHECK DATA
+
     # Read gaussian log file
     log.info("Read gaussian log file " + str(cliArgs.gaussianfile.resolve()))
     gaussianfile = util.readFileAsText(cliArgs.gaussianfile)
@@ -40,14 +42,28 @@ def main():
         # Key word not found, probably wrong file
         log.warning("Keyword 'freq(raman, printderivatives)' not found in input file. May not contain raman tensors. Ask user for prgram termination.")
 
-        # Ask user if he wants to continiue execution and exit
+        # Ask user if he wants to continiue execution
         if bool(input("WARNING: This file is probably no gaussian log file or may not contain raman tensors. Continue anyway? [y/N] ").lower() != 'y'):
+            # Terminate program
             print("As you wish, my Lord.")
             log.info("USER STOPPED EXECUTION")
             sys.exit(-1)
 
+        # Continue program
         print("As you wish, my Lord.")
         log.info("Continue execution.")
+
+    if not "Polarizability derivatives wrt mode" in gaussianfile:
+        # File does not contain raman tensors
+        log.warning("Keyword 'Polarizability derivatives wrt mode' not found in input file. Can't find raman tensors.")
+        log.critical("This file does not contain raman tensors. Exiting program.")
+        log.info("RAMAN TENSOR EXTRACTION FAILED")
+        sys.exit(-1)
+
+# EXTRACT DATA
+
+    # Read tensors from string
+
 
     log.info("STOPPED RAMAN TENSOR EXTRACTION SUCCESSFULLY")
 
