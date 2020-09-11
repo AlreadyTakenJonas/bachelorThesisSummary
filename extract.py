@@ -27,7 +27,12 @@ def main():
     Read gaussian log files of frequency calculations and writes the raman tensors into a text file readable by the other scripts.
     See the readMe for details.
     """
-    pass
+
+    log.info("START RAMAN TENSOR EXTRACTION")
+
+    log.info("Read log file " + str(cliArgs.gaussianfile.resolve()))
+    # Read tensor file as matrices
+    gaussianfile = util.readFileAsMatrices(cliArgs.gaussianfile)
 
 #
 #   START OF PROGRAM EXECUTION AS MAIN PROGRAM
