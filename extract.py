@@ -57,8 +57,8 @@ if __name__ == "__main__":
     # Add logfile (default defined)
     ap.add_argument("-l", "--log",
                     required = False,
-                    default = "./extractGaussianTensor.log",
-                    help = "defines path and name of a custom .log file. Default=./extractGaussianTensor.log",
+                    default = str(pathlib.Path(__file__).parent) + "/log/extractGaussianTensor.log",
+                    help = "defines path and name of a custom .log file. Default=.PROGRAMPATH/log/extractGaussianTensor.log",
                     dest = "logfile")
     # Add input file for gaussian log file
     ap.add_argument("gaussianfile",

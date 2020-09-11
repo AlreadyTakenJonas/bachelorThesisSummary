@@ -155,8 +155,8 @@ if __name__ == "__main__":
     # Add logfile (default defined)
     ap.add_argument("-l", "--log",
                     required = False,
-                    default = "./convertRamanTensor.log",
-                    help = "defines path and name of a custom .log file. Default=./convertRamanTensor.log",
+                    default = str(pathlib.Path(__file__).parent) + "/log/convertRamanTensor.log",
+                    help = "defines path and name of a custom .log file. Default=PROGRAMPATH/log/convertRamanTensor.log",
                     dest = "logfile")
     # Add input file for labratory setup
     ap.add_argument("tensorfile",

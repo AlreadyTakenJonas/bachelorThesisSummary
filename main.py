@@ -142,8 +142,8 @@ if __name__ == "__main__":
     # Add logfile (default defined)
     ap.add_argument("-l", "--log",
                     required = False,
-                    default = "./muellersimulation.log",
-                    help = "defines path and name of a custom .log file. Default=./muellersimulation.log",
+                    default = str(pathlib.Path(__file__).parent) + "/log/muellersimulation.log",
+                    help = "defines path and name of a custom .log file. Default=PROGRAMPATH/log/muellersimulation.log",
                     dest = "logfile")
     # Add input file for labratory setup
     ap.add_argument("inputfile",
