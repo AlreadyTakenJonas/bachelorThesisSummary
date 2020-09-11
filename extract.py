@@ -32,7 +32,7 @@ def main():
 
     log.info("Read log file " + str(cliArgs.gaussianfile.resolve()))
     # Read tensor file as matrices
-    gaussianfile = util.readFileAsMatrices(cliArgs.gaussianfile)
+    gaussianfile = util.readFileAsText(cliArgs.gaussianfile)
 
 #
 #   START OF PROGRAM EXECUTION AS MAIN PROGRAM
