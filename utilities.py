@@ -70,13 +70,13 @@ def readFileAsText(path):
 
     except FileNotFoundError as e:
         # Handle file not found
-        log.critical("FATAL ERROR: File " + str(cliArgs.inputfile) + " not found!")
+        log.critical("FATAL ERROR: File " + str(path.resolve()) + " not found!")
         log.exception(e, exc_info = True)
         sys.exit(-1)
 
     except:
         # Log unexpected exception
-        log.critical("FATAL ERROR: File '" + str(path) + "' can't be read.")
+        log.critical("FATAL ERROR: File '" + str(path.resolve()) + "' can't be read.")
         log.exception(sys.exc_info()[0])
         raise
 
