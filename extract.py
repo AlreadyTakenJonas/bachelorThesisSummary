@@ -20,6 +20,15 @@ import pathlib
 import utilities as util
 
 #
+#   MARKOS
+#
+
+# This string should be present in valid input file
+LOGFILE_KEYWORD = "freq(raman, printderivatives)"
+# This string marks beginning of raman tensor in input file
+TENSOR_KEYWORD = "Polarizability derivatives wrt mode"
+
+#
 #   MAIN PROGRAM
 #
 def main():
@@ -38,7 +47,8 @@ def main():
 
     # Check if it is a gaussian log file with raman tensors
     log.info("Check data")
-    if not "freq(raman, printderivatives)" in gaussianfile:
+
+    if not LOGFILE_KEYWORD in gaussianfile:
         # Key word not found, probably wrong file
         log.warning("Keyword 'freq(raman, printderivatives)' not found in input file. May not contain raman tensors. Ask user for prgram termination.")
 
@@ -53,7 +63,7 @@ def main():
         print("As you wish, my Lord.")
         log.info("Continue execution.")
 
-    if not "Polarizability derivatives wrt mode" in gaussianfile:
+    if not TENSOR_KEYWORD in gaussianfile:
         # File does not contain raman tensors
         log.warning("Keyword 'Polarizability derivatives wrt mode' not found in input file. Can't find raman tensors.")
         log.critical("This file does not contain raman tensors. Exiting program.")
@@ -62,8 +72,10 @@ def main():
 
 # EXTRACT DATA
 
-    # Read tensors from string
-
+    # Read tensor entries from string and covert them into matrices
+    for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5):
+        print(tensor)
+        # TODO DATA CONVERSION
 
     log.info("STOPPED RAMAN TENSOR EXTRACTION SUCCESSFULLY")
 

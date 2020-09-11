@@ -177,3 +177,43 @@ def stokesToElectricalField(sVector):
 
     # Return result
     return eVector
+
+def findEntries(string, keyword, lines = 1, returnKeyword = False):
+    """
+    This function searches for keyword in a string and yields for every occurence of keyword a list of strings of it.
+    Attributes:
+    string - string to be searched
+    keyword - keyword marking the begin of a substring to yield
+    lines - the number of lines following keyword that should be yielded when finding keyword
+    returnKeyword - leaves keyword out of yielded string if False
+    Returns: Generator containing the searched substrings splitted by splitlines()
+    """
+
+    # TODO check input -> types, lines greater zero
+
+    # Find first occurence of keyword in string
+    index = string.find(keyword)
+
+    if index == -1:
+        # No matching enrty found
+        log.warning("No entries found. Return empty generator. \nSearched keyword: '")
+
+    # Find and yield all occurencens of keyword in the string
+    while index != -1:
+        # Get location where entry begins
+        entryStart = index
+        if not returnKeyword:
+            # Cut out the keyword if necessary
+            entryStart += len(keyword)
+
+        try:
+            # Slice found entry and yield it
+            yield [line.strip() for line in string[entryStart:].splitlines()[:lines] ]
+
+        except IndexError as e:
+            # The string does not contain as much lines as it was requested at function call.
+            log.critical("FATAL ERROR: One of the requested entries has less lines than expected. The data can't be read.")
+            sys.exit(-1)
+
+        # Search next entry
+        index = string.find(keyword, index+len(keyword))
