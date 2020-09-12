@@ -28,7 +28,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(prog = "polaram",
                                  description = "PolaRam simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculations are performed with the mueller calculus and stokes vectors.",
                                  epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
-    sap = ap.add_subparsers(dest = "command")
+    sap = ap.add_subparsers(dest = "command", metavar = "subcommand")
     sap.required = True
 
     # Create simulate command
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     sap_convert = sap.add_parser("convert",
                                  help = "Convert a raman tensor from the molecular to the labratory coordinate system",
                                  description = "Converts raman tensors from the molecular coordinate system into the raman matrix of a solution in the labratory coordinate system via a monte carlo simulation.")
-    # Adding arguments
+    # Adding arguments to convert command
     # Add verbose
     sap_convert.add_argument("-v", "--verbose",
                              required = False,
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     sap_extract = sap.add_parser("extract",
                                  help = "Extract raman tensors from Gaussian .LOG-files. Tested for Gaussian16.",
                                  description = "This program reads gaussian log files of frequency calculations and writes the raman tensors into a text file readable by the other scripts. Tested for Gaussian16. Raman tensors are not put into the log file by default. See the readMe for details.")
-    # Adding arguments
+    # Adding arguments to extract command
     # Add verbose
     sap_extract.add_argument("-v", "--verbose",
                              required = False,
@@ -134,6 +134,38 @@ if __name__ == "__main__":
     # Store command line arguments
     cliArgs = ap.parse_args()
 
+    #
+    #   SAVE FILE PATHS AS pathlib.Path OBJECT
+    #
+    if cliArgs.command == "simulate":
+        # Convert file paths to pathlib.Path
+        cliArgs.inputfile = pathlib.Path(cliArgs.inputfile)
+        if cliArgs.matrixfile != False:
+            cliArgs.matrixfile = pathlib.Path(cliArgs.matrixfile)
+
+    elif cliArgs.command == "convert":
+        # Convert all paths to pathlib.Path
+        cliArgs.tensorfile = pathlib.Path(cliArgs.tensorfile)
+        cliArgs.logfile = pathlib.Path(cliArgs.logfile)
+
+        # Create output file path if none is given
+        # or covert to pathlib.Paht if given
+        if cliArgs.outputfile == False:
+            cliArgs.outputfile = pathlib.Path(cliArgs.tensorfile.parent, f"converted_{cliArgs.tensorfile.stem}.txt")
+        else:
+            cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
+
+    elif cliArgs.command == "extract":
+        # Convert all paths to pathlib.Path
+        cliArgs.gaussianfile = pathlib.Path(cliArgs.gaussianfile)
+        cliArgs.logfile = pathlib.Path(cliArgs.logfile)
+
+        # Create output file path if none is given
+        # or covert to pathlib.Paht if given
+        if cliArgs.outputfile == False:
+            cliArgs.outputfile = pathlib.Path(cliArgs.gaussianfile.parent, f"tensor_{cliArgs.gaussianfile.stem}.txt")
+        else:
+            cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
 
     #
     # SETUPG LOGGING
@@ -168,40 +200,13 @@ if __name__ == "__main__":
     # RUN SELECTED COMMAND
     #
     if cliArgs.command == "simulate":
-        # Convert file paths to pathlib.Path
-        cliArgs.inputfile = pathlib.Path(cliArgs.inputfile)
-        if cliArgs.matrixfile != False:
-            cliArgs.matrixfile = pathlib.Path(cliArgs.matrixfile)
-
         # Run simulate.py
         simulate.main(cliArgs)
 
     elif cliArgs.command == "convert":
-        # Convert all paths to pathlib.Path
-        cliArgs.tensorfile = pathlib.Path(cliArgs.tensorfile)
-        cliArgs.logfile = pathlib.Path(cliArgs.logfile)
-
-        # Create output file path if none is given
-        # or covert to pathlib.Paht if given
-        if cliArgs.outputfile == False:
-            cliArgs.outputfile = pathlib.Path(cliArgs.tensorfile.parent, f"converted_{cliArgs.tensorfile.stem}.txt")
-        else:
-            cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
-
         # Run convert.py
         convert.main(cliArgs)
 
     elif cliArgs.command == "extract":
-        # Convert all paths to pathlib.Path
-        cliArgs.gaussianfile = pathlib.Path(cliArgs.gaussianfile)
-        cliArgs.logfile = pathlib.Path(cliArgs.logfile)
-
-        # Create output file path if none is given
-        # or covert to pathlib.Paht if given
-        if cliArgs.outputfile == False:
-            cliArgs.outputfile = pathlib.Path(cliArgs.gaussianfile.parent, f"tensor_{cliArgs.gaussianfile.stem}.txt")
-        else:
-            cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
-
         # Run extract.py
         extract.main(cliArgs)
