@@ -100,9 +100,9 @@ if __name__ == "__main__":
     # Add option to multiprocess calculation
     sap_convert.add_argument("-p", "--processes",
                              dest = "processCount",
-                             help = "number of processes that compute in parallel. Default = 4",
+                             help = "number of processes that compute in parallel. Default = 2",
                              required = False,
-                             default = 4,
+                             default = 2,
                              type = util.positiveInt)
 
     # Create extract command
