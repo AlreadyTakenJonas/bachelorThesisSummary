@@ -37,7 +37,7 @@ METADATA_KEYWORD = "******************************************\n Gaussian"
 #
 #   MAIN PROGRAM
 #
-def main():
+def main(cliArgs):
     """
     Read gaussian log files of frequency calculations and writes the raman tensors into a text file readable by the other scripts.
     See the readMe for details.
@@ -264,7 +264,7 @@ if __name__ == "__main__":
     #
     # RUN PROGRAM
     #
-    main()
+    main(cliArgs)
 
 else:
     # Enables logging with the logging module
