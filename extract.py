@@ -79,30 +79,58 @@ def main():
 # EXTRACT DATA
 
     log.info("Extract harmonic frequencies from file.")
-    # Read the harmonic frequencies from the log file
-    # Every entry util.findEntries returns contains three frequencies. Every triplett will be splitt into its elements and all frequencies are combined in a single flat list.
-    frequencylist = [freq for triplett in util.findEntries(gaussianfile, FREQUENCY_KEYWORD) for freq in triplett[0].split()]
+    try:
+        # Read the harmonic frequencies from the log file
+        # Every entry util.findEntries returns contains three frequencies. Every triplett will be splitt into its elements and all frequencies are combined in a single flat list.
+        frequencylist = [freq for triplett in util.findEntries(gaussianfile, FREQUENCY_KEYWORD) for freq in triplett[0].split()]
+        
+        # Write function that returns elements of frequencylist
+        # Use function not list in case exceptions is raised
+        def frequency(mode_index):
+            return frequencylist[mode_index]
+
+    except:
+        # Handle unexpected errors
+        log.error("UNKNOWN ERROR: Unable to extract raman frequencies from file. Is the file corrupted? Continueing execution.")
+        log.exception(sys.exc_info()[0])
+
+        # Define dummy values for tensorlist definition
+        def frequency(mode_index):
+            return "??"
 
     log.info("Extract tensors from file.")
-    # Read tensor entries from string and covert them into matrices
-    # Find all tensors with util.findEntries()
-    # Create with the result of util.findEntries() a list of dictionaries containing a descriptive headder ("head") and the tensor as numpy float array ("matrix")
-    # The header will contain the unique incrementing number of the mode and the harmonix frequency of the mode
-    tensorlist = [ { "head": "v_" + tensor[0] + " = " + frequencylist[ int(tensor[0])-1 ] + "/cm",
-                     "matrix": np.array([ tensor[2].replace("D", "e").split()[1:],
-                                          tensor[3].replace("D", "e").split()[1:],
-                                          tensor[4].replace("D", "e").split()[1:]  ]).astype(np.float) } for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5) ]
+    try:
+        # Read tensor entries from string and covert them into matrices
+        # Find all tensors with util.findEntries()
+        # Create with the result of util.findEntries() a list of dictionaries containing a descriptive headder ("head") and the tensor as numpy float array ("matrix")
+        # The header will contain the unique incrementing number of the mode and the harmonix frequency of the mode
+        tensorlist = [ { "head": "v_" + tensor[0] + " = " + frequency( int(tensor[0])-1 ) + "/cm",
+                         "matrix": np.array([ tensor[2].replace("D", "e").split()[1:],
+                                              tensor[3].replace("D", "e").split()[1:],
+                                              tensor[4].replace("D", "e").split()[1:]  ]).astype(np.float) } for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5) ]
+
+    except:
+        # Log unexpected error
+        log.critical("UNKNWON ERROR: Unable to extract raman tensors from file. Is the file corrupted? Exiting.")
+        log.exception(sys.exc_info()[0])
+        raise
 
     log.info("Extract meta data about computation.")
-    # Read meta data like computation date, gaussian version or computation job
-    # Get only the first element of the generator returned by util.findEntries
-    metadata = next( util.findEntries(gaussianfile, METADATA_KEYWORD, lines = 10, returnKeyword = True) )
+    try:
+        # Read meta data like computation date, gaussian version or computation job
+        # Get only the first element of the generator returned by util.findEntries
+        metadata = next( util.findEntries(gaussianfile, METADATA_KEYWORD, lines = 10, returnKeyword = True) )
+
+    except StopIteration as e:
+        # Catch exception if no meta data is available
+        log.error("No meta information in log file available.")
+        metadata = ["NO META DATA IN GAUSSIAN .LOG-FILE " + str(cliArgs.gaussianfile.resolve())]
 
 # WRITE RESULTS TO FILE
 
     log.info("Write results to file.")
     # Create string to write to file
-    output_text = "# Raman tensors calculated by Gaussian with following settings:\n"
+    output_text = "# Raman tensors calculated by Gaussian\n# Gaussian .LOG-file: " + str(cliArgs.gaussianfile.resolve()) + "\n\n# Gaussian calculation settings:"
 
     # Add meta data to output
     for line in metadata:
