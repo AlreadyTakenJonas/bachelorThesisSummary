@@ -31,6 +31,8 @@ LOGFILE_KEYWORD = "freq(raman, printderivatives)"
 TENSOR_KEYWORD = "Polarizability derivatives wrt mode"
 # This string marks the beginning of the frequencies of the modes that belong to the raman tensors
 FREQUENCY_KEYWORD = "Frequencies -- "
+# This string marks the beginning of the meta data about the calculation: Gaussian version, date of execution, basis set, ...
+METADATA_KEYWORD = "******************************************\n Gaussian"
 
 #
 #   MAIN PROGRAM
@@ -91,10 +93,27 @@ def main():
                                           tensor[3].replace("D", "e").split()[1:],
                                           tensor[4].replace("D", "e").split()[1:]  ]).astype(np.float) } for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5) ]
 
+    log.info("Extract meta data about computation.")
+    # Read meta data like computation date, gaussian version or computation job
+    # Get only the first element of the generator returned by util.findEntries
+    metadata = next( util.findEntries(gaussianfile, METADATA_KEYWORD, lines = 10, returnKeyword = True) )
+
 # WRITE RESULTS TO FILE
 
     log.info("Write results to file.")
-    
+    # Write meta data and tensors to outputfile
+    output_text = "# Raman tensors calculated by Gaussian with following settings:\n"
+
+    for line in metadata:
+        output_text += "\n# " + line
+
+    for tensor in tensorlist:
+            output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["matrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
+
+    # Log and write text to file
+    log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
+    print(output_text)
+    cliArgs.outputfile.write_text(output_text)
 
     log.info("STOPPED RAMAN TENSOR EXTRACTION SUCCESSFULLY")
 
