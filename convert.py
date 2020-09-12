@@ -49,25 +49,23 @@ rotateZ = lambda zeta : np.array([ [np.cos(zeta), -np.sin(zeta), 0],
                                    [0           ,  0           , 1]     ])
 
 def __monteCarlo(processID, iterationLimit, tensorlist, convertedTensorlist):
-    """ RUN MONTE-CARLO SIMULATION
-        Should not be called outside of convert.py! No parameter testing or unittests in place!
-        Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
-                         Calculate for random rotation angles around all axis (x,y,z) the rotated molecular raman tensor (a_mol).
-                         Use the roation matrices R_x, R_y and R_z.
-                      2. a_lab = < M >
-                        Calculate the mean over all random rotation angles
-        Attributes:
-        processID - unique ID
-        iterationLimit - number of iterations
-        tensorlist - correctly formatted list of raman tensors in the molecular coordinate system
-        convertedTensorlist - correctly formatted empty list for the result to be saved in
-        Returns filled convertedTensorlist
+    """
+    RUN MONTE-CARLO SIMULATION
+    Should not be called outside of convert.py! No parameter testing or unittests in place!
+    Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
+                     Calculate for random rotation angles around all axis (x,y,z) the rotated molecular raman tensor (a_mol).
+                     Use the roation matrices R_x, R_y and R_z.
+                  2. a_lab = < M >
+                    Calculate the mean over all random rotation angles
+    Attributes:
+    processID - unique ID
+    iterationLimit - number of iterations
+    tensorlist - correctly formatted list of raman tensors in the molecular coordinate system
+    convertedTensorlist - correctly formatted empty list for the result to be saved in
+    Returns filled convertedTensorlist
     """
     for i in range(1, iterationLimit+1):
         log.debug("Process " + str(processID) + ": Start iteration " + str(i) + "/" + str(iterationLimit))
-
-        # Update progress bar
-        util.update_progress(i / iterationLimit)
 
         # Get random rotation angles
         phi   = rand.random() * 2*np.pi
@@ -140,16 +138,13 @@ def main(cliArgs):
 #                  Use the roation matrices R_x, R_y and R_z.
 #               2. a_lab = < M >
 #                  Calculate the mean over all random rotation angles
-
     log.info("START MONTE CARLO SIMULATION")
 
-    # Print progress bar
-    util.update_progress(0)
-
-    # Create a pool of workers sharing the computation tash
+    # Create a pool of workers sharing the computation task
     with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
         # Start child processes wich run __monteCarlo()
-        processes = [ pool.apply_async(__monteCarlo, (ID, iterations, tensorlist, convertedTensorlist)) for ID, iterations in enumerate(processIterationLimits) ]
+        processes = [ pool.apply_async(__monteCarlo, (ID, iterations, tensorlist, convertedTensorlist)) for ID, iterations in enumerate(processIterationLimits) 
+
         # Wait for the processes to finish and get their results
         processResults = [p.get() for p in processes]
 
