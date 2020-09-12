@@ -163,7 +163,7 @@ def main(cliArgs):
 # CONVERT RESULTS TO TEXT
 
     # Write the commandline parameters and the execution time in a string
-    output_text = "# convert " + str(cliArgs.tensorfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --iterations " + str(cliArgs.iterationLimit) + "\n# Execution time: " + str(datetime.now())
+    output_text = "# convert " + str(cliArgs.tensorfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --iterations " + str(cliArgs.iterationLimit) + " --processes " + str(cliArgs.processCount) + "\n# Execution time: " + str(datetime.now())
 
     # Add user comment to string
     if cliArgs.comment != "":
