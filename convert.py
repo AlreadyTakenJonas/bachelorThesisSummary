@@ -131,10 +131,8 @@ def main(cliArgs):
                     "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist]
 
     # Calculate how many iterations every subprocess must do
-    # If the iterationLimit is not divideable by the number of processes, one process will do more iterations than the others
-    processIterationLimits = [math.ceil(cliArgs.iterationLimit/cliArgs.processCount)]
-    for i in range(1, cliArgs.processCount):
-        processIterationLimits.append(math.floor(cliArgs.iterationLimit/cliArgs.processCount))
+    # If the iterationLimit is not divideable by the number of processes, some processes will do one more iterations than the others
+    processIterationLimits = util.findSummands(cliArgs.iterationLimit, cliArgs.processCount)
 
 # RUN MONTE-CARLO SIMULATION
 # Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z

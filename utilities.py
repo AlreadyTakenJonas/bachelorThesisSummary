@@ -11,6 +11,9 @@ import pathlib
 # Matrix multiplication and trigonometric functions
 import numpy as np
 
+# Used for flooring numbers
+import math
+
 # Purpose: logging
 import logging
 
@@ -220,6 +223,37 @@ def findEntries(string, keyword, lines = 1, returnKeyword = False):
 
         # Search next entry
         index = string.find(keyword, index+len(keyword))
+
+def findSummands(numerator: int, denominator: int):
+    """
+    This function finds a list of integer summands of nearly equal size for the integer value numerator. The length of the list is defined by the denominator.
+    The function is used to distribute the workload of the monte-carlo-simulation evenly over multiple subprocesses
+    Attributes:
+    numerator - integer value, that should be divided in integer summands of nearly equal size
+    denominator - number of summands
+    Returns list of summands
+    """
+    # Test type
+    if type(numerator) != int or type(denominator) != int:
+        raise TypeError("utilities.findSummands expects only integers.")
+    # Test value
+    if numerator < 1 or denominator < 1:
+        raise ValueError("utilities.findSummands expects integers greater zero.")
+
+    # Create a list of length denominator
+    # Every element of the list contains the floored value of the division
+    result = [math.floor(numerator/denominator) for i in range(0, denominator)]
+
+    # How large is the rounding error
+    error = numerator - sum(result)
+
+    # Distribute the rounding error over all summands
+    for index in range(0, error):
+        result[index] += 1
+
+    # Return array
+    return result
+
 
 def positiveInt(string):
     """

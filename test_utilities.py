@@ -82,3 +82,50 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
             self.assertIsInstance(matrix, dict)
             self.assertEqual(matrix["head"], correctoutput[index]["head"])
             self.assertEqual(matrix["matrix"].any(), correctoutput[index]["matrix"].any())
+
+class TestUtilities_FindSummands(unittest.TestCase):
+    """
+    Test utilities.findSummands()
+    """
+
+    def test_types(self):
+        """
+        Make sure type errors are raised
+        """
+        self.assertRaises(TypeError, util.findSummands, "s", 1)
+        self.assertRaises(TypeError, util.findSummands, 1.0, 1)
+        self.assertRaises(TypeError, util.findSummands, False, 1)
+        self.assertRaises(TypeError, util.findSummands, 1+1j, 1)
+        self.assertRaises(TypeError, util.findSummands, [1,1], 1)
+        self.assertRaises(TypeError, util.findSummands, (1,1), 1)
+        self.assertRaises(TypeError, util.findSummands, 1, "s")
+        self.assertRaises(TypeError, util.findSummands, 1, 1.0)
+        self.assertRaises(TypeError, util.findSummands, 1, False)
+        self.assertRaises(TypeError, util.findSummands, 1, 1+1j)
+        self.assertRaises(TypeError, util.findSummands, 1, [1,1])
+        self.assertRaises(TypeError, util.findSummands, 1, (1,1))
+
+    def test_values(self):
+        """
+        Make sure value errors are raised
+        """
+        self.assertRaises(ValueError, util.findSummands, 0, 1)
+        self.assertRaises(ValueError, util.findSummands, -1, 1)
+        self.assertRaises(ValueError, util.findSummands, 1, -1)
+        self.assertRaises(ValueError, util.findSummands, 1, 0)
+
+    def test_output(self):
+        """
+        Make sure output works correct
+        """
+        for i in range(1,21):
+            for j in range(1,21):
+                result = util.findSummands(i,j)
+
+                # Check type
+                self.assertIsInstance(result, list)
+                for elem in result:
+                    self.assertIsInstance(elem, int)
+
+                # Check sum
+                self.assertEqual(sum(result), i)
