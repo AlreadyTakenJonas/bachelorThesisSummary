@@ -26,6 +26,9 @@ from datetime import datetime
 # Run multiple processes in parallel
 import multiprocessing
 
+# Process bar
+from tqdm import tqdm
+
 #
 #   INTERNAL MODULES
 #
@@ -64,17 +67,18 @@ def __monteCarlo(processID, iterationLimit, tensorlist, convertedTensorlist):
     convertedTensorlist - correctly formatted empty list for the result to be saved in
     Returns filled convertedTensorlist
     """
-    # Show progress bar
-    util.update_progress(0)
+    # Create progress bar for only the first process
+    # If all processes print a progress bar it gets ugly
+    if processID == 0:
+        progressbar = tqdm(total = iterationLimit, desc = "Process 0")
 
     # Run simulation
     for i in range(1, iterationLimit+1):
         log.debug("Process " + str(processID) + ": Start iteration " + str(i) + "/" + str(iterationLimit))
 
-        # Update prgress bar; but only if it is the first process that was started
-        # If all processes print a progress bar it gets ugly
-        if(processID == 0):
-            util.update_progress(i/iterationLimit)
+        # Update prgress bar
+        if processID == 0:
+            progressbar.update(1)
 
         # Get random rotation angles
         phi   = rand.random() * 2*np.pi
@@ -98,6 +102,10 @@ def __monteCarlo(processID, iterationLimit, tensorlist, convertedTensorlist):
             convertedTensorlist[index]["matrix"] += rotatedTensor
 
         log.debug("Process " + str(processID) + "End iteration " + str(i) + "/" + str(iterationLimit))
+
+    # Delete progress bar object
+    if processID == 0:
+        progressbar.close()
 
     # Return result
     return convertedTensorlist
@@ -148,6 +156,7 @@ def main(cliArgs):
 #               2. a_lab = < M >
 #                  Calculate the mean over all random rotation angles
     log.info("START MONTE CARLO SIMULATION")
+    print("Parallel Processes: " + str(cliArgs.processCount))
 
     # Create a pool of workers sharing the computation task
     with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
