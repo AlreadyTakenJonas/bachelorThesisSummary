@@ -14,16 +14,87 @@ import sys
 # Matrix multiplication and trigonometric functions
 import numpy as np
 
+# ceiling and floor
+import math
+
 # Pseudo-random number generator
 import random as rand
 
 # Get time and date for output file
 from datetime import datetime
 
+# Run multiple processes in parallel
+import multiprocessing
+
 #
 #   INTERNAL MODULES
 #
 import utilities as util
+
+#
+#   SOME INTERNAL UTILITIES
+#
+
+# Define rotation matrices
+rotateX = lambda phi : np.array([ [1, 0          ,  0          ],
+                                  [0, np.cos(phi), -np.sin(phi)],
+                                  [0, np.sin(phi),  np.cos(phi)]    ])
+
+rotateY = lambda theta : np.array([ [ np.cos(theta), 0, np.sin(theta)],
+                                    [ 0            , 1, 0            ],
+                                    [-np.sin(theta), 0, np.cos(theta)]  ])
+
+rotateZ = lambda zeta : np.array([ [np.cos(zeta), -np.sin(zeta), 0],
+                                   [np.sin(zeta),  np.cos(zeta), 0],
+                                   [0           ,  0           , 1]     ])
+
+def __monteCarlo(processID, iterationLimit, tensorlist, convertedTensorlist):
+    """ RUN MONTE-CARLO SIMULATION
+        Should not be called outside of convert.py! No parameter testing or unittests in place!
+        Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
+                         Calculate for random rotation angles around all axis (x,y,z) the rotated molecular raman tensor (a_mol).
+                         Use the roation matrices R_x, R_y and R_z.
+                      2. a_lab = < M >
+                        Calculate the mean over all random rotation angles
+        Attributes:
+        processID - unique ID
+        iterationLimit - number of iterations
+        tensorlist - correctly formatted list of raman tensors in the molecular coordinate system
+        convertedTensorlist - correctly formatted empty list for the result to be saved in
+        Returns filled convertedTensorlist
+    """
+    for i in range(1, iterationLimit+1):
+        log.debug("Process " + str(processID) + ": Start iteration " + str(i) + "/" + str(iterationLimit))
+
+        # Update progress bar
+        util.update_progress(i / iterationLimit)
+
+        # Get random rotation angles
+        phi   = rand.random() * 2*np.pi
+        theta = rand.random() * 2*np.pi
+        zeta  = rand.random() * 2*np.pi
+
+        # Calculate the rotation matrices
+        Rx = rotateX(phi)
+        Ry = rotateY(theta)
+        Rz = rotateZ(zeta)
+
+        # Calculate the first half of the rotation
+        transposed = Rz.T @ Ry.T @ Rx.T
+
+        # Rotate every raman tensor and add the result to convertedTensorlist
+        for index, tensor in enumerate(tensorlist):
+
+            log.debug("Process " + str(processID) + ": Rotate tensor '" + tensor["head"] + "'")
+
+            rotatedTensor = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
+            convertedTensorlist[index]["matrix"] += rotatedTensor
+
+        log.debug("Process " + str(processID) + "End iteration " + str(i) + "/" + str(iterationLimit))
+
+    # Return result
+    return convertedTensorlist
+
 
 #
 #   MAIN PROGRAM
@@ -49,19 +120,6 @@ def main(cliArgs):
 
     log.info("Prepare simulation")
 
-    # Define rotation matrices
-    rotateX = lambda phi : np.array([ [1, 0          ,  0          ],
-                                      [0, np.cos(phi), -np.sin(phi)],
-                                      [0, np.sin(phi),  np.cos(phi)]    ])
-
-    rotateY = lambda theta : np.array([ [ np.cos(theta), 0, np.sin(theta)],
-                                        [ 0            , 1, 0            ],
-                                        [-np.sin(theta), 0, np.cos(theta)]  ])
-
-    rotateZ = lambda zeta : np.array([ [np.cos(zeta), -np.sin(zeta), 0],
-                                       [np.sin(zeta),  np.cos(zeta), 0],
-                                       [0           ,  0           , 1]     ])
-
     # Copy the structure of tensorlist with empty arrays. This copy will be filled with the result of the simulation
     convertedTensorlist = [{"head": tensor["head"],
                             "matrix": np.array([ [0, 0, 0],
@@ -71,6 +129,11 @@ def main(cliArgs):
     # Scale the original tensorlist down by a factor of iterationLimit to make sure that the sum over all iterations will equal the mean over all iterations
     tensorlist = [{ "head": tensor["head"],
                     "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist]
+
+    # Calculate how many iterations every subprocess must do
+    processIterationLimits = [math.ceil(cliArgs.iterationLimit/cliArgs.processCount)]
+    for i in range(1, cliArgs.processCount):
+        processIterationLimits.append(math.floor(cliArgs.iterationLimit/cliArgs.processCount))
 
 # RUN MONTE-CARLO SIMULATION
 # Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
@@ -84,35 +147,13 @@ def main(cliArgs):
     # Print progress bar
     util.update_progress(0)
 
-    # Run simulation
-    for i in range(1, cliArgs.iterationLimit+1):
-        log.debug("Start iteration " + str(i) + "/" + str(cliArgs.iterationLimit))
+    with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
+        processes = [ pool.apply_async(__monteCarlo, (ID, iterations, tensorlist, convertedTensorlist)) for ID, iterations in enumerate(processIterationLimits) ]
+        processResults = [p.get() for p in processes]
 
-        # Update progress bar
-        util.update_progress(i / cliArgs.iterationLimit)
-
-        # Get random rotation angles
-        phi   = rand.random() * 2*np.pi
-        theta = rand.random() * 2*np.pi
-        zeta  = rand.random() * 2*np.pi
-
-        # Calculate the rotation matrices
-        Rx = rotateX(phi)
-        Ry = rotateY(theta)
-        Rz = rotateZ(zeta)
-
-        # Calculate the first half of the rotation
-        transposed = Rz.T @ Ry.T @ Rx.T
-
-        # Rotate every raman tensor and add the result to convertedTensorlist
-        for index, tensor in enumerate(tensorlist):
-
-            log.debug("Rotate tensor '" + tensor["head"] + "'")
-
-            rotatedTensor = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
-            convertedTensorlist[index]["matrix"] += rotatedTensor
-
-        log.debug("End iteration " + str(i) + "/" + str(cliArgs.iterationLimit))
+    for result in processResults:
+        convertedTensorlist = [ {"head": tensor["head"],
+                                 "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]) } for (index, tensor) in enumerate(result) ]
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
 

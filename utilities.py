@@ -14,6 +14,9 @@ import numpy as np
 # Purpose: logging
 import logging
 
+# Used for raising argparse.ArgumentTypeError
+import argparse
+
 # Enables logging with the logging module
 log = logging.getLogger(__name__)
 # Tells the logging module to ignore all logging message, if a program using this library does not use the logging module.
@@ -217,3 +220,18 @@ def findEntries(string, keyword, lines = 1, returnKeyword = False):
 
         # Search next entry
         index = string.find(keyword, index+len(keyword))
+
+def positiveInt(string):
+    """
+    Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself
+    Type checking function for cli. Converts string given by cli to int and raises Exception if it is smaller 1.
+    Attribute:
+    string - string to convert to positive integer
+    Returns positive integer
+    """
+    value = int(string)
+
+    if value < 1:
+        raise argparse.ArgumentTypeError("%s is no positive integer" % value)
+
+    return value

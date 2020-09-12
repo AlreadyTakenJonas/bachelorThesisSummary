@@ -14,6 +14,7 @@ import pathlib
 #   INTERNAL MODULES
 #
 import simulate, convert, extract
+import utilities as util
 
 #
 #   START OF PROGRAM EXECUTION AS MAIN PROGRAM
@@ -96,6 +97,13 @@ if __name__ == "__main__":
                              required = False,
                              type = str,
                              default = "")
+    # Add option to multiprocess calculation
+    sap_convert.add_argument("-p", "--processes",
+                             dest = "processCount",
+                             help = "number of processes that compute in parallel. Default = 1",
+                             required = False,
+                             default = 1,
+                             type = util.positiveInt)
 
     # Create extract command
     sap_extract = sap.add_parser("extract",
