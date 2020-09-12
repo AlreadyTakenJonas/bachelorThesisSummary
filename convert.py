@@ -131,6 +131,7 @@ def main(cliArgs):
                     "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist]
 
     # Calculate how many iterations every subprocess must do
+    # If the iterationLimit is not divideable by the number of processes, one process will do more iterations than the others
     processIterationLimits = [math.ceil(cliArgs.iterationLimit/cliArgs.processCount)]
     for i in range(1, cliArgs.processCount):
         processIterationLimits.append(math.floor(cliArgs.iterationLimit/cliArgs.processCount))
@@ -147,10 +148,14 @@ def main(cliArgs):
     # Print progress bar
     util.update_progress(0)
 
+    # Create a pool of workers sharing the computation tash
     with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
+        # Start child processes wich run __monteCarlo()
         processes = [ pool.apply_async(__monteCarlo, (ID, iterations, tensorlist, convertedTensorlist)) for ID, iterations in enumerate(processIterationLimits) ]
+        # Wait for the processes to finish and get their results
         processResults = [p.get() for p in processes]
 
+    # Tally the results of all processes up in order to get the mean of all computations
     for result in processResults:
         convertedTensorlist = [ {"head": tensor["head"],
                                  "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]) } for (index, tensor) in enumerate(result) ]
