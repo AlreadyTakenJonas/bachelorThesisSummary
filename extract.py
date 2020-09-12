@@ -4,7 +4,7 @@
 # Purpose loggging
 import logging
 
-# Purpose: CLIFileNotFoundError:
+# Purpose: CLI
 import argparse
 
 # Terminate program on exception
@@ -93,7 +93,7 @@ def main():
         # Gaussian writes imaginary frequencies as negative real numbers
         for freq in frequencylist:
             if float(freq) < 0:
-                raise ValueError        
+                raise ValueError
 
     except ValueError:
         # Handle imaginary frequencies
