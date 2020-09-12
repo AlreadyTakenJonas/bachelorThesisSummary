@@ -1,24 +1,22 @@
-# Raman Scattering Of Linear Polarised Light
+# Raman Scattering Of Linear Polarised Light With PolaRam
 
-This python3 script simulates the behaviour of linear and fully polarised light with the mueller formalism and stokes vectors. The simulation contains the raman scattering process with a custom sample and the optical elements like like attenuating filters, wave plates and linear retarders. The polarisation state and polarisation change of the scattered laser light is simulated as matrix multiplication of stokes vectors (polarisation state) and mueller matrices (polarisation change due to optical elements or sample).
+The program PolaRam simulates the behaviour of linear and fully polarised light with the mueller formalism and stokes vectors. The simulation contains the raman scattering process with a custom sample and the optical elements like like attenuating filters, wave plates and linear retarders. The polarisation state and polarisation change of the scattered laser light is simulated as matrix multiplication of stokes vectors (polarisation state) and mueller matrices (polarisation change due to optical elements or sample).
 
 The program needs a file with instructions and a file with the raman tensors of the sample. The instructions file describes the experimental setup that shall be simulated. The syntax is assembly like and described below. The raman tensors are stored in a seperate file with a specific format and coordinate system also described below.
 
-## Planned Features
+The sub-program carrying out the simulation is called `polaram simulate`. There are two more sub-programs helping with data and file conversion: `polaram convert`and `polaram extract`. More information below.
 
-* Monte-Caro-simulation to derive raman tensors for solutions from the molecular raman tensor
-* Implementation of raman tensors with automatic conversion from molecular coordinate system to labratory coordinate system
-
+# Simulation of Raman Scattering Of Linear Polarised Light (polaram simulate)
 ## Usage
 
-The simulation is started by typing `python3 main.py PATH_TO_INPUT_FILE`. The command `python3 main.py -h` echos a help text. This command prints the following output:
+The simulation is started by typing `python3 main.py simulate PATH_TO_INPUT_FILE`. The command `python3 main.py simulate -h` echos a help text. This command prints the following output:
 ```
-$ python3 main.py -h
-usage: main.py [-h] [-v] [-l LOGFILE] inputfile
+$ python3 main.py simulate -h
+usage: polaram simulate [-h] [-v] [-l LOGFILE] [-m MATRIXFILE] inputfile
 
 This program simulates the influence of a raman active sample and the optical
 elements of the measurement setup on the polarisation of the laser. The
-calculation are performed with the mueller calculus and stokes vectors.
+calculations are performed with the mueller calculus and stokes vectors.
 
 positional arguments:
   inputfile             text file containing the labratory setup that needs to
@@ -27,11 +25,13 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -v, --verbose         runs programm and shows status and error messages
-  -l LOGFILE, --logfile LOGFILE
+  -l LOGFILE, --log LOGFILE
                         defines path and name of a custom .log file.
-                        Default=./muellersimulation.log
-
-Author: Jonas Eichhorn; License: MIT; Date: Sep.2020
+                        Default=PROGRAMPATH/log/muellersimulation.log
+  -m MATRIXFILE, --matrix MATRIXFILE
+                        text file containing the raman matrices of the sample
+                        in the labratory cordinate system. Details are given
+                        in the README.
 ```
 
 ## The Input Files
