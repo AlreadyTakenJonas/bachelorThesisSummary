@@ -101,12 +101,18 @@ def main():
 # WRITE RESULTS TO FILE
 
     log.info("Write results to file.")
-    # Write meta data and tensors to outputfile
+    # Create string to write to file
     output_text = "# Raman tensors calculated by Gaussian with following settings:\n"
 
+    # Add meta data to output
     for line in metadata:
         output_text += "\n# " + line
 
+    # Add user comment to string
+    if cliArgs.comment != "":
+        output_text += "\n\n# " + str(cliArgs.comment)
+
+    # Add tensors to output
     for tensor in tensorlist:
             output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["matrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
 
@@ -153,6 +159,13 @@ if __name__ == "__main__":
                     required = False,
                     default = False,
                     dest = "outputfile")
+    # Add argument that will be written as comment in the output file
+    ap.add_argument("-c", "--comment",
+                    dest = "comment",
+                    help = "comment that will be added to the output file",
+                    required = False,
+                    type = str,
+                    default = "")
     # Store command line arguments
     cliArgs = ap.parse_args()
 
