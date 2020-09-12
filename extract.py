@@ -13,6 +13,8 @@ import sys
 # Handling file paths
 import pathlib
 
+# Math stuff and arrays
+import numpy as np
 
 #
 #   INTERNAL MODULES
@@ -27,6 +29,8 @@ import utilities as util
 LOGFILE_KEYWORD = "freq(raman, printderivatives)"
 # This string marks beginning of raman tensor in input file
 TENSOR_KEYWORD = "Polarizability derivatives wrt mode"
+# This string marks the beginning of the frequencies of the modes that belong to the raman tensors
+FREQUENCY_KEYWORD = "Frequencies -- "
 
 #
 #   MAIN PROGRAM
@@ -72,10 +76,25 @@ def main():
 
 # EXTRACT DATA
 
+    log.info("Extract harmonic frequencies from file.")
+    # Read the harmonic frequencies from the log file
+    # Every entry util.findEntries returns contains three frequencies. Every triplett will be splitt into its elements and all frequencies are combined in a single flat list.
+    frequencylist = [freq for triplett in util.findEntries(gaussianfile, FREQUENCY_KEYWORD) for freq in triplett[0].split()]
+
+    log.info("Extract tensors from file.")
     # Read tensor entries from string and covert them into matrices
-    for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5):
-        print(tensor)
-        # TODO DATA CONVERSION
+    # Find all tensors with util.findEntries()
+    # Create with the result of util.findEntries() a list of dictionaries containing a descriptive headder ("head") and the tensor as numpy float array ("matrix")
+    # The header will contain the unique incrementing number of the mode and the harmonix frequency of the mode
+    tensorlist = [ { "head": "v_" + tensor[0] + " = " + frequencylist[ int(tensor[0])-1 ] + "/cm",
+                     "matrix": np.array([ tensor[2].replace("D", "e").split()[1:],
+                                          tensor[3].replace("D", "e").split()[1:],
+                                          tensor[4].replace("D", "e").split()[1:]  ]).astype(np.float) } for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5) ]
+
+# WRITE RESULTS TO FILE
+
+    log.info("Write results to file.")
+    
 
     log.info("STOPPED RAMAN TENSOR EXTRACTION SUCCESSFULLY")
 
