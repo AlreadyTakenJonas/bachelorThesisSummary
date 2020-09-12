@@ -265,3 +265,9 @@ if __name__ == "__main__":
     # RUN PROGRAM
     #
     main()
+
+else:
+    # Enables logging with the logging module
+    log = logging.getLogger(__name__)
+    # Tells the logging module to ignore all logging message, if a program using this library does not use the logging module.
+    log.addHandler(logging.NullHandler())

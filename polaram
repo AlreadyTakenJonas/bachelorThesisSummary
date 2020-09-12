@@ -1,2 +1,2 @@
-# Run simulation
+# Run program
 python3 main.py $@

@@ -30,7 +30,7 @@ import utilities as util
 #
 #   MAIN PROGRAM
 #
-def main():
+def main(cliArgs):
     """
     Reads input file and runs monte carlo simulation to convert raman tensors from molecular to labratory coordinates
     """
@@ -235,4 +235,10 @@ if __name__ == "__main__":
     #
     # RUN PROGRAM
     #
-    main()
+    main(cliArgs)
+
+else:
+    # Enables logging with the logging module
+    log = logging.getLogger(__name__)
+    # Tells the logging module to ignore all logging message, if a program using this library does not use the logging module.
+    log.addHandler(logging.NullHandler())
