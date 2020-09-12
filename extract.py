@@ -56,7 +56,7 @@ def main():
 
     if not LOGFILE_KEYWORD in gaussianfile:
         # Key word not found, probably wrong file
-        log.warning("Keyword 'freq(raman, printderivatives)' not found in input file. May not contain raman tensors. Ask user for prgram termination.")
+        log.warning("Keyword 'freq(raman, printderivatives)' not found in input file. May not contain raman tensors. Ask user for program termination.")
 
         # Ask user if he wants to continiue execution
         if bool(input("WARNING: This file is probably no gaussian log file or may not contain raman tensors. Continue anyway? [y/N] ").lower() != 'y'):
@@ -83,18 +83,39 @@ def main():
         # Read the harmonic frequencies from the log file
         # Every entry util.findEntries returns contains three frequencies. Every triplett will be splitt into its elements and all frequencies are combined in a single flat list.
         frequencylist = [freq for triplett in util.findEntries(gaussianfile, FREQUENCY_KEYWORD) for freq in triplett[0].split()]
-        
+
         # Write function that returns elements of frequencylist
         # Use function not list in case exceptions is raised
         def frequency(mode_index):
             return frequencylist[mode_index]
 
+        # Make sure all frequencies are real
+        # Gaussian writes imaginary frequencies as negative real numbers
+        for freq in frequencylist:
+            if float(freq) < 0:
+                raise ValueError        
+
+    except ValueError:
+        # Handle imaginary frequencies
+        log.warning("File contains complex frequencies! Raman tensors might be wrong. Ask user for prgram termination.")
+
+        # Ask user if he wants to continiue execution
+        if bool(input("WARNING: File contains complex frequencies! Raman tensors might be wrong. Continue anyway? [y/N] ").lower() != 'y'):
+            # Terminate program
+            print("As you wish, my Lord.")
+            log.info("USER STOPPED EXECUTION")
+            sys.exit(-1)
+
+        # Continue program
+        print("As you wish, my Lord.")
+        log.info("Continue execution.")
+
     except:
         # Handle unexpected errors
-        log.error("UNKNOWN ERROR: Unable to extract raman frequencies from file. Is the file corrupted? Continueing execution.")
+        log.error("UNKNOWN ERROR: Unable to extract raman frequencies from file. Is the file corrupted? Continuing execution.")
         log.exception(sys.exc_info()[0])
 
-        # Define dummy values for tensorlist definition
+        # Define dummy values for following tensorlist definition
         def frequency(mode_index):
             return "??"
 
