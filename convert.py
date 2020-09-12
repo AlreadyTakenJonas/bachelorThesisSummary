@@ -64,8 +64,17 @@ def __monteCarlo(processID, iterationLimit, tensorlist, convertedTensorlist):
     convertedTensorlist - correctly formatted empty list for the result to be saved in
     Returns filled convertedTensorlist
     """
+    # Show progress bar
+    util.update_progress(0)
+
+    # Run simulation
     for i in range(1, iterationLimit+1):
         log.debug("Process " + str(processID) + ": Start iteration " + str(i) + "/" + str(iterationLimit))
+
+        # Update prgress bar; but only if it is the first process that was started
+        # If all processes print a progress bar it gets ugly
+        if(processID == 0):
+            util.update_progress(i/iterationLimit)
 
         # Get random rotation angles
         phi   = rand.random() * 2*np.pi
@@ -143,7 +152,7 @@ def main(cliArgs):
     # Create a pool of workers sharing the computation task
     with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
         # Start child processes wich run __monteCarlo()
-        processes = [ pool.apply_async(__monteCarlo, (ID, iterations, tensorlist, convertedTensorlist)) for ID, iterations in enumerate(processIterationLimits) 
+        processes = [ pool.apply_async(__monteCarlo, (ID, iterations, tensorlist, convertedTensorlist)) for ID, iterations in enumerate(processIterationLimits) ]
 
         # Wait for the processes to finish and get their results
         processResults = [p.get() for p in processes]
