@@ -3,6 +3,10 @@
 #
 # Purpose loggging
 import logging
+# Enables logging with the logging module
+log = logging.getLogger(__name__)
+# Tells the logging module to ignore all logging message, if a program using this file does not use the logging module.
+log.addHandler(logging.NullHandler())
 
 # Purpose: CLI
 import argparse
@@ -12,9 +16,6 @@ import sys
 
 # Purpose: Math
 import numpy as np
-
-# Handling file paths
-import pathlib
 
 #
 #   INTERNAL MODULES
@@ -118,89 +119,3 @@ def main(cliArgs):
 
 
     log.info("STOPPED MUELLER SIMULATION SUCCESSFULLY")
-
-#
-# START PROGRAM EXECUTION
-#
-if __name__ == "__main__":
-
-    #
-    #   CREATE COMMAND LINE INTERFACE
-    #
-    # Construct the commandline arguments
-    # Initialise and set helping information
-    ap = argparse.ArgumentParser(prog = "simulate",
-                                 description = "This program simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculation are performed with the mueller calculus and stokes vectors.",
-                                 epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
-
-    # Adding arguments
-    # Add verbose
-    ap.add_argument("-v", "--verbose",
-                    required = False,
-                    help = "runs programm and shows status and error messages",
-                    action = "store_true")
-    # Add logfile (default defined)
-    ap.add_argument("-l", "--log",
-                    required = False,
-                    default = str(pathlib.Path(__file__).parent) + "/log/muellersimulation.log",
-                    help = "defines path and name of a custom .log file. Default=PROGRAMPATH/log/muellersimulation.log",
-                    dest = "logfile")
-    # Add input file for labratory setup
-    ap.add_argument("inputfile",
-                    help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
-    # Add input file for raman tensors
-    ap.add_argument("-m", "--matrix",
-                    required = False,
-                    default = False,
-                    dest = "matrixfile",
-                    help = "text file containing the raman matrices of the sample in the labratory cordinate system. Details are given in the README.")
-
-    # Store command line arguments
-    cliArgs = ap.parse_args()
-
-    # Convert file paths to pathlib.Path
-    cliArgs.inputfile = pathlib.Path(cliArgs.inputfile)
-    if cliArgs.matrixfile != False:
-        cliArgs.matrixfile = pathlib.Path(cliArgs.matrixfile)
-
-
-
-    #
-    # SETUPG LOGGING
-    #
-    # Logs to file and to console (to console only if verbose activated)
-    # Set config for logfile
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s : %(name)s : %(levelname)s : %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename= cliArgs.logfile,
-                        filemode='a')
-
-    # Define a Handler which writes DEBUG messages or higher to the sys.stderr, if the commandline flag -v is given
-    # If the verbose flag is not given only CRITICAL messages will go to sys.stderr
-    console = logging.StreamHandler()
-    if cliArgs.verbose:
-        console.setLevel(logging.DEBUG)
-    else:
-        console.setLevel(logging.CRITICAL)
-
-    # Set a format which is simpler for console use
-    formatter = logging.Formatter('%(message)s')
-    # Tell the handler to use this format
-    console.setFormatter(formatter)
-    # Add the handler to the root logger
-    logging.getLogger('').addHandler(console)
-
-    # Create a logger
-    log = logging.getLogger(__name__)
-
-    #
-    #   RUN PROGRAM
-    #
-    main(cliArgs)
-
-else:
-    # Enables logging with the logging module
-    log = logging.getLogger(__name__)
-    # Tells the logging module to ignore all logging message, if a program using this library does not use the logging module.
-    log.addHandler(logging.NullHandler())

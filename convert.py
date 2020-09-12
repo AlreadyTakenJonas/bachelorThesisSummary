@@ -3,9 +3,10 @@
 #
 # Purpose loggging
 import logging
-
-# Purpose: CLIFileNotFoundError:
-import argparse
+# Enables logging with the logging module
+log = logging.getLogger(__name__)
+# Tells the logging module to ignore all logging message, if a program using this file does not use the logging module.
+log.addHandler(logging.NullHandler())
 
 # Terminate program on exception
 import sys
@@ -15,9 +16,6 @@ import numpy as np
 
 # Pseudo-random number generator
 import random as rand
-
-# Handling file paths
-import pathlib
 
 # Get time and date for output file
 from datetime import datetime
@@ -33,6 +31,8 @@ import utilities as util
 def main(cliArgs):
     """
     Reads input file and runs monte carlo simulation to convert raman tensors from molecular to labratory coordinates
+    Attributes:
+    cliArgs - object containing the command line arguments parsed in main.py
     """
 
     log.info("START RAMAN TENSOR CONVERSION")
@@ -135,110 +135,3 @@ def main(cliArgs):
     cliArgs.outputfile.write_text(output_text)
 
     log.info("STOPPED RAMAN TENSOR CONVERSION SUCCESSFULLY")
-
-#
-#   START OF PROGRAM EXECUTION AS MAIN PROGRAM
-#
-if __name__ == "__main__":
-
-    #
-    #   CREATE COMMAND LINE INTERFACE
-    #
-    # Construct the commandline arguments
-    # Initialise and set helping information
-    ap = argparse.ArgumentParser(prog = "convert",
-                                 description = "Converts raman tensors from the molecular coordinate system into the raman matrix of a solution in the labratory coordinate system via a monte carlo simulation.",
-                                 epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
-
-    # Adding arguments
-    # Add verbose
-    ap.add_argument("-v", "--verbose",
-                    required = False,
-                    help = "runs programm and shows status and error messages",
-                    action = "store_true")
-    # Add logfile (default defined)
-    ap.add_argument("-l", "--log",
-                    required = False,
-                    default = str(pathlib.Path(__file__).parent) + "/log/convertRamanTensor.log",
-                    help = "defines path and name of a custom .log file. Default=PROGRAMPATH/log/convertRamanTensor.log",
-                    dest = "logfile")
-    # Add input file for labratory setup
-    ap.add_argument("tensorfile",
-                    help = "text file containing the raman tensors that will be converted. Details are given in the README.")
-    # Add iteration limit for monte carlo simulation
-    ap.add_argument("-i", "--iterations",
-                    help = "number of iterations the simulation will calculate. Default = 10000",
-                    required = False,
-                    type = int,
-                    default = 10000,
-                    dest = "iterationLimit")
-    # Add path to output file
-    ap.add_argument("-o", "--output",
-                    help = "path to output file. Defaults to path of conveted_tensorfile.txt",
-                    required = False,
-                    default = False,
-                    dest = "outputfile")
-    # Add argument that will be written as comment in the output file
-    ap.add_argument("-c", "--comment",
-                    dest = "comment",
-                    help = "comment that will be added to the output file",
-                    required = False,
-                    type = str,
-                    default = "")
-
-    # Store command line arguments
-    cliArgs = ap.parse_args()
-
-
-    # Convert all paths to pathlib.Path
-    cliArgs.tensorfile = pathlib.Path(cliArgs.tensorfile)
-    cliArgs.logfile = pathlib.Path(cliArgs.logfile)
-
-    # Create output file path if none is given
-    # or covert to pathlib.Paht if given
-    if cliArgs.outputfile == False:
-        cliArgs.outputfile = pathlib.Path(cliArgs.tensorfile.parent, f"converted_{cliArgs.tensorfile.stem}.txt")
-    else:
-        cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
-
-
-
-    #
-    # SETUPG LOGGING
-    #
-    # Logs to file and to console (to console only if verbose activated)
-    # Set config for logfile
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s : %(name)s : %(levelname)s : %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename= str(cliArgs.logfile.resolve()),
-                        filemode='a')
-
-    # Define a Handler which writes DEBUG messages or higher to the sys.stderr, if the commandline flag -v is given
-    # If the verbose flag is not given only CRITICAL messages will go to sys.stderr
-    console = logging.StreamHandler()
-    if cliArgs.verbose:
-        console.setLevel(logging.INFO)
-    else:
-        console.setLevel(logging.CRITICAL)
-
-    # Set a format which is simpler for console use
-    formatter = logging.Formatter('%(message)s')
-    # Tell the handler to use this format
-    console.setFormatter(formatter)
-    # Add the handler to the root logger
-    logging.getLogger('').addHandler(console)
-
-    # Create a logger
-    log = logging.getLogger(__name__)
-
-    #
-    # RUN PROGRAM
-    #
-    main(cliArgs)
-
-else:
-    # Enables logging with the logging module
-    log = logging.getLogger(__name__)
-    # Tells the logging module to ignore all logging message, if a program using this library does not use the logging module.
-    log.addHandler(logging.NullHandler())
