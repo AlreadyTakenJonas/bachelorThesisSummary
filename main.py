@@ -106,10 +106,16 @@ if __name__ == "__main__":
     # Add option to multiprocess calculation
     sap_convert.add_argument("-p", "--processes",
                              dest = "processCount",
-                             help = "number of processes that compute in parallel. Default = 2",
+                             help = "number of processes that compute in parallel. Default=2",
                              required = False,
                              default = 2,
                              type = util.positiveInt)
+    sap_convert.add_argument("-s", "--cunksize",
+                             dest = "chunksize",
+                             required = False,
+                             default = 500,
+                             type = util.positiveInt,
+                             help = "Length of array each subprocess is given to calculate. Default=500")
 
     # Create extract command
     sap_extract = sap.add_parser("extract",

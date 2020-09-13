@@ -67,7 +67,7 @@ def __monteCarlo(param):
     Ry = np.array([ [ np.cos(theta), 0, np.sin(theta)],
                     [ 0            , 1, 0            ],
                     [-np.sin(theta), 0, np.cos(theta)]  ])
-                    
+
     Rz = np.array([ [np.cos(zeta), -np.sin(zeta), 0],
                     [np.sin(zeta),  np.cos(zeta), 0],
                     [0           ,  0           , 1]    ])
@@ -137,9 +137,9 @@ def main(cliArgs):
     with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
 
         # Start child processes wich run __monteCarlo()
-        # The list of all random angles is split into chunksize=500 pieces and each piece is given to one subprocess to calculate the rotated tensors
-        # The computation will be slow if the chunksize is to big or small
-        process = pool.imap_unordered(__monteCarlo, processArgs, chunksize = 500)
+        # The list of all random angles is split into chunksize pieces (500 is a good value) and each piece is given to one subprocess to calculate the rotated tensors
+        # The computation will be slow if the chunksize is to big or to small
+        process = pool.imap_unordered(__monteCarlo, processArgs, chunksize = cliArgs.chunksize)
 
         # Loop over all ready results, while the processes are still running
         # tqdm prints a lovely progress bar
