@@ -51,64 +51,43 @@ rotateZ = lambda zeta : np.array([ [np.cos(zeta), -np.sin(zeta), 0],
                                    [np.sin(zeta),  np.cos(zeta), 0],
                                    [0           ,  0           , 1]     ])
 
-def __monteCarlo(processID, iterationLimit, tensorlist, convertedTensorlist):
+def __monteCarlo(param):
     """
-    RUN MONTE-CARLO SIMULATION
+    RUN ONE ITERATION OF THE MONTE-CARLO SIMULATION
+    !!!!! LOGGING IS OMITTED DURING THE SIMULATION DUE TO SEVERE PERFORMANCE ISSUES !!!!!!
     Should not be called outside of convert.py! No parameter testing or unittests in place!
     Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
                      Calculate for random rotation angles around all axis (x,y,z) the rotated molecular raman tensor (a_mol).
                      Use the roation matrices R_x, R_y and R_z.
                   2. a_lab = < M >
-                    Calculate the mean over all random rotation angles
+                    Calculate the mean over all random rotation angles (will be done by main function)
     Attributes:
-    processID - unique ID
-    iterationLimit - number of iterations
-    tensorlist - correctly formatted list of raman tensors in the molecular coordinate system
-    convertedTensorlist - correctly formatted empty list for the result to be saved in
-    Returns filled convertedTensorlist
+    param - a tuple containing following elements:
+        phi, theta, zeta - rotation angles in radians
+        tensorlist - correctly formatted list of raman tensors in the molecular coordinate system
+    Returns rotated version of tensorlist
     """
-    # Create progress bar for only the first process
-    # If all processes print a progress bar it gets ugly
-    if processID == 0:
-        progressbar = tqdm(total = iterationLimit, desc = "Process 0")
+    # Expand parameters
+    phi         = param[0]
+    theta       = param[1]
+    zeta        = param[2]
+    tensorlist  = param[3]
 
-    # Run simulation
-    for i in range(1, iterationLimit+1):
-        log.debug("Process " + str(processID) + ": Start iteration " + str(i) + "/" + str(iterationLimit))
+    # Calculate the rotation matrices
+    Rx = rotateX(phi)
+    Ry = rotateY(theta)
+    Rz = rotateZ(zeta)
 
-        # Update prgress bar
-        if processID == 0:
-            progressbar.update(1)
+    # Calculate the first half of the rotation
+    transposed = Rz.T @ Ry.T @ Rx.T
 
-        # Get random rotation angles
-        phi   = rand.random() * 2*np.pi
-        theta = rand.random() * 2*np.pi
-        zeta  = rand.random() * 2*np.pi
+    # Rotate every raman tensor and add the result to convertedTensorlist
+    for index, tensor in enumerate(tensorlist):
 
-        # Calculate the rotation matrices
-        Rx = rotateX(phi)
-        Ry = rotateY(theta)
-        Rz = rotateZ(zeta)
+        tensorlist[index]["matrix"] = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
 
-        # Calculate the first half of the rotation
-        transposed = Rz.T @ Ry.T @ Rx.T
-
-        # Rotate every raman tensor and add the result to convertedTensorlist
-        for index, tensor in enumerate(tensorlist):
-
-            log.debug("Process " + str(processID) + ": Rotate tensor '" + tensor["head"] + "'")
-
-            rotatedTensor = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
-            convertedTensorlist[index]["matrix"] += rotatedTensor
-
-        log.debug("Process " + str(processID) + "End iteration " + str(i) + "/" + str(iterationLimit))
-
-    # Delete progress bar object
-    if processID == 0:
-        progressbar.close()
-
-    # Return result
-    return convertedTensorlist
+    # Return rotated tensors
+    return tensorlist
 
 
 #
@@ -145,9 +124,10 @@ def main(cliArgs):
     tensorlist = [{ "head": tensor["head"],
                     "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist]
 
-    # Calculate how many iterations every subprocess must do
-    # If the iterationLimit is not divideable by the number of processes, some processes will do one more iterations than the others
-    processIterationLimits = util.findSummands(cliArgs.iterationLimit, cliArgs.processCount)
+    # Build a generator that returns a tuple that can be passed to the monte-carlo-simulation function
+    # It contains one tuple for every iteration. The tuples contain three random anlges in radians and the tensorlist, that will be rotated.
+    processArgs = ( (rand.random() * 2*np.pi, rand.random() * 2*np.pi, rand.random() * 2*np.pi, tensorlist) for i in range(cliArgs.iterationLimit) )
+
 
 # RUN MONTE-CARLO SIMULATION
 # Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
@@ -156,20 +136,25 @@ def main(cliArgs):
 #               2. a_lab = < M >
 #                  Calculate the mean over all random rotation angles
     log.info("START MONTE CARLO SIMULATION")
-    print("Parallel Processes: " + str(cliArgs.processCount))
+
+    # !!!!! LOGGING IS OMITTED DURING THE SIMULATION DUE TO SEVERE PERFORMANCE ISSUES !!!!!!
 
     # Create a pool of workers sharing the computation task
     with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
+
         # Start child processes wich run __monteCarlo()
-        processes = [ pool.apply_async(__monteCarlo, (ID, iterations, tensorlist, convertedTensorlist)) for ID, iterations in enumerate(processIterationLimits) ]
+        # The list of all random angles is split into chunksize=500 pieces and each piece is given to one subprocess to calculate the rotated tensors
+        # The computation will be slow if the chunksize is to big or small
+        process = pool.imap_unordered(__monteCarlo, processArgs, chunksize = 500)
 
-        # Wait for the processes to finish and get their results
-        processResults = [p.get() for p in processes]
+        # Loop over all ready results, while the processes are still running
+        # tqdm prints a lovely progress bar
+        for result in tqdm( process, total = cliArgs.iterationLimit,
+                                     desc = "Processes " + str(cliArgs.processCount) ):
+            # Tally the results of all processes up in order to get the mean of all computations
+            convertedTensorlist = [ {"head": tensor["head"],
+                                     "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]) } for (index, tensor) in enumerate(result) ]
 
-    # Tally the results of all processes up in order to get the mean of all computations
-    for result in processResults:
-        convertedTensorlist = [ {"head": tensor["head"],
-                                 "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]) } for (index, tensor) in enumerate(result) ]
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
 
