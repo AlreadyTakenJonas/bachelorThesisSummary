@@ -35,22 +35,8 @@ from tqdm import tqdm
 import utilities as util
 
 #
-#   SOME INTERNAL UTILITIES
+#   FUNCTION TO BE CALLED BY PARALLEL SUBPROCESSES
 #
-
-# Define rotation matrices
-rotateX = lambda phi : np.array([ [1, 0          ,  0          ],
-                                  [0, np.cos(phi), -np.sin(phi)],
-                                  [0, np.sin(phi),  np.cos(phi)]    ])
-
-rotateY = lambda theta : np.array([ [ np.cos(theta), 0, np.sin(theta)],
-                                    [ 0            , 1, 0            ],
-                                    [-np.sin(theta), 0, np.cos(theta)]  ])
-
-rotateZ = lambda zeta : np.array([ [np.cos(zeta), -np.sin(zeta), 0],
-                                   [np.sin(zeta),  np.cos(zeta), 0],
-                                   [0           ,  0           , 1]     ])
-
 def __monteCarlo(param):
     """
     RUN ONE ITERATION OF THE MONTE-CARLO SIMULATION
@@ -74,9 +60,17 @@ def __monteCarlo(param):
     tensorlist  = param[3]
 
     # Calculate the rotation matrices
-    Rx = rotateX(phi)
-    Ry = rotateY(theta)
-    Rz = rotateZ(zeta)
+    Rx = np.array([ [1, 0          ,  0          ],
+                    [0, np.cos(phi), -np.sin(phi)],
+                    [0, np.sin(phi),  np.cos(phi)]      ])
+
+    Ry = np.array([ [ np.cos(theta), 0, np.sin(theta)],
+                    [ 0            , 1, 0            ],
+                    [-np.sin(theta), 0, np.cos(theta)]  ])
+                    
+    Rz = np.array([ [np.cos(zeta), -np.sin(zeta), 0],
+                    [np.sin(zeta),  np.cos(zeta), 0],
+                    [0           ,  0           , 1]    ])
 
     # Calculate the first half of the rotation
     transposed = Rz.T @ Ry.T @ Rx.T
