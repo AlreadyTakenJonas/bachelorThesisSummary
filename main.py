@@ -47,16 +47,19 @@ if __name__ == "__main__":
                               required = False,
                               default = str(pathlib.Path(__file__).parent) + "/log/muellersimulation.log",
                               help = "defines path and name of a custom .log file. Default=PROGRAMPATH/log/muellersimulation.log",
-                              dest = "logfile")
+                              dest = "logfile",
+                              type = util.filepath)
     # Add input file for labratory setup
     sap_simulate.add_argument("inputfile",
-                              help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.")
+                              help = "text file containing the labratory setup that needs to be simulated. Details are given in the README.",
+                              type = util.filepath)
     # Add input file for raman tensors
     sap_simulate.add_argument("-m", "--matrix",
                               required = False,
-                              default = False,
+                              default = str(pathlib.Path(__file__).parent) + "/unitmatrix.txt",
                               dest = "matrixfile",
-                              help = "text file containing the raman matrices of the sample in the labratory cordinate system. Details are given in the README.")
+                              help = "text file containing the raman matrices of the sample in the labratory cordinate system. Details are given in the README.",
+                              type = util.filepath)
 
     # Create convert command
     sap_convert = sap.add_parser("convert",
@@ -73,10 +76,12 @@ if __name__ == "__main__":
                              required = False,
                              default = str(pathlib.Path(__file__).parent) + "/log/convertRamanTensor.log",
                              help = "defines path and name of a custom .log file. Default=PROGRAMPATH/log/convertRamanTensor.log",
-                             dest = "logfile")
+                             dest = "logfile",
+                             type = util.filepath)
     # Add input file for labratory setup
     sap_convert.add_argument("tensorfile",
-                             help = "text file containing the raman tensors that will be converted. Details are given in the README.")
+                             help = "text file containing the raman tensors that will be converted. Details are given in the README.",
+                             type = util.filepath)
     # Add iteration limit for monte carlo simulation
     sap_convert.add_argument("-i", "--iterations",
                              help = "number of iterations the simulation will calculate. Default = 10000",
@@ -86,10 +91,11 @@ if __name__ == "__main__":
                              dest = "iterationLimit")
     # Add path to output file
     sap_convert.add_argument("-o", "--output",
-                             help = "path to output file. Defaults to path of conveted_tensorfile.txt",
+                             help = "path to output file. Default=PROGRAMMPATH/res/labratoryTensor.txt",
                              required = False,
-                             default = False,
-                             dest = "outputfile")
+                             default = str(pathlib.Path(__file__).parent) + "/res/labratoryTensor.txt",
+                             dest = "outputfile",
+                             type = util.filepath)
     # Add argument that will be written as comment in the output file
     sap_convert.add_argument("-c", "--comment",
                              dest = "comment",
@@ -119,17 +125,20 @@ if __name__ == "__main__":
     sap_extract.add_argument("-l", "--log",
                              required = False,
                              default = str(pathlib.Path(__file__).parent) + "/log/extractGaussianTensor.log",
-                             help = "defines path and name of a custom .log file. Default=.PROGRAMPATH/log/extractGaussianTensor.log",
-                             dest = "logfile")
+                             help = "defines path and name of a custom .log file. Default=PROGRAMPATH/log/extractGaussianTensor.log",
+                             dest = "logfile",
+                             type = util.filepath)
     # Add input file for gaussian log file
     sap_extract.add_argument("gaussianfile",
-                             help = "the log file of a gaussian frequency calculation")
+                             help = "the log file of a gaussian frequency calculation",
+                             type=util.filepath)
     # Add path to output file
     sap_extract.add_argument("-o", "--output",
-                             help = "path to output file. Defaults to path of tensor_gaussianfile.txt",
+                             help = "path to output file. Default=PROGRAMPATH/res/molecularTensor.txt",
                              required = False,
-                             default = False,
-                             dest = "outputfile")
+                             default = str(pathlib.Path(__file__).parent) + "/res/molecularTensor.txt",
+                             dest = "outputfile",
+                             type = util.filepath)
     # Add argument that will be written as comment in the output file
     sap_extract.add_argument("-c", "--comment",
                              dest = "comment",
@@ -143,39 +152,6 @@ if __name__ == "__main__":
     cliArgs = ap.parse_args()
 
     #
-    #   SAVE FILE PATHS AS pathlib.Path OBJECT
-    #
-    if cliArgs.command == "simulate":
-        # Convert file paths to pathlib.Path
-        cliArgs.inputfile = pathlib.Path(cliArgs.inputfile)
-        if cliArgs.matrixfile != False:
-            cliArgs.matrixfile = pathlib.Path(cliArgs.matrixfile)
-
-    elif cliArgs.command == "convert":
-        # Convert all paths to pathlib.Path
-        cliArgs.tensorfile = pathlib.Path(cliArgs.tensorfile)
-        cliArgs.logfile = pathlib.Path(cliArgs.logfile)
-
-        # Create output file path if none is given
-        # or covert to pathlib.Paht if given
-        if cliArgs.outputfile == False:
-            cliArgs.outputfile = pathlib.Path(cliArgs.tensorfile.parent, f"converted_{cliArgs.tensorfile.stem}.txt")
-        else:
-            cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
-
-    elif cliArgs.command == "extract":
-        # Convert all paths to pathlib.Path
-        cliArgs.gaussianfile = pathlib.Path(cliArgs.gaussianfile)
-        cliArgs.logfile = pathlib.Path(cliArgs.logfile)
-
-        # Create output file path if none is given
-        # or covert to pathlib.Paht if given
-        if cliArgs.outputfile == False:
-            cliArgs.outputfile = pathlib.Path(cliArgs.gaussianfile.parent, f"tensor_{cliArgs.gaussianfile.stem}.txt")
-        else:
-            cliArgs.outputfile = pathlib.Path(cliArgs.outputfile)
-
-    #
     # SETUPG LOGGING
     #
     # Logs to file and to console (to console only if verbose activated)
@@ -183,7 +159,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s : %(name)s : %(levelname)s : %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
-                        filename= pathlib.Path(cliArgs.logfile).resolve(),
+                        filename= cliArgs.logfile.resolve(),
                         filemode='a')
 
     # Define a Handler which writes DEBUG messages or higher to the sys.stderr, if the commandline flag -v is given

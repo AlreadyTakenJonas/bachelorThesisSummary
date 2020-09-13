@@ -17,6 +17,9 @@ import sys
 # Purpose: Math
 import numpy as np
 
+# Hanlde file paths
+import pathlib
+
 #
 #   INTERNAL MODULES
 #
@@ -36,20 +39,14 @@ def main(cliArgs):
     # Read input file
     labratory_setup = util.readFileAsText(cliArgs.inputfile).splitlines()
 
-    # Read matrix file if given
-    if cliArgs.matrixfile == False:
-        # Define dummy array for simulation inititialisation if no matrix file is given
-        # Definition prevents error if no matrix file is given, but the input file contains 'SMP' command
-        sampleMatrix = [{"head": "No Sample Defined", "matrix": np.array([ [1, 0, 0],
-                                                                           [0, 1, 0],
-                                                                           [0, 0, 1]  ]) }]
-        log.critical("NO MATRIX FILE GIVEN. The SMP instruction will act as NOP!")
-    else:
-        # Read matrices from file
-        # Result is a list of dictionaries containing the matrices and descriptive headers
-        sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile)
+    log.info("Matrix File: " + str(cliArgs.matrixfile.resolve()) )
+    # Read matrices from file
+    # Result is a list of dictionaries containing the matrices and descriptive headers
+    sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile)
 
-        log.info("Matrix File: " + str(cliArgs.matrixfile) )
+    # Make sure the matrix file is not the default matrix file containing just a unit matrix
+    if cliArgs.matrixfile == pathlib.Path("unitmatrix.txt"):
+        log.critical("WARNING: No matrix file specified. SMP will act as NOP!")
 
 # INITIALISE SIMULATION
 

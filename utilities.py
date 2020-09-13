@@ -269,3 +269,13 @@ def positiveInt(string):
         raise argparse.ArgumentTypeError("%s is no positive integer" % value)
 
     return value
+
+def filepath(string):
+    """
+    Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself
+    Type checking function for cli. Converts string given by cli to pathlib.Path object.
+    Attribute:
+    string - string to convert to pathlib.Path object
+    Returns pathlib.path object
+    """
+    return pathlib.Path(string)
