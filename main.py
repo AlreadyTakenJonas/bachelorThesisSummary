@@ -84,10 +84,10 @@ if __name__ == "__main__":
                              type = util.filepath)
     # Add iteration limit for monte carlo simulation
     sap_convert.add_argument("-i", "--iterations",
-                             help = "number of iterations the simulation will calculate. Default = 10000",
+                             help = "number of iterations the simulation will calculate. Default = 1000000",
                              required = False,
                              type = int,
-                             default = 10000,
+                             default = 1000000,
                              dest = "iterationLimit")
     # Add path to output file
     sap_convert.add_argument("-o", "--output",
