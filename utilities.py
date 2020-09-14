@@ -176,7 +176,7 @@ def findEntries(string, keyword, lines = 1, returnKeyword = False):
 
     if index == -1:
         # No matching enrty found
-        log.warning("No entries found. Return empty generator. \nSearched keyword: '")
+        log.warning("No entries found. Return empty generator. \nSearched keyword: '" + keyword +"'")
 
     # Find and yield all occurencens of keyword in the string
     while index != -1:
