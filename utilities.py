@@ -112,7 +112,13 @@ def electricalFieldToStokes(eVector):
     Convert a 3x1 vector describing the electrical field of the laser light into the stokes formalism (4x1 vector)
     """
 
-    # TODO: Check type and physical validity (Ez == 0)
+    # Check type and physical validity (Ez == 0)
+    if not isinstance(eVector, np.ndarray) or eVector.shape != (3,):
+        raise TypeError("utilities.electricalFieldToStokes expects a 3x1 np.ndarray as input!")
+    if eVector.dtype != np.float and eVector.dtype != np.int:
+        raise TypeError("utilities.electricalFieldToStokes expects np.ndarrays of float or integer!")
+    if eVector[2] != 0:
+        raise ValueError("The z-component of the electrical field vector must be zero!")
 
     # Electrical field in x and y axis
     Ex = eVector[0]
@@ -123,8 +129,6 @@ def electricalFieldToStokes(eVector):
                         Ex**2 - Ey**2,
                         2*Ex*Ey,
                         0           ])
-
-    # TODO: Check polarisation grade
 
     # Return result
     return stokes
@@ -137,6 +141,18 @@ def stokesToElectricalField(sVector):
     # TODO: Check type and polarisation grade
     # s_3 must be zero
     # Formulas only works for completly polarised light if the light is not vertically or horizontally polarised
+    # Check type
+    if not isinstance(sVector, np.ndarray) or sVector.shape != (4,):
+        raise TypeError("utilities.stokesToElectricalField expects a 4x1 np.ndarray as input!")
+    if sVector.dtype != np.float and sVector.dtype != np.int:
+        raise TypeError("utilities.stokesToElectricalField expects np.ndarrays of float or integer!")
+
+    # Check physical validity; no circular polarisation
+    if sVector[3] != 0:
+        raise ValueError("utilities.stokesToElectricalField can't convert circular polarised stokes vectors!")
+    if sVector[1]**2 * sVector[2]**2 + sVector[3]**2 > sVector[0]**2:
+        raise ValueError("The polarisation grade of light can't be greater than one!")
+
 
     # Check polarisation
     if (sVector[2] == 0):
@@ -145,15 +161,17 @@ def stokesToElectricalField(sVector):
                              np.sqrt( 0.5 * (sVector[0] - sVector[1]) ),
                                                 0                       ])
 
-    elif (sVector[0]^2 == sVector[1]^2 + sVector[2]^2):
+    elif (sVector[0]**2 == sVector[1]**2 + sVector[2]**2):
         # Light is (partially) diagonially polarised and totally polarised
         eVector = np.array([      sVector[2] / np.sqrt( 2*(sVector[0] - sVector[1]) )  ,
                              abs( sVector[2] / np.sqrt( 2*(sVector[0] + sVector[1]) ) ),
                                                     0                                     ])
 
     else:
-        # Throw error: Stokes vector can't be converted
-        raise Error("SOME ERROR MESSAGE I NEED TO WRITE")
+        # There is no formula to convert given stokes vector to electrical field
+        # Happens when light is diagonially but not fully polarised at the same time
+        log.critical("FATAL ERROR: utilities.stokesToElectricalField can't convert stokes vector '" + str(sVector) + "'. This is the case for diagonially polarised light with a polarisation grade below one.")
+        raise ValueError("utilities.stokesToElectricalField can't convert stokes vector '" + str(sVector) + "'. No conversion formula to match!")
 
     # Return result
     return eVector

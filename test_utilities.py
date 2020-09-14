@@ -86,6 +86,105 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
             self.assertEqual(matrix["head"], correctoutput[index]["head"])
             self.assertEqual(matrix["matrix"].any(), correctoutput[index]["matrix"].any())
 
+class TestUtilities_ElectricalFieldToStokes(unittest.TestCase):
+    """
+    Test utilities.electricalFieldToStokes
+    """
+    def test_types(self):
+        """
+        Make sure type errors are raised
+        """
+        with self.assertRaises(TypeError):
+            util.electricalFieldToStokes([1])
+            util.electricalFieldToStokes(1)
+            util.electricalFieldToStokes((1))
+            util.electricalFieldToStokes(np.array(["s", "s", "s"]))
+            util.electricalFieldToStokes(np.array([True, True, True]))
+            util.electricalFieldToStokes(np.array([1+1j, 1+1j, 1+1j]))
+            util.electricalFieldToStokes(np.array([1,1]))
+            util.electricalFieldToStokes(np.array([1,1,1,1]))
+
+    def test_values(self):
+        """
+        Make sure value errors are raised
+        """
+        # Electrical field along z-axis should raise an error
+        self.assertRaises(ValueError, util.electricalFieldToStokes, np.array([1, 1, 1]))
+
+    def test_output(self):
+        """
+        Make sure output is correct
+        """
+        # Define correct output
+        stokes = lambda Ex, Ey : np.array([ Ex**2 + Ey**2,
+                                            Ex**2 - Ey**2,
+                                            2*Ex*Ey      ,
+                                            0               ]).tolist()
+
+        # Test function
+        for i in [(0,0), (1,1), (1,0), (0,1), (-1,1), (1,-1), (-1,-1), (0,-1), (-1,0), (0.5,0.8), (0.2,1.2)]:
+            test = np.array([i[0], i[1], 0])
+            self.assertListEqual( util.electricalFieldToStokes(test).tolist(), stokes(i[0], i[1]) )
+
+class TestUtilities_StokesToElectricalField(unittest.TestCase):
+    """
+    Test utilities.stokesToElectricalField
+    """
+    def test_types(self):
+        """
+        Make sure type errors are raised
+        """
+        with self.assertRaises(TypeError):
+            util.stokesToElectricalField([1])
+            util.stokesToElectricalField(1)
+            util.stokesToElectricalField((1))
+            util.stokesToElectricalField(np.array(["s", "s", "s", "s"]))
+            util.stokesToElectricalField(np.array([True, True, True, True]))
+            util.stokesToElectricalField(np.array([1+1j, 1+1j, 1+1j, 1+1j]))
+            util.stokesToElectricalField(np.array([1,1,1]))
+            util.stokesToElectricalField(np.array([1,1,1,1.1]))
+
+    def test_values(self):
+        """
+        Make sure value errors are raised
+        """
+        # Circular polarised light can't be converted
+        self.assertRaises(ValueError, util.stokesToElectricalField, np.array([2, 1, 1, 1]))
+        # The polarisation grade can't be greater than one
+        self.assertRaises(ValueError, util.stokesToElectricalField, np.array([0, 1, 1, 0]))
+        # There is no formula to convert parially polarised light with a diagonially polarised component
+        self.assertRaises(ValueError, util.stokesToElectricalField, np.array([1, 0.5, 0.5, 0]))
+
+    def test_output(self):
+        """
+        Make sure output is correct
+        """
+        # Define conversion for polarisation along x- and y-axis
+        convertSimpleCase = lambda stokes: np.array([ np.sqrt( 0.5 * (stokes[0] + stokes[1]) ),
+                                                      np.sqrt( 0.5 * (stokes[0] - stokes[1]) ),
+                                                                        0                       ])
+        # Define conversion for polarisation along x-, y-axis and 45°/135° angle
+        convertComplexCase = lambda stokes: np.array([      stokes[2] / np.sqrt( 2*(stokes[0] - stokes[1]) )  ,
+                                                       abs( stokes[2] / np.sqrt( 2*(stokes[0] + stokes[1]) ) ),
+                                                                                0                               ])
+
+        # Define positive values to plug in function
+        valuesPositive = [0, 0.2, 0.5, 0.7, 1, 1.2, 1.5, 1.7, 2]
+        # Create list containing all elements of valuesPositive twice. One positive and one negative copy
+        values         = [y for x in [[-i, i] for i in valuesPositive] for y in x]
+        # Plug all values that raise no exception into function
+        for s0 in valuesPositive:
+            for s1 in values:
+                for s2 in values:
+                    stokes = np.array([s0, s1, s2, 0])
+
+                    if s2 != 0 and s0**2 == s1**2 + s2**2:
+                        # Test for light with diagonal polarisation component
+                        self.assertListEqual(util.stokesToElectricalField(stokes).tolist(), convertComplexCase(stokes).tolist())
+                    elif s2 == 0 and s0**2 >= s1**2 + s2**2:
+                        # Test for light with no diagonal polarisation component
+                        self.assertListEqual(util.stokesToElectricalField(stokes).tolist(), convertSimpleCase(stokes).tolist())
+
 class TestUtilities_FindEntries(unittest.TestCase):
     """
     Test utilities.findEntries()
