@@ -200,7 +200,7 @@ def findEntries(string, keyword, lines = 1, returnKeyword = False):
 
 def positiveInt(string):
     """
-    Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself
+    ARGPARSE TYPE: Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself.
     Type checking function for cli. Converts string given by cli to int and raises Exception if it is smaller 1.
     Attribute:
     string - string to convert to positive integer
@@ -215,10 +215,18 @@ def positiveInt(string):
 
 def filepath(string):
     """
-    Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself
+    ARGPARSE TYPE: Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself.
     Type checking function for cli. Converts string given by cli to pathlib.Path object.
     Attribute:
     string - string to convert to pathlib.Path object
     Returns pathlib.path object
     """
     return pathlib.Path(string)
+
+class joinString(argparse.Action):
+    """
+    ARGPARSE ACTION: Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself.
+    Class converts a list of strings (values) into a single string and sets the cli argument self.dest to this string.
+    """
+    def __call__(self, parser, args, values, option_string=None):
+        setattr(args, self.dest, ' '.join(values))

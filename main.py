@@ -101,7 +101,8 @@ if __name__ == "__main__":
                              dest = "comment",
                              help = "comment that will be added to the output file",
                              required = False,
-                             type = str,
+                             action = util.joinString,
+                             nargs = "*",
                              default = "")
     # Add option to multiprocess calculation
     sap_convert.add_argument("-p", "--processes",
@@ -150,7 +151,8 @@ if __name__ == "__main__":
                              dest = "comment",
                              help = "comment that will be added to the output file",
                              required = False,
-                             type = str,
+                             action = util.joinString,
+                             nargs = "*",
                              default = "")
 
 
