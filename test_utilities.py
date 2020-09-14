@@ -3,6 +3,9 @@
 #
 import unittest
 
+# Check if object is a generator
+import types
+
 # Import class that shall be tested and create an instance of it
 import utilities as util
 
@@ -82,3 +85,71 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
             self.assertIsInstance(matrix, dict)
             self.assertEqual(matrix["head"], correctoutput[index]["head"])
             self.assertEqual(matrix["matrix"].any(), correctoutput[index]["matrix"].any())
+
+class TestUtilities_FindEntries(unittest.TestCase):
+    """
+    Test utilities.findEntries()
+    """
+    def test_types(self):
+        """
+        Make sure type errors are raised
+        """
+        with self.assertRaises(TypeError):
+            list(util.findEntries("string", False))
+            list(util.findEntries("string", ["string"]))
+            list(util.findEntries("string", 1))
+            list(util.findEntries("string", 1.0))
+            list(util.findEntries("string", 1+1j))
+            list(util.findEntries("string", ("string")))
+
+            list(util.findEntries(False, "string"))
+            list(util.findEntries(["string"], "string"))
+            list(util.findEntries(1, "string"))
+            list(util.findEntries(1.0, "string"))
+            list(util.findEntries(1+1j, "string"))
+            list(util.findEntries(("string"), "string"))
+
+            list(util.findEntries("string", "string", lines = "string"))
+            list(util.findEntries("string", "string", lines = 1.0))
+            list(util.findEntries("string", "string", lines = 1+1j))
+            list(util.findEntries("string", "string", lines = [1]))
+            list(util.findEntries("string", "string", lines = (1)))
+            list(util.findEntries("string", "string", lines = True))
+
+            list(util.findEntries("string", "string", returnKeyword = "string"))
+            list(util.findEntries("string", "string", returnKeyword = 1.0))
+            list(util.findEntries("string", "string", returnKeyword =  1+1j))
+            list(util.findEntries("string", "string", returnKeyword =  [True]))
+            list(util.findEntries("string", "string", returnKeyword =  (True)))
+
+    def test_values(self):
+        """
+        Make sure value errors are raised
+        """
+        with self.assertRaises(ValueError):
+            list(util.findEntries("string", "string", lines = 0))
+            list(util.findEntries("string", "string", lines = -1))
+
+    def test_output(self):
+        """
+        Make sure output is correct
+        """
+
+        # Define test input parameter
+        test_string = """Lorem ipsum
+                         Lorem ipsum Polarizability derivatives wrt mode          2
+                                    1             2             3
+                         1   0.215860D+00  0.000000D+00  0.000000D+00
+                        Lorem ipsum"""
+        test_keyword = "Polarizability derivatives wrt mode"
+        test_lines = 3
+        test_returnKeyword = False
+
+        # Define correct output (correct output will be type generator not list!)
+        correct_output = [ ["2", "1             2             3", "1   0.215860D+00  0.000000D+00  0.000000D+00"] ]
+        # Compute output
+        test_output = util.findEntries(test_string, test_keyword, lines = test_lines, returnKeyword = test_returnKeyword)
+
+        # Test output
+        self.assertIsInstance(test_output, types.GeneratorType)
+        self.assertListEqual(list(test_output), correct_output)

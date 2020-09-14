@@ -158,7 +158,7 @@ def stokesToElectricalField(sVector):
     # Return result
     return eVector
 
-def findEntries(string, keyword, lines = 1, returnKeyword = False):
+def findEntries(string: str, keyword: str, lines: int = 1, returnKeyword: bool = False):
     """
     This function searches for keyword in a string and yields for every occurence of keyword a list of strings of it.
     Attributes:
@@ -168,8 +168,11 @@ def findEntries(string, keyword, lines = 1, returnKeyword = False):
     returnKeyword - leaves keyword out of yielded string if False
     Returns: Generator containing the searched substrings splitted by splitlines()
     """
-
-    # TODO check input -> types, lines greater zero
+    # Check input
+    if type(keyword) != type("str"):
+        raise TypeError("utilities.findEntries expects keyword to be a string!")
+    if lines < 1:
+        raise ValueError("utilities.findEntries expects lines to be equal or greater than 1!")
 
     # Find first occurence of keyword in string
     index = string.find(keyword)
