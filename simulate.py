@@ -20,6 +20,9 @@ import numpy as np
 # Hanlde file paths
 import pathlib
 
+# Get time and date for output file
+from datetime import datetime
+
 #
 #   INTERNAL MODULES
 #
@@ -140,7 +143,21 @@ def main(cliArgs):
                 log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
                 raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
 
+# PRINT RESULTS TO FILE
+    output_text = "# polaram simulate " + str(cliArgs.inputfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --matrix " + str(cliArgs.matrixfile.resolve()) + "\n# Execution time: " + str(datetime.now()) + "\n"
 
+    # Add user comment to string
+    if cliArgs.comment != "":
+        output_text += "\n# " + str(cliArgs.comment) + "\n"
 
+    # Add the calculated states to the string.
+    formattedTable = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
+    for index, vector in enumerate(formattedTable):
+        output_text += "\n [ " + vector + " ] " + currentState[index]["head"]
+
+    # Log and write text to file
+    log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
+    print(output_text)
+    cliArgs.outputfile.write_text(output_text)
 
     log.info("STOPPED MUELLER SIMULATION SUCCESSFULLY")

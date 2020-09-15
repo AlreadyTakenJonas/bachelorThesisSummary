@@ -60,6 +60,21 @@ if __name__ == "__main__":
                               dest = "matrixfile",
                               help = "text file containing the raman matrices of the sample in the labratory cordinate system. Details are given in the README.",
                               type = util.filepath)
+    # Add path to output file
+    sap_simulate.add_argument("-o", "--output",
+                              help = "path to output file. Default=PROGRAMMPATH/res/muellersimulation.txt",
+                              required = False,
+                              default = str(pathlib.Path(__file__).parent) + "/res/muellersimulation.txt",
+                              dest = "outputfile",
+                              type = util.filepath)
+    # Add argument that will be written as comment in the output file
+    sap_simulate.add_argument("-c", "--comment",
+                              dest = "comment",
+                              help = "comment that will be added to the output file",
+                              required = False,
+                              action = util.joinString,
+                              nargs = "*",
+                              default = "")
 
     # Create convert command
     sap_convert = sap.add_parser("convert",
