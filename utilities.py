@@ -138,9 +138,6 @@ def stokesToElectricalField(sVector):
     Convert a 4x1 stokes vector into 3x1 electrical field vector
     """
 
-    # TODO: Check type and polarisation grade
-    # s_3 must be zero
-    # Formulas only works for completly polarised light if the light is not vertically or horizontally polarised
     # Check type
     if not isinstance(sVector, np.ndarray) or sVector.shape != (4,):
         raise TypeError("utilities.stokesToElectricalField expects a 4x1 np.ndarray as input!")
