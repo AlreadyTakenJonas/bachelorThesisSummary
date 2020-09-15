@@ -171,7 +171,7 @@ def stokesToElectricalField(sVector):
                              np.sqrt( 0.5 * (sVector[0] - sVector[1]) ),
                                                 0                       ])
 
-    elif (sVector[0]**2 == sVector[1]**2 + sVector[2]**2):
+    elif (sVector[0]**2 == round( sVector[1]**2 + sVector[2]**2, 7)):
         # Light is (partially) diagonially polarised and totally polarised
         eVector = np.array([      sVector[2] / np.sqrt( 2*(sVector[0] - sVector[1]) )  ,
                              abs( sVector[2] / np.sqrt( 2*(sVector[0] + sVector[1]) ) ),
