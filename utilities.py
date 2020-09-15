@@ -83,9 +83,9 @@ def convertTextToMatrices(string):
 
     # Convert matrix file to list of matrices with descritive messages
     try:
-        # Split file in seperate matrices and remove comments
+        # Split file in seperate matrices and remove comments and empty lines
         # Comments start with '#' and matrices with '!'
-        matrixlist = [matrix.strip().split("\n") for matrix in string.split("!") if matrix.strip()[0] != "#"]
+        matrixlist = [matrix.strip().split("\n") for matrix in string.split("!") if matrix.strip().find("#") != 0 and matrix.strip() != ""]
         # Build a list of dictionaries
         # Each dictionary contains a head with a descriptive message extracted from the file and a matrix extracted from the file
         matrixlist = [ { "head": matrix.pop(0),
@@ -96,7 +96,7 @@ def convertTextToMatrices(string):
 
     except IndexError as e:
         # Matrix is to small. Raise exception and log.
-        log.criticial("The matrix can't be read from file. The matrix must be 3x3 to be readable!")
+        log.critical("The matrix can't be read from file. The matrix must be 3x3 to be readable!")
         raise
 
     except:

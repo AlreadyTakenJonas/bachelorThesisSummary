@@ -52,6 +52,18 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
         self.assertRaises(TypeError, util.convertTextToMatrices, 1.0)
         self.assertRaises(TypeError, util.convertTextToMatrices, 1+1j)
 
+    def test_index(self):
+        """
+        Make sure index errors are raised if necessary
+        """
+        self.assertRaises(IndexError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1")
+
+    def test_values(self):
+        """
+        Make sure value errors are raised if necessary
+        """
+        self.assertRaises(ValueError, util.convertTextToMatrices, "!matrix\n 1 0 0 0\n 0 1 0 0\n 0 0 1 0\n 0 0 0 1")
+
     def test_output(self):
         """
         Make sure the output is correct
