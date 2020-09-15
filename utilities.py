@@ -118,7 +118,7 @@ def electricalFieldToStokes(eVector):
     if eVector.dtype != np.float and eVector.dtype != np.int:
         raise TypeError("utilities.electricalFieldToStokes expects np.ndarrays of float or integer!")
     if eVector[2] != 0:
-        log.info("The z-component of the electrical field vector will be ignored, when computing the corresponding stokes vector!")
+        log.info("The z-component of the electrical field vector will be ignored when computing the corresponding stokes vector!")
 
     # Electrical field in x and y axis
     Ex = eVector[0]
