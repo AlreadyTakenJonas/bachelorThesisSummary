@@ -127,14 +127,12 @@ def main(cliArgs):
         # Make sure the computed stokes vector is physical possible
         log.info("Check validity of simulation step.")
         for state in currentState:
-            # Make sure there was no light circular polarised during the simulation
-            if state["state"][3] != 0:
-                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. PolaRam does not support circular polarisation!")
-                raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. PolaRam does not support circular polarisation!")
-
             # Make sure that the polarisation grade is not greater than one
-            elif state["state"][1]**2 + state["state"][2]**2 + state["state"][3]**2 > state["state"][0]**2:
-                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade greater than one is not possible!")
+            # Rounding to avoid exceptions due to floating point errors
+            polarisation = np.sqrt(state["state"][1]**2 + state["state"][2]**2 + state["state"][3]**2) / state["state"][0]
+            polarisation = round( polarisation , 7)
+            if np.greater(polarisation, 1):
+                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Can't be greater than one!")
                 raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade greater than one is not possible!")
 
             # Make sure that the light intensity is not smaller than zero
