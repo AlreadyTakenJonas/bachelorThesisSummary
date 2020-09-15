@@ -152,10 +152,9 @@ class SetupDecoder:
 
     def ramanTensorOfSample(self):
         """
-        WORK IN PROGRESS. Describtion of the sample as raman tensor. The tensor needs to be translated into the mueller formalism.
-        Returns unity matrix for now
+        Returns the string 'SMP'. The simulation will detect that and know how to proceed.
+        The raman matrix are given to the simulation by command line. The SetupDecoder has nothing to do with this part of the process.
         """
-        # TODO: EVERYTHING plus unittest for this method and decode()
         return "SMP"
 
     def attenuatingFilter(self, transmission):
