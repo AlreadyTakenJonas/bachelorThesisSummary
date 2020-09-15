@@ -69,6 +69,8 @@ def convertTextToMatrices(string):
     2. Lines starting with ! mark the beginning of a header, every header marks the beginning of a matrix
     3. The lines following the header define the headers matrix
     4. Matrix rows are seperated by a linebreak and columns by a white space
+    If the matrix has more than 3 rows, will the function ignore all rows except the first three. If the matrix has to few, an exception will be raised.
+    An exception will be raised for a wrong number of columns.
 
     Arguments:
     string - string that will be converted into matrices
@@ -92,13 +94,24 @@ def convertTextToMatrices(string):
                                               matrix[2].split() ]).astype(np.float)
                        } for matrix in matrixlist ]
 
-        return matrixlist
+    except IndexError as e:
+        # Matrix is to small. Raise exception and log.
+        log.criticial("The matrix can't be read from file. The matrix must be 3x3 to be readable!")
+        raise
 
     except:
         # Log unexpected exceptions
         log.critical("FATAL ERROR: Raman matrices can't be read from file. Is the file format correct?")
         log.exception(sys.exc_info()[0])
         raise
+
+    # Check shape of result
+    for matrix in matrixlist:
+        if matrix["matrix"].shape != (3,3):
+            raise ValueError("Polaram can handle only 3x3 matrices! The shape " + str(matrix["matrix"].shape) + " is not supported.")
+
+    # Return result
+    return matrixlist
 
 def readFileAsMatrices(path):
     """
