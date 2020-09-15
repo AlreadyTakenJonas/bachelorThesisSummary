@@ -116,13 +116,6 @@ class TestUtilities_ElectricalFieldToStokes(unittest.TestCase):
             util.electricalFieldToStokes(np.array([1,1]))
             util.electricalFieldToStokes(np.array([1,1,1,1]))
 
-    def test_values(self):
-        """
-        Make sure value errors are raised
-        """
-        # Electrical field along z-axis should raise an error
-        self.assertRaises(ValueError, util.electricalFieldToStokes, np.array([1, 1, 1]))
-
     def test_output(self):
         """
         Make sure output is correct
