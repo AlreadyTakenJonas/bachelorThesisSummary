@@ -85,14 +85,23 @@ def main(cliArgs):
             # SMP command detected
 
             # Convert state of simulation to the electrical field vector
+            log.info("Convert stokes states to electrical field vectors.")
             electricalField = [ { "head": state["head"], "state": util.stokesToElectricalField(state["state"]) } for state in currentState ]
 
+            # Log electrical field vector
+            logstring = str( np.array([ state["state"] for i, state in enumerate(electricalField) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
+            for index, state in enumerate(electricalField):
+                log.debug("[ " + logstring[index] + " ] " + str(state["head"]))
+
             # Alter stokes vector with every mueller matrix of the sample
+            log.info("Apply raman matrix.")
             for index, (state, matrix) in enumerate( zip(electricalField, sampleMatrix) ):
 
                 if state["head"] == matrix["head"]:
                     # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector match
                     electricalField[index] = { "head": state["head"], "state": matrix["matrix"] @ state["state"] }
+
+                    log.debug( str(electricalField[index]["state"]) + " " + electricalField[index]["head"] )
 
                 else:
                     # Raise an exception if headers don't match
@@ -100,6 +109,7 @@ def main(cliArgs):
                     raise ValueError("INTERNAL ERROR: The headers of the samples mueller matrix and the current state of the simulation don't match.")
 
             # Convert electrical field vector back to stokes formalism
+            log.info("Convert electrical field vectors back to stokes vectors.")
             currentState = [ { "head": state["head"], "state": util.electricalFieldToStokes(state["state"]) } for state in electricalField ]
 
         else:
@@ -112,6 +122,26 @@ def main(cliArgs):
         logstring = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
         for index, state in enumerate(currentState):
             log.info("[ " + logstring[index] + " ] " + str(state["head"]))
+
+        # Make sure there was no light circular polarised during the simulation
+        # Make sure the computed stokes vector is physical possible
+        log.info("Check validity of simulation step.")
+        for state in currentState:
+            # Make sure there was no light circular polarised during the simulation
+            if state["state"][3] != 0:
+                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. PolaRam does not support circular polarisation!")
+                raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. PolaRam does not support circular polarisation!")
+
+            # Make sure that the polarisation grade is not greater than one
+            elif state["state"][1]**2 + state["state"][2]**2 + state["state"][3]**2 > state["state"][0]**2:
+                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade greater than one is not possible!")
+                raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade greater than one is not possible!")
+
+            # Make sure that the light intensity is not smaller than zero
+            elif state["state"][0] < 0:
+                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
+                raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
+
 
 
 
