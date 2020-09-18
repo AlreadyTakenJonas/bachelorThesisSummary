@@ -223,6 +223,7 @@ The program supports only Gaussian LOG-files and it's only been tested in Gaussi
 + The `METADATA_KEYWORD` marks the beginning of the meta data. Gaussian adds information about the used calculation method, basis set and more to the LOG-file.  The program adds these information to the output file. `METADATA_KEYWORD = "******************************************\n Gaussian"`.
 
 An example of files the `extract` can process are given in the [gaussian](gaussian/) directory. Following example shows how the output file is generated from the input file. The number of the vibrational mode and its frequency are included in the description of each tensor.
+
 Extract from input file:
 ```
 [...]
