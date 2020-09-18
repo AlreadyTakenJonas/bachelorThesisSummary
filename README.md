@@ -16,7 +16,7 @@ Table of Contents
          * [Instruction File](#instruction-file)
          * [Raman Tensor File](#raman-tensor-file)
 
-# simulate: Simulation of Raman Scattering Of Linear Polarised Light
+# simulate: Simulation Of Raman Scattering Of Linear Polarised Light
 
 The simulation works by describing the state of the polarisation as a four dimensional stokes vector *S* and every optical element and the sample as 4x4 mueller matrices *M*. Applying *M* to *S* will give the new state of the system when the light interacts with the optical element. Every command in the input file descibes a mueller matrix that will be applied to the system one after another. The `LSR` command is special, because it describes the initial stokes vector.
 
@@ -25,6 +25,9 @@ It is possible to pass multiple raman tensors to the simulation at once. There i
 
 This simulation is only looking at raman scattering at an angle of 180°. And at the current moment does it only support light with a polarisation grade *Π* of one. Circular polarisation can't be simulated in combination with the raman scattering process. All other optical elements do support circular polarisation.
 These assumptions are the basis of the raman-tensor-to-mueller-matrix-conversion described in a seperate pdf-file (WORK IN PROGRESS). Details and definitions of the coordinate systems are given in a seperate pdf-file (WORK IN PROGRESS).
+
+## Planned Features
++ Implement conversion of 3x3 raman tensor into 4x4 mueller matrix
 
 ## Usage
 
@@ -112,3 +115,59 @@ A valid tensor file might look like this:
  0.00476986  0.01253425 -0.07968738
 -0.00417874 -0.07968738  0.04096966
 ```
+
+# convert: Matrix Transformation Between Molecular And Labratory Coordinate System
+
+The sub-command `convert` will run a Monte-Carlo-Simulation on a list of 3x3 matrices given via CLI. The purpose of the simulation is the conversion of a raman tensor from the molecular coordinate system - which can be calculated by Gaussian and similar programs - into the labratory coordinate system of the Mueller-Simulation the `simulate` program performs. It is assumed that the sample is in a solved state so that each molecule is free to rotate. The effective raman tensor incoming light will experience is therefore the mean of all possible rotations of the molecular raman tensor. The Monte-Carlo-Simulation will calculate this mean by rotating the molecular raman tensor by random angles.
+
+## Planned Features
++ Self-check of the simulation by comparing the depolarisation ratio *ρ* 
+
+## Usage
+
+The conversion is started by typing `polaram convert PATH_TO_TENSOR_FILE`. The command `polaram convert -h` echos a help text. This command prints the following output:
+```
+$ polaram convert -h
+usage: polaram convert [-h] [-v] [-l LOGFILE] [-i ITERATIONLIMIT]
+                       [-o OUTPUTFILE] [-c [COMMENT [COMMENT ...]]]
+                       [-p PROCESSCOUNT] [-s CHUNKSIZE]
+                       tensorfile
+
+Converts raman tensors from the molecular coordinate system into the raman
+matrix of a solution in the labratory coordinate system via a monte carlo
+simulation.
+
+positional arguments:
+  tensorfile            text file containing the raman tensors that will be
+                        converted. Details are given in the README.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         runs programm and shows status and error messages
+  -l LOGFILE, --log LOGFILE
+                        defines path and name of a custom .log file.
+                        Default=PROGRAMPATH/log/convertRamanTensor.log
+  -i ITERATIONLIMIT, --iterations ITERATIONLIMIT
+                        number of iterations the simulation will calculate.
+                        Default = 1000000
+  -o OUTPUTFILE, --output OUTPUTFILE
+                        path to output file.
+                        Default=PROGRAMMPATH/res/labratoryTensor.txt
+  -c [COMMENT [COMMENT ...]], --comment [COMMENT [COMMENT ...]]
+                        comment that will be added to the output file
+  -p PROCESSCOUNT, --processes PROCESSCOUNT
+                        number of processes that compute in parallel.
+                        Default=2
+  -s CHUNKSIZE, --cunksize CHUNKSIZE
+                        Length of array each subprocess is given to calculate.
+                        Default=500
+```
+The conversion will print the results as a file and on screen in the same format as the input file. This format can be understood by the `simulate` sub-program.
+
+The important parameter of the Monte-Carlo-Simulation are the chunk size, the process count and the iteration limit. The simulation should run reasonably fast with the default settings, but they can be adjusted via the CLI.
++ The iteration limit determines the amount of random rotations the simulation will do to determine the labratory raman matrix. The higher the iteration limit the longer it will compute and the better is the accuracy of the result.
++ Multi-processing was implemented to increase the computation speed. The process count sets the amount of processes computing the matrix rotations in parallel. In addition to these subprocesses the main process does its part. The main process takes the results of the subprocesses and adds them up. Increasing the process count will increase the computation speed. However, if the are not enough processor cores to match the number of running processes, the computation speed might decrease.
++ The cunk size is also a feature of the multi-processing. The simulation will be prepared by creating a generator containing random rotation angles for every iteration of the simulation. The cunk size determines how many of these random rotation angles will be passed to each subprocess at once. The chunk size is a compromise between the time it takes to pipe the data between processes and to the time it takes to start a new one. Changing the chunk size might increase or decrease the computation speed.
+
+## The Input File
+The input file for the `convert` sub-program is the same as the format of the [raman tensor file](#raman-tensor-file) the `simulate` command expects.
