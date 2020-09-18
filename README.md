@@ -9,16 +9,20 @@ The sub-program carrying out the simulation is called `polaram simulate`. There 
 Table of Contents
 =================
 
-   * [Raman Scattering Of Linear Polarised Light With PolaRam](#raman-scattering-of-linear-polarised-light-with-polaram)
-   * [simulate: Simulation of Raman Scattering Of Linear Polarised Light](#simulate-simulation-of-raman-scattering-of-linear-polarised-light)
-      * [Usage](#usage)
-      * [The Input Files](#the-input-files)
-         * [Instruction File](#instruction-file)
-         * [Raman Tensor File](#raman-tensor-file)
-   * [convert: Matrix Transformation Between Molecular And Labratory Coordinate System](#convert-matrix-transformation-between-molecular-and-labratory-coordinate-system)
-      * [Planned Features](#planned-features-1)
-      * [Usage](#usage-1)
-      * [The Input File](#the-input-file)
+  * [Raman Scattering Of Linear Polarised Light With PolaRam](#raman-scattering-of-linear-polarised-light-with-polaram)
+  * [simulate: Simulation Of Raman Scattering Of Linear Polarised Light](#simulate-simulation-of-raman-scattering-of-linear-polarised-light)
+     * [Planned Features](#planned-features)
+     * [Usage](#usage)
+     * [The Input Files](#the-input-files)
+        * [Instruction File](#instruction-file)
+        * [Raman Tensor File](#raman-tensor-file)
+  * [convert: Matrix Transformation Between Molecular And Labratory Coordinate System](#convert-matrix-transformation-between-molecular-and-labratory-coordinate-system)
+     * [Planned Features](#planned-features-1)
+     * [Usage](#usage-1)
+     * [The Input File](#the-input-file)
+  * [extract: Reading Log-Files Of Quantum Calculations](#extract-reading-log-files-of-quantum-calculations)
+     * [Usage](#usage-2)
+     * [The Input File](#the-input-file-1)
 
 # simulate: Simulation Of Raman Scattering Of Linear Polarised Light
 
@@ -217,3 +221,97 @@ The program supports only Gaussian LOG-files and it's only been tested in Gaussi
 + The `TENSOR_KEYWORD` marks the beginning of each raman tensor in the file.`TENSOR_KEYWORD = 'Polarizability derivatives wrt mode'`.
 + The `FREQUENCY_KEYWORD` marks all rows in the file's summary table containing the frequencies of the vibrational modes. They will be added to the raman tensors as descriptive title. `FREQUENCY_KEYWORD = 'Frequencies -- '`.
 + The `METADATA_KEYWORD` marks the beginning of the meta data. Gaussian adds information about the used calculation method, basis set and more to the LOG-file.  The program adds these information to the output file. `METADATA_KEYWORD = "******************************************\n Gaussian"`.
+
+An example of files the `extract` can process are given in the [gaussian](gaussian/) directory. Following example shows how the output file is generated from the input file. The number of the vibrational mode and its frequency are included in the description of each tensor.
+Extract from input file:
+```
+[...]
+J. B. Foresman, and D. J. Fox, Gaussian, Inc., Wallingford CT, 2016.
+
+******************************************
+Gaussian 16:  EM64W-G16RevB.01 16-Dec-2017
+               10-Sep-2020 
+******************************************
+%nprocshared = 6
+Will use up to    6 processors via shared memory.
+%chk=C:\Users\no83wec\Documents\BA_projektmodul\2020_09_10\water\water.chk
+---------------------------------------------------------------
+# freq(raman, printderivatives) b3lyp/6-31+G* geom=connectivity
+---------------------------------------------------------------
+1/10=4,30=1,38=1,57=2/1,3;
+[...]
+Dipole derivative wrt mode   1: -4.88694D-14  3.35287D-14  9.87113D+00
+Polarizability derivatives wrt mode          1
+                1             2             3 
+     1  -0.911413D-01  0.000000D+00  0.000000D+00
+     2   0.000000D+00  0.310911D+00  0.000000D+00
+     3   0.000000D+00  0.000000D+00 -0.449127D+00
+Vibrational polarizability contributions from mode   1       0.0000000       0.0000000       0.9487761
+Vibrational hyperpolarizability contributions from mode   1       0.0000000       0.0000000      -4.8132681
+IFr=  0 A012= 0.79D-01 0.28D+01 0.46D+00 Act= 0.33D+01 DepolP= 0.65D+00 DepolU= 0.79D+00
+Dipole derivative wrt mode   2:  2.93067D-14  2.91767D-13 -2.45888D+00
+Polarizability derivatives wrt mode          2
+                1             2             3 
+     1   0.215860D+00  0.000000D+00  0.000000D+00
+     2   0.000000D+00  0.210041D+01  0.000000D+00
+     3   0.000000D+00  0.000000D+00  0.119512D+01
+Vibrational polarizability contributions from mode   2       0.0000000       0.0000000       0.0116544
+Vibrational hyperpolarizability contributions from mode   2       0.0000000       0.0000000      -0.6315934
+IFr=  0 A012= 0.18D+02 0.53D+02 0.88D+01 Act= 0.80D+02 DepolP= 0.11D+00 DepolU= 0.20D+00
+Dipole derivative wrt mode   3:  7.66275D-13  7.28298D+00  2.95897D-12
+Polarizability derivatives wrt mode          3
+                1             2             3 
+     1   0.000000D+00  0.000000D+00  0.000000D+00
+     2   0.000000D+00  0.000000D+00 -0.137193D+01
+     3   0.000000D+00 -0.137193D+01  0.000000D+00
+Vibrational polarizability contributions from mode   3       0.0000000       0.0957547       0.0000000
+[...]
+and normal coordinates:
+                     1                      2                      3
+                    A1                     A1                     B2
+Frequencies --   1662.4606              3736.4454              3860.9646
+Red. masses --      1.0834                 1.0445                 1.0829
+Frc consts  --      1.7642                 8.5913                 9.5109
+IR Inten    --     97.4391                 6.0461                53.0418
+Raman Activ --      3.2991                80.3041                39.5259
+Depolar (P) --      0.6513                 0.1106                 0.7500
+Depolar (U) --      0.7888                 0.1991                 0.8571
+ Atom  AN      X      Y      Z        X      Y      Z        X      Y      Z
+    1   8     0.00   0.00  -0.07     0.00   0.00   0.05     0.00  -0.07   0.00
+    2   1     0.00   0.42   0.56     0.00   0.59  -0.39     0.00   0.56  -0.43
+    3   1     0.00  -0.42   0.56     0.00  -0.59  -0.39     0.00   0.56   0.43
+[...]
+```
+Resulting output file:
+```
+$ polaram extract gaussian/WATER.LOG
+# Raman tensors calculated by Gaussian
+# Gaussian .LOG-file: gaussian/WATER.LOG
+
+# Gaussian calculation settings:
+# ******************************************
+# Gaussian 16:  EM64W-G16RevB.01 16-Dec-2017
+# 10-Sep-2020
+# ******************************************
+# %nprocshared = 6
+# Will use up to    6 processors via shared memory.
+# %chk=C:\Users\no83wec\Documents\BA_projektmodul\2020_09_10\water\water.chk
+# ---------------------------------------------------------------
+# # freq(raman, printderivatives) b3lyp/6-31+G* geom=connectivity
+# ---------------------------------------------------------------
+
+! v_1 = 1662.4606/cm
+-0.0911413  0.         0.
+ 0.         0.310911   0.
+ 0.         0.        -0.449127
+
+! v_2 = 3736.4454/cm
+0.21586 0.      0.
+0.      2.10041 0.
+0.      0.      1.19512
+
+! v_3 = 3860.9646/cm
+ 0.       0.       0.
+ 0.       0.      -1.37193
+ 0.      -1.37193  0.
+```
