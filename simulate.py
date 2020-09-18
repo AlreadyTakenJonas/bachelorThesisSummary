@@ -157,7 +157,7 @@ def main(cliArgs):
     output_text += "\n# Simulation Results:"
     formattedTable = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
     for index, vector in enumerate(formattedTable):
-        output_text += "\n[ " + vector + " ] " + currentState[index]["head"]
+        output_text += "\n[" + vector + " ] " + currentState[index]["head"]
 
     # Log and write text to file
     log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
