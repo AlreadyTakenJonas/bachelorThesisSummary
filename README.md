@@ -6,6 +6,16 @@ The program needs a file with instructions and a file with the raman tensors of 
 
 The sub-program carrying out the simulation is called `polaram simulate`. There are two more sub-programs helping with data and file conversion: `polaram convert`and `polaram extract`. More information below.
 
+Table of Contents
+=================
+
+   * [Raman Scattering Of Linear Polarised Light With PolaRam](#raman-scattering-of-linear-polarised-light-with-polaram)
+   * [simulate: Simulation of Raman Scattering Of Linear Polarised Light](#simulate-simulation-of-raman-scattering-of-linear-polarised-light)
+      * [Usage](#usage)
+      * [The Input Files](#the-input-files)
+         * [Instruction File](#instruction-file)
+         * [Raman Tensor File](#raman-tensor-file)
+
 # simulate: Simulation of Raman Scattering Of Linear Polarised Light
 
 The simulation works by describing the state of the polarisation as a four dimensional stokes vector *S* and every optical element and the sample as 4x4 mueller matrices *M*. Applying *M* to *S* will give the new state of the system when the light interacts with the optical element. Every command in the input file descibes a mueller matrix that will be applied to the system one after another. The `LSR` command is special, because it describes the initial stokes vector.
