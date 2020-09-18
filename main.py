@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # Create extract command
     sap_extract = sap.add_parser("extract",
                                  help = "Extract raman tensors from Gaussian .LOG-files. Tested for Gaussian16.",
-                                 description = "This program reads gaussian log files of frequency calculations and writes the raman tensors into a text file readable by the other scripts. Tested for Gaussian16. Raman tensors are not put into the log file by default. See the readMe for details.")
+                                 description = "This program reads gaussian log files of frequency calculations and writes the raman tensors into a text file that can be read by the other scripts. Tested for Gaussian16. Raman tensors are not put into the log file by default. See the readMe for details.")
     # Adding arguments to extract command
     # Add verbose
     sap_extract.add_argument("-v", "--verbose",
