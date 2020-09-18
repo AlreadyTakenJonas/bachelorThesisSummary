@@ -175,3 +175,45 @@ The important parameter of the Monte-Carlo-Simulation are the chunk size, the pr
 
 ## The Input File
 The input file for the `convert` sub-program is the same as the format of the [raman tensor file](#raman-tensor-file) the `simulate` command expects.
+
+# extract: Reading Log-Files Of Quantum Calculations
+
+The program will read a LOG-file created by Gaussian's freqency calculations. Other programs are not supported. The code can be adjusted if needed, but it is not planned to do so. The program was only tested for Gaussian16 output, but other versions of Gaussian should propably work. Details are given in the section [The Input File](#the-input-file-1). It will also read the meta data at the beginning and the frequencies of the vibrational modes. These information will be added to the output file. More over the program will check if Gaussian marked the frequencies with a `-`-sign to make sure that the structure of the molecule was optimised before performing the frequency analysis.
+
+## Usage
+The conversion is started by typing `polaram extract PATH_TO_LOG_FILE`. The command `polaram extract -h` echos a help text. This command prints the following output:
+```
+$ polaram extract -h
+usage: polaram extract [-h] [-v] [-l LOGFILE] [-o OUTPUTFILE]
+                       [-c [COMMENT [COMMENT ...]]]
+                       gaussianfile
+
+This program reads gaussian log files of frequency calculations and writes the
+raman tensors into a text file that can be read by the other scripts. Tested for
+Gaussian16. Raman tensors are not put into the log file by default. See the
+readMe for details.
+
+positional arguments:
+  gaussianfile          the log file of a gaussian frequency calculation
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         runs programm and shows status and error messages
+  -l LOGFILE, --log LOGFILE
+                        defines path and name of a custom .log file.
+                        Default=PROGRAMPATH/log/extractGaussianTensor.log
+  -o OUTPUTFILE, --output OUTPUTFILE
+                        path to output file.
+                        Default=PROGRAMPATH/res/molecularTensor.txt
+  -c [COMMENT [COMMENT ...]], --comment [COMMENT [COMMENT ...]]
+                        comment that will be added to the output file
+```
+The program will print the results as a file and on screen in the format of the [matrix files](#raman-tensor-file) the other subcommands expect.
+
+## The Input File
+
+The program supports only Gaussian LOG-files and it's only been tested in Gaussian16 LOG-files. However, the code should be adaptable to different file-types. The program scans the input file for four keywords:
++ The `LOGFILE_KEYWORD` makes sure that the file is a Gaussian LOG-file. It also makes sure that the file contains a raman frequency analysis with the corresponding raman tensors. `LOGFILE_KEYWORD = 'freq(raman, printderivatives)'`.
++ The `TENSOR_KEYWORD` marks the beginning of each raman tensor in the file.`TENSOR_KEYWORD = 'Polarizability derivatives wrt mode'`.
++ The `FREQUENCY_KEYWORD` marks all rows in the file's summary table containing the frequencies of the vibrational modes. They will be added to the raman tensors as descriptive title. `FREQUENCY_KEYWORD = 'Frequencies -- '`.
++ The `METADATA_KEYWORD` marks the beginning of the meta data. Gaussian adds information about the used calculation method, basis set and more to the LOG-file.  The program adds these information to the output file. `METADATA_KEYWORD = "******************************************\n Gaussian"`.
