@@ -15,6 +15,10 @@ Table of Contents
       * [The Input Files](#the-input-files)
          * [Instruction File](#instruction-file)
          * [Raman Tensor File](#raman-tensor-file)
+   * [convert: Matrix Transformation Between Molecular And Labratory Coordinate System](#convert-matrix-transformation-between-molecular-and-labratory-coordinate-system)
+      * [Planned Features](#planned-features-1)
+      * [Usage](#usage-1)
+      * [The Input File](#the-input-file)
 
 # simulate: Simulation Of Raman Scattering Of Linear Polarised Light
 
