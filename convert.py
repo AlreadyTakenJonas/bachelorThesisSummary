@@ -102,7 +102,7 @@ def main(cliArgs):
         cliArgs.iterationLimit = 1
 
     # Read tensor file as matrices
-    tensorlist = util.readFileAsMatrices(cliArgs.tensorfile)
+    tensorlist_input = util.readFileAsMatrices(cliArgs.tensorfile)
 
 # PREPARE SIMULATION
 
@@ -113,10 +113,10 @@ def main(cliArgs):
                             "matrix": np.array([ [0, 0, 0],
                                                  [0, 0, 0],
                                                  [0, 0, 0]  ]).astype(np.float)
-                           } for tensor in tensorlist]
+                           } for tensor in tensorlist_input]
     # Scale the original tensorlist down by a factor of iterationLimit to make sure that the sum over all iterations will equal the mean over all iterations
     tensorlist = [{ "head": tensor["head"],
-                    "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist]
+                    "matrix": tensor["matrix"]/cliArgs.iterationLimit } for tensor in tensorlist_input]
 
     # Build a generator that returns a tuple that can be passed to the monte-carlo-simulation function
     # It contains one tuple for every iteration. The tuples contain three random anlges in radians and the tensorlist, that will be rotated.
@@ -152,6 +152,56 @@ def main(cliArgs):
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
 
+#
+#   VALIDATE THE SIMULATION
+#   by comparing the depolarisation ratio of the molecular tensor and the labratory matrix
+#   Source: Richard N. Zare: Angular Momentum, p.129
+#
+
+    log.info("Validating monte-carlo-simulation via the depolarisation ratio.")
+
+    # Check every matrix
+    for input, output in zip(tensorlist_input, convertedTensorlist):
+
+        log.debug("Check matrix '" + input["head"] + "'.")
+
+        # Check if loop is comparing the right matrices
+        if input["head"] != output["head"]:
+            log.critical("INTERNAL ERROR: The header of input and output matrices don't match! Error in input tensor '" + input["head"] + "' and output matrix '" + output["head"] + "'." )
+            log.critical("TERMINATE EXECUTION.")
+            sys.exit(-1)
+
+        # Compute eigenvalues of molecular tensor
+        try:
+            eigenvalues = np.linalg.eigvals(input["matrix"])
+
+        except LinAlgError as e:
+            # Eigenvalues do not converge. Log this issue, inform the user and skip iteration.
+            log.critical("The eigenvalue computation of the input raman tensor '" + input["head"] + "' does not converge. Unable to validate monte-carlo-simulation!")
+            log.critical("TERMINATE EXECUTION.")
+            sys.exit(-1)
+
+        # Compute depolarisation ration of the inital tensor via the eigenvalues. See "Angluar Momentum" p.129.
+        isotropicPolarisability = sum(eigenvalues)/3
+        anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
+        initialDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
+
+        # Compute depolarisation ratio of simulation result by comparing the polarisation change, when a e-field vector gets scattered
+        incomingLight = np.array([1,0,0])
+        scatteredLight = output["matrix"] @ incomingLight
+        # Divide the intensity of the light orthogonal to the intial light polarsation by the intensity of the light parallel polarised to the inital polarisation
+        terminalDepolarisationRatio = scatteredLight[1]**2 / scatteredLight[0]**2
+
+        # Check results
+        if round(initialDepolarisationRatio, 7) != round(terminalDepolarisationRatio, 7):
+            log.critical("Validation failed for matrix '" + output["head"] + "'!")
+            log.critical("Input: " + str(round(initialDepolarisationRatio, 7)) + "      Simulation: " + str(round(terminalDepolarisationRatio, 7)))
+            log.critical("TERMINATE EXECUTION.")
+            sys.exit(-1)
+
+    log.info("Validation done.")
+
+
 # CONVERT RESULTS TO TEXT
 
     # Write the commandline parameters and the execution time in a string
@@ -160,6 +210,7 @@ def main(cliArgs):
     # Add user comment to string
     if cliArgs.comment != "":
         output_text += "\n\n# " + str(cliArgs.comment)
+
 
     # Add the calculated tensors to the string. The tensors are formated like the tensor input file
     for tensor in convertedTensorlist:
