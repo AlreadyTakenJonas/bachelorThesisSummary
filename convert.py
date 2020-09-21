@@ -145,7 +145,7 @@ def main(cliArgs):
         # tqdm prints a lovely progress bar
         for result in tqdm( process, total = cliArgs.iterationLimit,
                                      desc = "Processes " + str(cliArgs.processCount) ):
-            # Tally the results of all processes up in order to get the mean of all computations
+            # Tally the results of all processes up to get the mean of all computations
             convertedTensorlist = [ {"head": tensor["head"],
                                      "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]) } for (index, tensor) in enumerate(result) ]
 
@@ -186,7 +186,7 @@ def main(cliArgs):
         anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
         initialDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
 
-        # Compute depolarisation ratio of simulation result by comparing the polarisation change, when a e-field vector gets scattered
+        # Compute depolarisation ratio of simulation result by comparing the polarisation change, when an e-field vector gets scattered
         incomingLight = np.array([1,0,0])
         scatteredLight = output["matrix"] @ incomingLight
         # Divide the intensity of the light orthogonal to the intial light polarsation by the intensity of the light parallel polarised to the inital polarisation
