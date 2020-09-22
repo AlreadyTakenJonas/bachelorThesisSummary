@@ -186,6 +186,30 @@ def stokesToElectricalField(sVector):
     # Return result
     return eVector
 
+def buildRamanMuellerMatrix(ramanTensor: np.ndarray):
+    """
+    This function builds the mueller matrix for a given raman tensor. Details for the conversion are given in the readme.
+    Attribures:
+    ramanTensor - raman tensor (3x3 numpy.ndarray) that will be translated into a mueller matrix
+    Returns: Mueller matrix as 4x4 numpy.ndarray
+    """
+
+    # TODO: CHECK TYPE AND VALUE
+
+    # Extract elements from raman tensor
+    xx = ramanTensor[0,0]
+    xy = ramanTensor[0,1]
+    yx = ramanTensor[1,0]
+    yy = ramanTensor[1,1]
+
+    # Build new matrix
+    muellerMatrix = np.array([  [ (xx**2 + yx**2 + xy**2 + yy**2)/2 , (xx**2 + yx**2 - xy**2 - yy**2)/2 , xy*xx + yx*yy , 0 ],
+                                [ (xx**2 - yx**2 + xy**2 - yy**2)/2 , (xx**2 - yx**2 - xy**2 + yy**2)/2 , xy*xx - yx*yy , 0 ],
+                                [  xx*yx + xy*yy                    ,  xx*yx - xy*yy                    , xx*yy + xy*yx , 0 ],
+                                [  0                                ,  0                                , 0             , 0 ]    ])
+
+    return muellerMatrix
+
 def findEntries(string: str, keyword: str, lines: int = 1, returnKeyword: bool = False):
     """
     This function searches for keyword in a string and yields for every occurence of keyword a list of strings of it.

@@ -87,33 +87,22 @@ def main(cliArgs):
         elif decodedInstruction == "SMP":
             # SMP command detected
 
-            # Convert state of simulation to the electrical field vector
-            log.info("Convert stokes states to electrical field vectors.")
-            electricalField = [ { "head": state["head"], "state": util.stokesToElectricalField(state["state"]) } for state in currentState ]
+            log.info("Convert raman tensor to mueller formalism and apply it to the state of the simulation.")
+            for index, (state, tensor) in enumerate( zip(currentState, sampleMatrix) ):
 
-            # Log electrical field vector
-            logstring = str( np.array([ state["state"] for i, state in enumerate(electricalField) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
-            for index, state in enumerate(electricalField):
-                log.debug("[ " + logstring[index] + " ] " + str(state["head"]))
-
-            # Alter stokes vector with every mueller matrix of the sample
-            log.info("Apply raman matrix.")
-            for index, (state, matrix) in enumerate( zip(electricalField, sampleMatrix) ):
-
-                if state["head"] == matrix["head"]:
+                if state["head"] == tensor["head"]:
                     # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector match
-                    electricalField[index] = { "head": state["head"], "state": matrix["matrix"] @ state["state"] }
 
-                    log.debug( str(electricalField[index]["state"]) + " " + electricalField[index]["head"] )
+                    # Convert the raman tensor into a mueller matrix
+                    matrix = util.buildRamanMuellerMatrix( tensor["matrix"] )
+
+                    # Apply mueller matrix to current state of the simulation
+                    currentState[index] = { "head": state["head"], "state": matrix @ state["state"] }
 
                 else:
                     # Raise an exception if headers don't match
-                    log.critical("INTERNAL ERROR: The headers of the samples mueller matrix and the current state of the simulation don't match.")
-                    raise ValueError("INTERNAL ERROR: The headers of the samples mueller matrix and the current state of the simulation don't match.")
-
-            # Convert electrical field vector back to stokes formalism
-            log.info("Convert electrical field vectors back to stokes vectors.")
-            currentState = [ { "head": state["head"], "state": util.electricalFieldToStokes(state["state"]) } for state in electricalField ]
+                    log.critical("INTERNAL ERROR: The headers of the samples raman tensor and the current state of the simulation don't match.")
+                    raise ValueError("INTERNAL ERROR: The headers of the samples raman tensor and the current state of the simulation don't match.")
 
         else:
             # Handle unexpected behaviour
