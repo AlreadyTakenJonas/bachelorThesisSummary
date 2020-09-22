@@ -59,6 +59,9 @@ def __monteCarlo(param):
     zeta        = param[2]
     tensorlist  = param[3]
 
+    # Create empty list to store results in
+    result = []
+
     # Calculate the rotation matrices
     Rx = np.array([ [1, 0          ,  0          ],
                     [0, np.cos(phi), -np.sin(phi)],
@@ -75,13 +78,14 @@ def __monteCarlo(param):
     # Calculate the first half of the rotation
     transposed = Rz.T @ Ry.T @ Rx.T
 
-    # Rotate every raman tensor and add the result to convertedTensorlist
+    # Rotate every raman tensor
     for index, tensor in enumerate(tensorlist):
 
-        tensorlist[index]["matrix"] = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
+        result.append( {"head" : tensor["head"],
+                        "matrix" : transposed @ tensor["matrix"] @ Rx @ Ry @ Rz })
 
     # Return rotated tensors
-    return tensorlist
+    return result
 
 
 #
