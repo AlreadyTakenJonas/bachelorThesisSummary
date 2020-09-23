@@ -140,10 +140,6 @@ class SetupDecoder:
         if stokes_vector[0]**2 < round( sum([ s**2 for s in stokes_vector[1:] ]), 7):
             raise ValueError("The square sum of the last three stokes parameters can't be greater than the squared first stokes parameter!")
 
-        # Make sure the formulas implemented in the program work for the input
-        if stokes_vector[3] != 0:
-            raise ValueError("PolaRam can't handle circular polarised light!")
-
         # Normalise with s0
         if stokes_vector[0] != 0:
             stokes_vector = stokes_vector / stokes_vector[0]

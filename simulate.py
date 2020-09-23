@@ -87,7 +87,7 @@ def main(cliArgs):
         elif decodedInstruction == "SMP":
             # SMP command detected
 
-            log.info("Convert raman tensor to mueller formalism and apply it to the state of the simulation.")
+            log.info("Convert raman tensor to mueller formalism.")
             for index, (state, tensor) in enumerate( zip(currentState, sampleMatrix) ):
 
                 if state["head"] == tensor["head"]:
@@ -96,6 +96,20 @@ def main(cliArgs):
                     # Convert the raman tensor into a mueller matrix
                     matrix = util.buildRamanMuellerMatrix( tensor["matrix"] )
 
+                    # Make sure the conversion formula for the raman tensor does apply
+                    log.info("Check state vector '" + state["head"] + "'.")
+                    # Make sure the polarisation grade is 1
+                    polarisation = np.sqrt(state["state"][1]**2 + state["state"][2]**2 + state["state"][3]**2) / state["state"][0]
+                    polarisation = round( polarisation , 7)
+                    if np.not_equal(polarisation, 1):
+                        log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Must be equal to one for SMP instruction!")
+                        raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Must be equal to one for SMP instruction!")
+                    # Make sure there is no circular polarisation
+                    if round( state["state"][3], 7 ) != 0:
+                        log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The SMP instruction can't handle circular polarisation!")
+                        raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The SMP instruction can't handle circular polarisation!")
+
+                    log.info("Apply raman mueller matrix to state vector.")
                     # Apply mueller matrix to current state of the simulation
                     currentState[index] = { "head": state["head"], "state": matrix @ state["state"] }
 
