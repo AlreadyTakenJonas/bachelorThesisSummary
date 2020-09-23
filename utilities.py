@@ -128,7 +128,11 @@ def buildRamanMuellerMatrix(ramanTensor: np.ndarray):
     Returns: Mueller matrix as 4x4 numpy.ndarray
     """
 
-    # TODO: CHECK TYPE AND VALUE
+    # Check type of input
+    if not isinstance(ramanTensor, np.ndarray):
+        raise TypeError("utilities.buildRamanMuellerMatrix expects a numpy.ndarray as input!")
+    if ramanTensor.shape != (3,3):
+        raise TypeError("utilities.buildRamanMuellerMatrix expects a 3x3 numpy.ndarray as input!")
 
     # Extract elements from raman tensor
     xx = ramanTensor[0,0]

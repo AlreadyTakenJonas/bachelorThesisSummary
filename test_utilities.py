@@ -165,3 +165,53 @@ class TestUtilities_FindEntries(unittest.TestCase):
         # Test output
         self.assertIsInstance(test_output, types.GeneratorType)
         self.assertListEqual(list(test_output), correct_output)
+
+class TestUtilities_BuildRamanMuellerMatrix(unittest.TestCase):
+    """
+    Test utilities.buildRamanMuellerMatrix()
+    """
+
+    def test_values(self):
+        """
+        Make sure value errors are raised if necessary
+        """
+        pass
+
+    def test_types(self):
+        """
+        Make sure type errors are raised if necessary
+        """
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, [ [1,1,1], [1,1,1], [1,1,1] ])
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, 1)
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, "string")
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, True)
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, False)
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, 1+1j)
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, np.diag([1,1,1,1]) )
+        self.assertRaises(TypeError, util.buildRamanMuellerMatrix, np.diag([1,1]) )
+
+    def test_output(self):
+        """
+        Make sure the returned matrix is correct
+        """
+        # lambda funtion that converts raman tensor to mueller matrix for testing purposes
+        correct_matrix = lambda xx, xy, yx, yy : np.array([ [ (xx**2 + yx**2 + xy**2 + yy**2)/2, (xx**2 + yx**2 - xy**2 - yy**2)/2, xy*xx + yx*yy, 0 ],
+                                                            [ (xx**2 - yx**2 + xy**2 - yy**2)/2, (xx**2 - yx**2 - xy**2 + yy**2)/2, xy*xx - yx*yy, 0 ],
+                                                            [  xx*yx + xy*yy,                     xx*yx - xy*yy,                    xx*yy + xy*yx, 0 ],
+                                                            [  0,                                 0,                                0,             0 ]  ])
+
+        # Check type
+        self.assertTrue( type( util.buildRamanMuellerMatrix(np.diag([1,1,1])) ) is np.ndarray )
+
+        # Make sure output is correct
+        for xx in [-2, -1.2, -1, -0.5, 0, 0.7, 1, 1.3, 2]:
+            for xy in [-2, -1.2, -1, -0.5, 0, 0.7, 1, 1.3, 2]:
+                for yx in [-2, -1.2, -1, -0.5, 0, 0.7, 1, 1.3, 2]:
+                    for yy in [-2, -1.2, -1, -0.5, 0, 0.7, 1, 1.3, 2]:
+
+                        test_output = util.buildRamanMuellerMatrix( np.array([ [xx, xy, 0],
+                                                                               [yx, yy, 0],
+                                                                               [0,  0,  0] ]) )
+                        correct_output = correct_matrix(xx, xy, yx, yy)
+
+                        np.testing.assert_array_almost_equal(test_output, correct_output)
