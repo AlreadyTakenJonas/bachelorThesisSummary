@@ -215,7 +215,7 @@ class SetupDecoder:
                           [0, 0, 1, 0],
                           [0, 0, 0, 1] ])
 
-    def rotateMatrix(self, angle: float, matrix: np.matrix):
+    def rotateMatrix(self, angle: float, matrix: np.ndarray):
         """
         Returns the rotated matrix of any given mueller matrix. The rotation works like the rotation of hypersphears in 4d space and quaternions.
         No user command
