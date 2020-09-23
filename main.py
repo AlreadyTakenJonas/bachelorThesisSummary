@@ -101,7 +101,7 @@ if __name__ == "__main__":
     sap_convert.add_argument("-i", "--iterations",
                              help = "number of iterations the simulation will calculate. Default = 1000000",
                              required = False,
-                             type = int,
+                             type = util.positiveInt,
                              default = 1000000,
                              dest = "iterationLimit")
     # Add path to output file

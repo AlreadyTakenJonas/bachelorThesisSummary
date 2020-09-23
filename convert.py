@@ -125,11 +125,6 @@ def main(cliArgs):
 
     log.info("START RAMAN TENSOR CONVERSION")
 
-    # Check if cliArgs.iterationLimit is smaller than 1
-    if cliArgs.iterationLimit < 1:
-        log.critical("WARNING: The minimal amount of iterations is 1. Setting iterationlimit to 1.")
-        cliArgs.iterationLimit = 1
-
     # Read tensor file as matrices
     tensorlist_input = util.readFileAsMatrices(cliArgs.tensorfile)
 
