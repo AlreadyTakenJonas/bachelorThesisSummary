@@ -1,6 +1,6 @@
 # Raman Scattering Of Linear Polarised Light With PolaRam
 
-The program PolaRam simulates the behaviour of linear and fully polarised light with the mueller formalism and stokes vectors. The simulation contains the raman scattering process with a custom sample and the optical elements like like attenuating filters, wave plates and linear retarders. The polarisation state and polarisation change of the scattered laser light is simulated as matrix multiplication of stokes vectors (polarisation state) and mueller matrices (polarisation change due to optical elements or sample).
+The program PolaRam simulates the behaviour of polarised light with the mueller formalism and stokes vectors. The simulation contains the raman scattering process with a custom sample and the optical elements like attenuating filters, wave plates and linear retarders. The polarisation state and polarisation change of the scattered laser light is simulated as matrix multiplication of stokes vectors (polarisation state) and mueller matrices (polarisation change due to optical elements or sample). Due to mathematical issues this simulation does only support linear and completely polarised light in combination with the raman scattering process. More information on that in the [section](#instruction-file) below. 
 
 The program needs a file with instructions and a file with the raman tensors of the sample. The instructions file describes the experimental setup that shall be simulated. The syntax is assembly like and described below. The raman tensors are stored in a seperate file with a specific format and coordinate system also described below.
 
@@ -28,14 +28,13 @@ Table of Contents
 
 The simulation works by describing the state of the polarisation as a four dimensional stokes vector *S* and every optical element and the sample as 4x4 mueller matrices *M*. Applying *M* to *S* will give the new state of the system when the light interacts with the optical element. Every command in the input file descibes a mueller matrix that will be applied to the system one after another. The `LSR` command is special, because it describes the initial stokes vector.
 
-The simulation takes the raman tensor describing the sample as 3x3 matrix. Therefore the raman tensor is not compatible with the mueller formalism. To solve this problem the raman tensor will be transformed into a mueller matrix. The transformation will be explained in a seperate pdf-file (WORK IN PROGRESS).
+The simulation takes the raman tensor describing the sample as 3x3 matrix. Therefore the raman tensor is not compatible with the mueller formalism. To solve this problem the raman tensor will be transformed into a mueller matrix. Due to the mathematics behind the transformation the program is not able to describe the raman scattering process for light that is circular polarised or with a polarisation grade below one. The transformation and its assumptions will be explained in a seperate pdf-file (WORK IN PROGRESS).
 It is possible to pass multiple raman tensors to the simulation at once. There is a raman tensor for every vibrational mode of the sample and all of them can be simulated in parallel. Make sure to give each raman tensor a describtive title in the raman tensor file. More details about the input files are given below.
 
-This simulation is only looking at raman scattering at an angle of 180°. And at the current moment does it only support light with a polarisation grade *Π* of one. Circular polarisation can't be simulated in combination with the raman scattering process. All other optical elements do support circular polarisation.
+This simulation is only looking at raman scattering in transmission. And at the current moment does it only support light with a polarisation grade *Π* of one. Circular polarisation can't be simulated in combination with the raman scattering process. All other optical elements do support circular polarisation.
 These assumptions are the basis of the raman-tensor-to-mueller-matrix-conversion described in a seperate pdf-file (WORK IN PROGRESS). Details and definitions of the coordinate systems are given in a seperate pdf-file (WORK IN PROGRESS).
 
-## Planned Features
-+ Implement conversion of 3x3 raman tensor into 4x4 mueller matrix
+In order to simulate a solution of a molecule and not only a single molecule, use the `convert` command. It derives a mean raman matrix for molecules in solution from the raman tensor of a single molecule. The raman tensor for the single molecule can be computed by quantum calculation programs like Gaussian. Details are given in the sections about the `convert` sub-program.
 
 ## Usage
 
@@ -88,7 +87,7 @@ instruction | optical element             | number of arguments | describtion
 `QWP θ`     | quarter wave plate          | 1                   | Shortcut for `GLR θ 90`.
 `LHP θ`     | linear horizontal polariser | 1                   | This polariser accepts the optional angle θ in degrees. θ rotates the linear polariser in the x-y-plane of the labratory coordinate system counter-clockwise. θ defaults to zero and aligns the polariser with the x-axis of the labratory coordinate system.
 `LVP θ`     | linear vertical polariser   | 1                   | This polariser accepts the optional angle θ in degrees. θ rotates the linear polariser in the x-y-plane of the labratory coordinate system counter-clockwise. θ defaults to zero and aligns the polariser with the y-axis of the labratory coordinate system.
-`SMP`       | raman scattering sample     | 0                   | This command will cause the simulation program to use the raman tensors given via CLI in the next simulation step. If none is given, the unity matrix will be read from file `PolaRam/unitmatrix.txt`. WIP: The raman tensor will be converted into a mueller matrix.
+`SMP`       | raman scattering sample     | 0                   | This command will cause the simulation program to use the raman tensors given via CLI in the next simulation step. If none is given, the unity matrix will be read from file `PolaRam/unitmatrix.txt`. The raman tensors will be converted into mueller matrices. This instruction is not compatible with circular polarised light and light with a polarisation grade below one. For more details see the seperate pdf-file on the math behind it (WORK IN PROGRESS).
 `FLR t`     | attenuating filter          | 1                   | The attenuating filter accepts the transmission t as argument. t must be a value between zero and one (including both) and describes the percentage of light that can pass the filter.
 `NOP`       | no operation                | 0                   | Returns unity matrix.
 `#`         | comment                     | ∞                   | This instruction ignores all its arguments and will cause the simulation to perform a `NOP`.
