@@ -9,20 +9,21 @@ The sub-program carrying out the simulation is called `polaram simulate`. There 
 Table of Contents
 =================
 
-  * [Raman Scattering Of Linear Polarised Light With PolaRam](#raman-scattering-of-linear-polarised-light-with-polaram)
-  * [simulate: Simulation Of Raman Scattering Of Linear Polarised Light](#simulate-simulation-of-raman-scattering-of-linear-polarised-light)
-     * [Planned Features](#planned-features)
-     * [Usage](#usage)
-     * [The Input Files](#the-input-files)
-        * [Instruction File](#instruction-file)
-        * [Raman Tensor File](#raman-tensor-file)
-  * [convert: Matrix Transformation Between Molecular And Labratory Coordinate System](#convert-matrix-transformation-between-molecular-and-labratory-coordinate-system)
-     * [Planned Features](#planned-features-1)
-     * [Usage](#usage-1)
-     * [The Input File](#the-input-file)
-  * [extract: Reading Log-Files Of Quantum Calculations](#extract-reading-log-files-of-quantum-calculations)
-     * [Usage](#usage-2)
-     * [The Input File](#the-input-file-1)
+   * [Raman Scattering Of Linear Polarised Light With PolaRam](#raman-scattering-of-linear-polarised-light-with-polaram)
+   * [Table of Contents](#table-of-contents)
+   * [simulate: Simulation Of Raman Scattering Of Linear Polarised Light](#simulate-simulation-of-raman-scattering-of-linear-polarised-light)
+      * [Usage](#usage)
+      * [The Input Files](#the-input-files)
+         * [Instruction File](#instruction-file)
+         * [Raman Tensor File](#raman-tensor-file)
+   * [convert: Matrix Transformation Between Molecular And Labratory Coordinate System](#convert-matrix-transformation-between-molecular-and-labratory-coordinate-system)
+      * [Planned Features](#planned-features)
+      * [Usage](#usage-1)
+      * [The Input File](#the-input-file)
+   * [extract: Reading Log-Files Of Quantum Calculations](#extract-reading-log-files-of-quantum-calculations)
+      * [Usage](#usage-2)
+      * [The Input File](#the-input-file-1)
+   * [Supplementary code: utilities and SetupDecoder](#supplementary-code-utilities-and-setupdecoder)
 
 # simulate: Simulation Of Raman Scattering Of Linear Polarised Light
 
