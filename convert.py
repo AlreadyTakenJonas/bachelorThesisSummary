@@ -14,7 +14,7 @@ import sys
 # Matrix multiplication and trigonometric functions
 import numpy as np
 
-# ceiling and floor
+# sqrt, ceiling and floor
 import math
 
 # Pseudo-random number generator
@@ -29,6 +29,7 @@ import multiprocessing
 # Process bar
 from tqdm import tqdm
 
+
 #
 #   INTERNAL MODULES
 #
@@ -37,7 +38,7 @@ import utilities as util
 #
 #   FUNCTION TO BE CALLED BY PARALLEL SUBPROCESSES
 #
-def __monteCarlo(param):
+def __monteCarlo(tensorlist):
     """
     RUN ONE ITERATION OF THE MONTE-CARLO SIMULATION
     !!!!! LOGGING IS OMITTED DURING THE SIMULATION DUE TO SEVERE PERFORMANCE ISSUES !!!!!!
@@ -48,64 +49,40 @@ def __monteCarlo(param):
                   2. a_lab = < M >
                     Calculate the mean over all random rotation angles (will be done by main function)
     Attributes:
-    param - a tuple containing following elements:
-        phi, theta, zeta - rotation angles in radians
-        tensorlist - correctly formatted list of raman tensors in the molecular coordinate system
+    tensorlist - correctly formatted list of raman tensors in the molecular coordinate system
     Returns rotated version of tensorlist
     """
-    # Expand parameters
-    phi         = param[0]
-    theta       = param[1]
-    zeta        = param[2]
-    tensorlist  = param[3]
+    # Choose random rotation parameters
+    phi         = rand.uniform(0, 2*np.pi)
+    theta       = rand.uniform(0, 2*np.pi)
+    x           = rand.uniform(0, 1)
+
+    # Calculate the rotation matrix with Arvos Alorithm "Fast Random Rotation Matrices"
+    Rz = np.array([ [ np.cos(phi), np.sin(phi), 0],
+                    [-np.sin(phi), np.cos(phi), 0],
+                    [ 0          , 0          , 1]   ])
+    mirrorNormal = np.array([ [ np.cos(theta)*math.sqrt(x) ],
+                              [ np.sin(theta)*math.sqrt(x) ],
+                              [ math.sqrt(1-x)             ]    ])
+    householder = np.diag([1,1,1]) - 2 * ( mirrorNormal @ mirrorNormal.T )
+    rotation = (-1 * householder) @ Rz
 
     # Create empty list to store results in
     result = []
 
-    # Calculate the rotation matrices
-    Rx = np.array([ [1, 0          ,  0          ],
-                    [0, np.cos(phi), -np.sin(phi)],
-                    [0, np.sin(phi),  np.cos(phi)]      ])
-
-    Ry = np.array([ [ np.cos(theta), 0, np.sin(theta)],
-                    [ 0            , 1, 0            ],
-                    [-np.sin(theta), 0, np.cos(theta)]  ])
-
-    Rz = np.array([ [np.cos(zeta), -np.sin(zeta), 0],
-                    [np.sin(zeta),  np.cos(zeta), 0],
-                    [0           ,  0           , 1]    ])
-
-    Rcos = np.array([   [np.cos(phi)*np.cos(theta)*np.cos(zeta)-np.sin(phi)*np.sin(zeta),      np.sin(phi)*np.cos(theta)*np.cos(zeta)+np.cos(phi)*np.sin(zeta),       -np.sin(phi)*np.cos(zeta)],
-                        [-np.cos(phi)*np.cos(theta)*np.sin(zeta)-np.sin(phi)*np.cos(zeta),     -np.sin(phi)*np.cos(theta)*np.sin(zeta)+np.cos(phi)*np.cos(zeta),       np.sin(phi)*np.sin(zeta)],
-                        [np.cos(phi)*np.sin(theta),                                            np.sin(phi)*np.sin(theta),                                              np.cos(theta)            ]  ])
-
-    # Calculate the first half of the rotation
-    transposed = Rz.T @ Ry.T @ Rx.T
-
     # Rotate every raman tensor
     for index, tensor in enumerate(tensorlist):
 
-    #    result.append( {"head" : tensor["head"],
-    #                    "matrix" : transposed @ tensor["matrix"] @ Rx @ Ry @ Rz })
+        # Rotate tensor
+        matrix = rotation.T @ tensor["matrix"] @ rotation
 
-        #matrix = np.linalg.inv(Rcos) @ tensor["matrix"] @ Rcos
-
-        matrix = transposed @ tensor["matrix"] @ Rx @ Ry @ Rz
-
+        # Extract and square the xz and zz element
+        # Used for checking the simulation result later via depolarisation rate
         azz = matrix[2,2]**2
         axz = matrix[0,2]**2
 
-        #print("EIGENVALUE: " + tensor["head"])
-        #print( np.linalg.eigvals(matrix))
-
-        incomingLight = np.array([0,0,1])
-        scatteredLight = ( matrix @ incomingLight )**2
-        # Divide the intensity of the light orthogonal to the intial light polarsation by the intensity of the light parallel polarised to the inital polarisation
-        #terminalDepolarisationRatio = scatteredLight[0]**2 / scatteredLight[2]**2
-
         result.append( {"head" : tensor["head"],
                         "matrix" : matrix,
-                        "scattered": scatteredLight,
                         "axz_square": axz,
                         "azz_square": azz })
 
@@ -137,7 +114,6 @@ def main(cliArgs):
                             "matrix": np.array([ [0, 0, 0],
                                                  [0, 0, 0],
                                                  [0, 0, 0]  ]).astype(np.float),
-                            "scattered": np.array([0,0,0]),
                             "axz_square": 0,
                             "azz_square": 0
                            } for tensor in tensorlist_input]
@@ -145,22 +121,17 @@ def main(cliArgs):
     tensorlist = [{ "head": tensor["head"],
                     "matrix": tensor["matrix"] } for tensor in tensorlist_input]
 
-    # Build a generator that returns a tuple that can be passed to the monte-carlo-simulation function
-    # It contains one tuple for every iteration. The tuples contain three random anlges in radians and the tensorlist, that will be rotated.
-    processArgs = ( (rand.random() * 2*np.pi, rand.random() * 2*np.pi, rand.random() * 2*np.pi, tensorlist) for i in range(cliArgs.iterationLimit) )
+    # Build a generator that returns the tensorlist that will be passed the monte-carlo-simulation function
+    processArgs = ( tensorlist for i in range(cliArgs.iterationLimit) )
 
 # RUN MONTE-CARLO SIMULATION
-# Calculation:  1. M(phi, theta, zeta) = (R_z)^T (R_y)^T (R_x)^T a_mol R_x R_y R_z
-#                  Calculate for random rotation angles around all axis (x,y,z) the rotated molecular raman tensor (a_mol).
-#                  Use the roation matrices R_x, R_y and R_z.
+# Calculation:  1. M(phi, theta, x) = R(phi, theta, x)^T a_mol R(phi, theta, x)
+#                  Calculate for random rotations with Arvos Algorithm - to guarantee uniformly distributed random rotations - the rotated molecular raman tensor (a_mol).
 #               2. a_lab = < M >
 #                  Calculate the mean over all random rotation angles
     log.info("START MONTE CARLO SIMULATION")
 
     # !!!!! LOGGING IS OMITTED DURING THE SIMULATION DUE TO SEVERE PERFORMANCE ISSUES !!!!!!
-
-    # Clear test log file
-    open('log/convergence.txt', 'w').close()
 
     # Create a pool of workers sharing the computation task
     with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
@@ -177,17 +148,9 @@ def main(cliArgs):
             # Tally the results of all processes up to get the mean of all computations
             convertedTensorlist = [ {"head": tensor["head"],
                                      "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]/cliArgs.iterationLimit),
-                                     "scattered": np.add(convertedTensorlist[index]["scattered"], tensor["scattered"]),
                                      "axz_square": convertedTensorlist[index]["axz_square"] + tensor["axz_square"],
-                                     "azz_square": convertedTensorlist[index]["azz_square"] + tensor["azz_square"] } for (index, tensor) in enumerate(result) ]
-
-            # Log depolarisation ratio to file
-            with open("log/convergence.txt", "a") as file:
-                depol = ""
-                for dict in convertedTensorlist:
-                    depol += str( dict["axz_square"] / dict["azz_square"] ) + "   "
-                file.write(depol + "\n")
-
+                                     "azz_square": convertedTensorlist[index]["azz_square"] + tensor["azz_square"]
+                                    } for (index, tensor) in enumerate(result) ]
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
 
@@ -203,8 +166,6 @@ def main(cliArgs):
     for input, output in zip(tensorlist_input, convertedTensorlist):
 
         log.debug("Check matrix '" + input["head"] + "'.")
-
-        print("\n" + input["head"] + "  " + output["head"])
 
         # Check if loop is comparing the right matrices
         if input["head"] != output["head"]:
@@ -222,42 +183,30 @@ def main(cliArgs):
             log.critical("TERMINATE EXECUTION.")
             sys.exit(-1)
 
-
-        print("Eigenvalue initial: " + str(eigenvalues) )
-        print("Egenvalue terminal: " + str(np.linalg.eigvals(output["matrix"])))
         # Compute depolarisation ration of the inital tensor via the eigenvalues. See "Angluar Momentum" p.129.
         isotropicPolarisability = sum(eigenvalues)/3
         anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
         initialDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
 
-
-        print("ScatterdLight: " + str(output["scattered"]))
         # Compute depolarisation ratio of simulation result by comparing the polarisation change, when an e-field vector gets scattered
-        #incomingLight = np.array([0,0,1])
-        #scatteredLight = output["matrix"] @ incomingLight
+        incomingLight = np.array([1,0,0])
+        scatteredLight = output["matrix"] @ incomingLight
         # Divide the intensity of the light orthogonal to the intial light polarsation by the intensity of the light parallel polarised to the inital polarisation
-        #terminalDepolarisationRatio = scatteredLight[0]**2 / scatteredLight[2]**2
-        terminalDepolarisationRatio = output["scattered"][0] / output["scattered"][2]
+        terminalDepolarisationRatio = scatteredLight[1]**2 / scatteredLight[0]**2
         print("Terminal Depolarisation via scattering: " + str(terminalDepolarisationRatio))
 
-        rand.random()*2*np.pi
         division = output["axz_square"] / output["azz_square"]
         print("Terminal Depol via a_xz/a_zz: " + str(division))
 
-        eigenvalues = np.linalg.eigvals(output["matrix"])
-        isotropicPolarisability = sum(eigenvalues)/3
-        anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
-        terminalDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
-        print("Terminal Depolr. via Eigenval:" + str(terminalDepolarisationRatio))
-
-        print("Initial Depolar.:" + str(initialDepolarisationRatio))
+        print("SHIT: " + str( output["matrix"][0,2]**2/output["matrix"][2,2]**2 ) )
 
         # Check results
-        #if round(initialDepolarisationRatio, 7) != round(terminalDepolarisationRatio, 7):
-        #    log.critical("Validation failed for matrix '" + output["head"] + "'!")
-        #    log.critical("Input: " + str(round(initialDepolarisationRatio, 7)) + "      Simulation: " + str(round(terminalDepolarisationRatio, 7)))
-        #    log.critical("TERMINATE EXECUTION.")
-            #sys.exit(-1)
+        terminalDepolarisationRatio = division
+        if round(initialDepolarisationRatio, 2) != round(terminalDepolarisationRatio, 2):
+            log.critical("Validation failed for matrix '" + output["head"] + "'!")
+            log.critical("Input: " + str(round(initialDepolarisationRatio, 7)) + "      Simulation: " + str(round(terminalDepolarisationRatio, 7)))
+            log.critical("TERMINATE EXECUTION.")
+            sys.exit(-1)
 
     log.info("Validation done.")
 
@@ -282,20 +231,3 @@ def main(cliArgs):
     cliArgs.outputfile.write_text(output_text)
 
     log.info("STOPPED RAMAN TENSOR CONVERSION SUCCESSFULLY")
-
-
-    phi = rand.random()*2*np.pi
-    theta = rand.random()*2*np.pi
-    zeta = rand.random()*2*np.pi
-    Rcos = np.array([   [np.cos(phi)*np.cos(theta)*np.cos(zeta)-np.sin(phi)*np.sin(zeta),      np.sin(phi)*np.cos(theta)*np.cos(zeta)+np.cos(phi)*np.sin(zeta),       -np.sin(theta)*np.cos(zeta)],
-                        [-np.cos(phi)*np.cos(theta)*np.sin(zeta)-np.sin(phi)*np.cos(zeta),     -np.sin(phi)*np.cos(theta)*np.sin(zeta)+np.cos(phi)*np.cos(zeta),       np.sin(phi)*np.sin(zeta)],
-                        [np.cos(phi)*np.sin(theta),                                            np.sin(phi)*np.sin(theta),                                              np.cos(theta)            ]  ])
-    RcMult = Rcos @ Rcos.T
-    print("normal")
-    print(Rcos)
-    print("transpose")
-    print(Rcos.T)
-    print("inverse")
-    print(np.linalg.inv(Rcos))
-    print("prod")
-    print(RcMult)
