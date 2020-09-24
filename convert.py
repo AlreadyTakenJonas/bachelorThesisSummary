@@ -89,7 +89,6 @@ def __monteCarlo(tensorlist):
     # Return rotated tensors
     return result
 
-
 #
 #   MAIN PROGRAM
 #
@@ -198,13 +197,11 @@ def main(cliArgs):
         division = output["axz_square"] / output["azz_square"]
         print("Terminal Depol via a_xz/a_zz: " + str(division))
 
-        print("SHIT: " + str( output["matrix"][0,2]**2/output["matrix"][2,2]**2 ) )
-
         # Check results
         terminalDepolarisationRatio = division
-        if round(initialDepolarisationRatio, 2) != round(terminalDepolarisationRatio, 2):
+        if round(initialDepolarisationRatio, cliArgs.threshold) != round(terminalDepolarisationRatio, cliArgs.threshold):
             log.critical("Validation failed for matrix '" + output["head"] + "'!")
-            log.critical("Input: " + str(round(initialDepolarisationRatio, 7)) + "      Simulation: " + str(round(terminalDepolarisationRatio, 7)))
+            log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(terminalDepolarisationRatio, cliArgs.threshold)))
             log.critical("TERMINATE EXECUTION.")
             sys.exit(-1)
 
@@ -214,7 +211,12 @@ def main(cliArgs):
 # CONVERT RESULTS TO TEXT
 
     # Write the commandline parameters and the execution time in a string
-    output_text = "# polaram convert " + str(cliArgs.tensorfile.resolve()) + " --output " + str(cliArgs.outputfile.resolve()) + " --log " + str(cliArgs.logfile.resolve()) + " --iterations " + str(cliArgs.iterationLimit) + "\n# Execution time: " + str(datetime.now())
+    output_text  = "# polaram convert " + str(cliArgs.tensorfile.resolve())
+    output_text += " --output " + str(cliArgs.outputfile.resolve())
+    output_text += " --log " + str(cliArgs.logfile.resolve())
+    output_text += " --iterations " + str(cliArgs.iterationLimit)
+    output_text += " --threshold " + str(cliArgs.threshold)
+    output_text += "\n# Execution time: " + str(datetime.now())
 
     # Add user comment to string
     if cliArgs.comment != "":

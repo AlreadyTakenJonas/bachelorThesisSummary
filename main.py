@@ -131,7 +131,13 @@ if __name__ == "__main__":
                              required = False,
                              default = 500,
                              type = util.positiveInt,
-                             help = "Length of array each subprocess is given to calculate. Default=500")
+                             help = "length of array each subprocess is given to calculate. Default=500")
+    sap_convert.add_argument("-t", "--threshold",
+                             dest = "threshold",
+                             required = False,
+                             default = 2,
+                             type = util.positiveInt,
+                             help = "number of digits the depolarisation ratio before and after the monte-carlo-simulation must match for the result to pass validation. Default=2")
 
     # Create extract command
     sap_extract = sap.add_parser("extract",
