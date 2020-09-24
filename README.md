@@ -315,3 +315,9 @@ $ polaram extract gaussian/WATER.LOG
  0.       0.      -1.37193
  0.      -1.37193  0.
 ```
+
+# Supplementary code: `utilities` and `SetupDecoder`
+
+`SetupDecoder.py` and `utilities.py` contain code that is used by the commands discussed above. The `SetupDecoder` is a class that is only used by the `simulate` command. Its purpose is to convert an instruction from the [input file](#instruction-file) into a mueller matrix. It uses a dictionary to look a given instruction up and calls the corresponding function. The functions will create the mueller matrices from templates or create the initial stokes vectors by using the arguments passed with the instruction. The returned results will passed to the `simulate` program, which in return will pass a new instruction to the `SetupDecoder`.
+
+The `utilities` module contains a more varied assembly of functions. This module is used by all other python scripts for various applications. There are functions defining new data types for the command line interface argparse. These functions enable the cli to parse text as valid file paths, positive integers or interpret a list of strings as a single sentences. Furthermore there are functions to convert a raman tensor into a mueller matrix. The mathematical details are given in a seperate [pdf-file](./ramanMuellerMatrix.pdf). Reading and parsing the content of files is also implemented in this module. Text files can be read and interpreted as input files for the sub-programs or as gaussian .LOG-file.
