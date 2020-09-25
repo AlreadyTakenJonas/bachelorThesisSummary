@@ -74,6 +74,7 @@ def convertTextToMatrices(string, shape = None):
 
     Arguments:
     string - string that will be converted into matrices
+    shape  - a integer tuple specifing the expected np.ndarray.shape of the matrices. If none is given, the shape won't be checked.
 
     Returns: list of dictionary with matrices and descriptive headers
     """
@@ -126,6 +127,9 @@ def convertTextToMatrices(string, shape = None):
 def readFileAsMatrices(path, *args):
     """
     Shorthand for convertTextToMatrices(readFileAsText)
+    Attributes:
+    path - pathlib.Path object pointing to the file that will be read
+    args - a list of arguments, that will be passed on to convertTextToMatrices
     """
     text = readFileAsText(path)
     return convertTextToMatrices(text, *args)
