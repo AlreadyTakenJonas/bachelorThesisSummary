@@ -45,6 +45,7 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
         """
         Make sure type errors are raised if necessary
         """
+        # Test string
         self.assertRaises(TypeError, util.convertTextToMatrices, pathlib.Path("test_utilities.py"))
         self.assertRaises(TypeError, util.convertTextToMatrices, 1)
         self.assertRaises(TypeError, util.convertTextToMatrices, True)
@@ -52,17 +53,26 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
         self.assertRaises(TypeError, util.convertTextToMatrices, 1.0)
         self.assertRaises(TypeError, util.convertTextToMatrices, 1+1j)
 
+        # Test shape
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = 1)
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = "string")
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = True)
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = False)
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = 1.0)
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = 1+1j)
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = (1, 1, 1) )
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = (1) )
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = ("string", "string") )
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = (None, None) )
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = (True, False) )
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = (1.0, 1.0) )
+        self.assertRaises(TypeError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = (1+1j, 1+1j) )
+
     def test_index(self):
         """
         Make sure index errors are raised if necessary
         """
-        self.assertRaises(IndexError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1")
-
-    def test_values(self):
-        """
-        Make sure value errors are raised if necessary
-        """
-        self.assertRaises(ValueError, util.convertTextToMatrices, "!matrix\n 1 0 0 0\n 0 1 0 0\n 0 0 1 0\n 0 0 0 1")
+        self.assertRaises(IndexError, util.convertTextToMatrices, "!matrix\n  0 1\n 0 1", shape = (1,1))
 
     def test_output(self):
         """
@@ -81,7 +91,7 @@ class TestUtilities_ConvertTextToMatrices(unittest.TestCase):
                         1 -1 0
                         0  0 0
                      """
-        #print("\n\n" + teststring + "\n\n")
+
         # Correct result
         correctoutput = [ {"head": "first matrix",
                            "matrix": np.array([ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]) },

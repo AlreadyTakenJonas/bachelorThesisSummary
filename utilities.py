@@ -85,7 +85,7 @@ def convertTextToMatrices(string, shape = None):
 
     # Make sure shape is a tuple of two integers or the default value None.
     if shape != None:
-        if ( not isinstance(shape, tuple) or len(shape) != 2 or not all(isinstance(elem, int) for elem in shape) ):
+        if ( not isinstance(shape, tuple) or len(shape) != 2 or not all(type(elem) is int for elem in shape) ):
             log.critical("FATAL ERROR: convertTextToMatrices expects a tuple of two positive integers as argument! " + str(shape) + " was passed.")
             raise TypeError("FATAL ERROR: convertTextToMatrices expects a tuple of two positive integers as argument! " + str(shape) + " was passed.")
 
@@ -103,11 +103,6 @@ def convertTextToMatrices(string, shape = None):
                          "matrix": np.array([ row.split() for row in matrix ]).astype(np.float)
                        } for matrix in matrixlist ]
 
-    except IndexError as e:
-        # Matrix is to small. Raise exception and log.
-        log.critical("The matrix can't be read from file. The matrix must be 3x3 to be readable!")
-        raise
-
     except:
         # Log unexpected exceptions
         log.critical("FATAL ERROR: Raman matrices can't be read from file. Is the file format correct?")
@@ -119,7 +114,7 @@ def convertTextToMatrices(string, shape = None):
         # Check the shape of every matrix
         for matrix in matrixlist:
             if matrix["matrix"].shape != shape:
-                raise ValueError("Polaram expected matrices of shape " + str(shape) + "! The shape " + str(matrix["matrix"].shape) + " is not supported.")
+                raise IndexError("Polaram expected matrices of shape " + str(shape) + "! The shape " + str(matrix["matrix"].shape) + " does not.")
 
     # Return result
     return matrixlist
