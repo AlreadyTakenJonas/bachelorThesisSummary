@@ -123,12 +123,12 @@ def convertTextToMatrices(string, shape = None):
     # Return result
     return matrixlist
 
-def readFileAsMatrices(path, shape = None):
+def readFileAsMatrices(path, *args):
     """
     Shorthand for convertTextToMatrices(readFileAsText)
     """
     text = readFileAsText(path)
-    return convertTextToMatrices(text, shape)
+    return convertTextToMatrices(text, *args)
 
 def buildRamanMuellerMatrix(ramanTensor: np.ndarray):
     """
