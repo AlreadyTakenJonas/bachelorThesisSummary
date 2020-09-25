@@ -58,7 +58,7 @@ def main(cliArgs):
 
     if not LOGFILE_KEYWORD in gaussianfile:
         # Key word not found, probably wrong file
-        log.warning("Keyword 'freq(raman, printderivatives)' not found in input file. May not contain raman tensors. Ask user for program termination.")
+        log.warning("Keyword '" + LOGFILE_KEYWORD + "' not found in input file. May not contain raman tensors. Ask user for program termination.")
 
         # Ask user if he wants to continiue execution
         if bool(input("WARNING: This file is probably no gaussian log file or may not contain raman tensors. Continue anyway? [y/N] ").lower() != 'y'):
@@ -73,7 +73,7 @@ def main(cliArgs):
 
     if not TENSOR_KEYWORD in gaussianfile:
         # File does not contain raman tensors
-        log.warning("Keyword 'Polarizability derivatives wrt mode' not found in input file. Can't find raman tensors.")
+        log.warning("Keyword '" + TENSOR_KEYWORD + "' not found in input file. Can't find raman tensors.")
         log.critical("This file does not contain raman tensors. Exiting program.")
         log.info("RAMAN TENSOR EXTRACTION FAILED")
         sys.exit(-1)
@@ -83,11 +83,14 @@ def main(cliArgs):
     log.info("Extract harmonic frequencies from file.")
     try:
         # Read the harmonic frequencies from the log file
-        # Every entry util.findEntries returns contains three frequencies. Every triplett will be splitt into its elements and all frequencies are combined in a single flat list.
+        # Every entry util.findEntries returns contains three frequencies.
+        # Every triplett will be split into its elements and all frequencies are combined in a single flat list.
         frequencylist = [freq for triplett in util.findEntries(gaussianfile, FREQUENCY_KEYWORD) for freq in triplett[0].split()]
 
         # Write function that returns elements of frequencylist
-        # Use function not list in case exceptions is raised
+        # Use function, not list in case exceptions is raised
+        # If the program can't find the frequencies of the vibrational modes an exception will be raised
+        # and this function will be redefined in exception handler
         def frequency(mode_index):
             return frequencylist[mode_index]
 
@@ -99,7 +102,7 @@ def main(cliArgs):
 
     except ValueError:
         # Handle imaginary frequencies
-        log.warning("File contains complex frequencies! Raman tensors might be wrong. Ask user for prgram termination.")
+        log.warning("File contains complex frequencies! Raman tensors might be wrong. Ask user for program termination.")
 
         # Ask user if he wants to continiue execution
         if bool(input("WARNING: File contains complex frequencies! Raman tensors might be wrong. Continue anyway? [y/N] ").lower() != 'y'):
