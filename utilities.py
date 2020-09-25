@@ -60,7 +60,7 @@ def readFileAsText(path):
         log.exception(sys.exc_info()[0])
         raise
 
-def convertTextToMatrices(string):
+def convertTextToMatrices(string, shape = None):
     """
     Converting a string into a list of dictionaries. Each dictionary contains a 3x3 matrix and a head.
     The head is a descriptive header extracted from the text file.
@@ -77,9 +77,16 @@ def convertTextToMatrices(string):
 
     Returns: list of dictionary with matrices and descriptive headers
     """
+    # Make sure string is a string
     if not isinstance(string, str):
         log.critical("FATAL ERROR: convertTextToMatrices expects a string as argument! Type'" + type(string) + "' was passed.")
         raise TypeError("Function convertTextToMatrices expects a string as argument!")
+
+    # Make sure shape is a tuple of two integers or the default value None.
+    if shape != None:
+        if ( not isinstance(shape, tuple) or len(shape) != 2 or not all(isinstance(elem, int) for elem in shape) ):
+            log.critical("FATAL ERROR: convertTextToMatrices expects a tuple of two positive integers as argument! " + str(shape) + " was passed.")
+            raise TypeError("FATAL ERROR: convertTextToMatrices expects a tuple of two positive integers as argument! " + str(shape) + " was passed.")
 
     # Convert matrix file to list of matrices with descritive messages
     try:
@@ -89,9 +96,7 @@ def convertTextToMatrices(string):
         # Build a list of dictionaries
         # Each dictionary contains a head with a descriptive message extracted from the file and a matrix extracted from the file
         matrixlist = [ { "head": matrix.pop(0),
-                         "matrix": np.array([ matrix[0].split(),
-                                              matrix[1].split(),
-                                              matrix[2].split() ]).astype(np.float)
+                         "matrix": np.array([ row.split() for row in matrix ]).astype(np.float)
                        } for matrix in matrixlist ]
 
     except IndexError as e:
@@ -105,20 +110,22 @@ def convertTextToMatrices(string):
         log.exception(sys.exc_info()[0])
         raise
 
-    # Check shape of result
-    for matrix in matrixlist:
-        if matrix["matrix"].shape != (3,3):
-            raise ValueError("Polaram can handle only 3x3 matrices! The shape " + str(matrix["matrix"].shape) + " is not supported.")
+    # Check shape of result, if a control variable was passed to the function
+    if shape != None:
+        # Check the shape of every matrix
+        for matrix in matrixlist:
+            if matrix["matrix"].shape != shape:
+                raise ValueError("Polaram expected matrices of shape " + str(shape) + "! The shape " + str(matrix["matrix"].shape) + " is not supported.")
 
     # Return result
     return matrixlist
 
-def readFileAsMatrices(path):
+def readFileAsMatrices(path, shape = None):
     """
     Shorthand for convertTextToMatrices(readFileAsText)
     """
     text = readFileAsText(path)
-    return convertTextToMatrices(text)
+    return convertTextToMatrices(text, shape)
 
 def buildRamanMuellerMatrix(ramanTensor: np.ndarray):
     """
