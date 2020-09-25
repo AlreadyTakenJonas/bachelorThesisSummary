@@ -106,9 +106,9 @@ if __name__ == "__main__":
                              dest = "iterationLimit")
     # Add path to output file
     sap_convert.add_argument("-o", "--output",
-                             help = "path to output file. Default=PROGRAMMPATH/res/labratoryTensor.txt",
+                             help = "path to output file. Default=PROGRAMMPATH/res/labratoryMuellerMatrix.txt",
                              required = False,
-                             default = str(pathlib.Path(__file__).parent) + "/res/labratoryTensor.txt",
+                             default = str(pathlib.Path(__file__).parent) + "/res/labratoryMuellerMatrix.txt",
                              dest = "outputfile",
                              type = util.filepath)
     # Add argument that will be written as comment in the output file
