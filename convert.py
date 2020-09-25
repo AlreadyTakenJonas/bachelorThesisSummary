@@ -70,21 +70,17 @@ def __monteCarlo(tensorlist):
     # Create empty list to store results in
     result = []
 
-    # Rotate every raman tensor
+    # Rotate every raman tensor and convert it into mueller formalism
     for index, tensor in enumerate(tensorlist):
 
         # Rotate tensor
         matrix = rotation.T @ tensor["matrix"] @ rotation
 
-        # Extract and square the xz and zz element
-        # Used for checking the simulation result later via depolarisation rate
-        azz = matrix[2,2]**2
-        axz = matrix[0,2]**2
+        # Convert tensor into mueller formalism
+        matrix = util.buildRamanMuellerMatrix(matrix)
 
         result.append( {"head" : tensor["head"],
-                        "matrix" : matrix,
-                        "axz_square": axz,
-                        "azz_square": azz })
+                        "matrix" : matrix        })
 
     # Return rotated tensors
     return result
@@ -102,7 +98,7 @@ def main(cliArgs):
     log.info("START RAMAN TENSOR CONVERSION")
 
     # Read tensor file as matrices
-    tensorlist_input = util.readFileAsMatrices(cliArgs.tensorfile)
+    tensorlist = util.readFileAsMatrices(cliArgs.tensorfile, (3,3))
 
 # PREPARE SIMULATION
 
@@ -110,15 +106,8 @@ def main(cliArgs):
 
     # Copy the structure of tensorlist with empty arrays. This copy will be filled with the result of the simulation
     convertedTensorlist = [{"head": tensor["head"],
-                            "matrix": np.array([ [0, 0, 0],
-                                                 [0, 0, 0],
-                                                 [0, 0, 0]  ]).astype(np.float),
-                            "axz_square": 0,
-                            "azz_square": 0
-                           } for tensor in tensorlist_input]
-    # Scale the original tensorlist down by a factor of iterationLimit to make sure that the sum over all iterations will equal the mean over all iterations
-    tensorlist = [{ "head": tensor["head"],
-                    "matrix": tensor["matrix"] } for tensor in tensorlist_input]
+                            "matrix": np.diag([0, 0, 0, 0]).astype(np.float)
+                           } for tensor in tensorlist]
 
     # Build a generator that returns the tensorlist that will be passed the monte-carlo-simulation function
     processArgs = ( tensorlist for i in range(cliArgs.iterationLimit) )
@@ -144,11 +133,9 @@ def main(cliArgs):
         # tqdm prints a lovely progress bar
         for result in tqdm( process, total = cliArgs.iterationLimit,
                                      desc = "Processes " + str(cliArgs.processCount) ):
-            # Tally the results of all processes up to get the mean of all computations
+            # Tally the results of all processes up and divide by the iteration limit to get the mean of all computations
             convertedTensorlist = [ {"head": tensor["head"],
-                                     "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]/cliArgs.iterationLimit),
-                                     "axz_square": convertedTensorlist[index]["axz_square"] + tensor["axz_square"],
-                                     "azz_square": convertedTensorlist[index]["azz_square"] + tensor["azz_square"]
+                                     "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]/cliArgs.iterationLimit)
                                     } for (index, tensor) in enumerate(result) ]
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
@@ -162,7 +149,7 @@ def main(cliArgs):
     log.info("Validating monte-carlo-simulation via the depolarisation ratio.")
 
     # Check every matrix
-    for input, output in zip(tensorlist_input, convertedTensorlist):
+    for input, output in zip(tensorlist, convertedTensorlist):
 
         log.debug("Check matrix '" + input["head"] + "'.")
 
@@ -182,31 +169,24 @@ def main(cliArgs):
             log.critical("TERMINATE EXECUTION.")
             sys.exit(-1)
 
-        # Compute depolarisation ration of the inital tensor via the eigenvalues. See "Angluar Momentum" p.129.
+        # Compute depolarisation ratio of the inital tensor via the eigenvalues. See "Angluar Momentum" p.129.
         isotropicPolarisability = sum(eigenvalues)/3
         anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
         initialDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
 
-        # Compute depolarisation ratio of simulation result by comparing the polarisation change, when an e-field vector gets scattered
-        incomingLight = np.array([1,0,0])
+        # Compute the depolarisation ratio of the final mueller matrix via raman scattering in Mueller-Formalism. See "Angluar Momentum" p.129.
+        incomingLight  = np.array([1,1,0,0])
         scatteredLight = output["matrix"] @ incomingLight
-        # Divide the intensity of the light orthogonal to the intial light polarsation by the intensity of the light parallel polarised to the inital polarisation
-        terminalDepolarisationRatio = scatteredLight[1]**2 / scatteredLight[0]**2
-        print("Terminal Depolarisation via scattering: " + str(terminalDepolarisationRatio))
-
-        division = output["axz_square"] / output["azz_square"]
-        print("Terminal Depol via a_xz/a_zz: " + str(division))
+        finalDepolarisationRatio = (scatteredLight[0]-scatteredLight[1])/(scatteredLight[0]+scatteredLight[1])
 
         # Check results
-        terminalDepolarisationRatio = division
-        if round(initialDepolarisationRatio, cliArgs.threshold) != round(terminalDepolarisationRatio, cliArgs.threshold):
+        if round(initialDepolarisationRatio, cliArgs.threshold) != round(finalDepolarisationRatio, cliArgs.threshold):
             log.critical("Validation failed for matrix '" + output["head"] + "'!")
-            log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(terminalDepolarisationRatio, cliArgs.threshold)))
+            log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(finalDepolarisationRatio, cliArgs.threshold)))
             log.critical("TERMINATE EXECUTION.")
             sys.exit(-1)
 
     log.info("Validation done.")
-
 
 # CONVERT RESULTS TO TEXT
 
@@ -221,7 +201,6 @@ def main(cliArgs):
     # Add user comment to string
     if cliArgs.comment != "":
         output_text += "\n\n# " + str(cliArgs.comment)
-
 
     # Add the calculated tensors to the string. The tensors are formated like the tensor input file
     for tensor in convertedTensorlist:
