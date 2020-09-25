@@ -90,9 +90,12 @@ def convertTextToMatrices(string, shape = None):
 
     # Convert matrix file to list of matrices with descritive messages
     try:
-        # Split file in seperate matrices and remove comments and empty lines
-        # Comments start with '#' and matrices with '!'
-        matrixlist = [matrix.strip().split("\n") for matrix in string.split("!") if matrix.strip().find("#") != 0 and matrix.strip() != ""]
+        # Remove comments from string
+        # Comments start with '#'
+        string = "\n".join( [ line for line in string.splitlines() if line.strip().find("#") != 0 ] )
+        # Split file in seperate matrices and remove empty lines
+        # Matrices start with '!'
+        matrixlist = [matrix.strip().split("\n") for matrix in string.split("!") if matrix.strip() != ""]
         # Build a list of dictionaries
         # Each dictionary contains a head with a descriptive message extracted from the file and a matrix extracted from the file
         matrixlist = [ { "head": matrix.pop(0),
