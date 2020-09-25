@@ -74,13 +74,14 @@ def __monteCarlo(tensorlist):
     for index, tensor in enumerate(tensorlist):
 
         # Rotate tensor
-        matrix = rotation.T @ tensor["matrix"] @ rotation
+        raman = rotation.T @ tensor["matrix"] @ rotation
 
         # Convert tensor into mueller formalism
-        matrix = util.buildRamanMuellerMatrix(matrix)
+        mueller = util.buildRamanMuellerMatrix(raman)
 
-        result.append( {"head" : tensor["head"],
-                        "matrix" : matrix        })
+        result.append( {"head"          : tensor["head"],
+                        "muellerMatrix" : mueller,
+                        "ramanTensor"   : raman             })
 
     # Return rotated tensors
     return result
@@ -106,7 +107,8 @@ def main(cliArgs):
 
     # Copy the structure of tensorlist with empty arrays. This copy will be filled with the result of the simulation
     convertedTensorlist = [{"head": tensor["head"],
-                            "matrix": np.diag([0, 0, 0, 0]).astype(np.float)
+                            "muellerMatrix": np.diag([0, 0, 0, 0]).astype(np.float),
+                            "ramanTensor": np.diag([0, 0, 0]).astype(np.float)
                            } for tensor in tensorlist]
 
     # Build a generator that returns the tensorlist that will be passed the monte-carlo-simulation function
@@ -135,7 +137,8 @@ def main(cliArgs):
                                      desc = "Processes " + str(cliArgs.processCount) ):
             # Tally the results of all processes up and divide by the iteration limit to get the mean of all computations
             convertedTensorlist = [ {"head": tensor["head"],
-                                     "matrix": np.add(convertedTensorlist[index]["matrix"], tensor["matrix"]/cliArgs.iterationLimit)
+                                     "muellerMatrix": np.add(convertedTensorlist[index]["muellerMatrix"], tensor["muellerMatrix"]/cliArgs.iterationLimit),
+                                     "ramanTensor": np.add(convertedTensorlist[index]["ramanTensor"], tensor["ramanTensor"]/cliArgs.iterationLimit)
                                     } for (index, tensor) in enumerate(result) ]
 
     log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
@@ -176,7 +179,7 @@ def main(cliArgs):
 
         # Compute the depolarisation ratio of the final mueller matrix via raman scattering in Mueller-Formalism. See "Angluar Momentum" p.129.
         incomingLight  = np.array([1,1,0,0])
-        scatteredLight = output["matrix"] @ incomingLight
+        scatteredLight = output["muellerMatrix"] @ incomingLight
         finalDepolarisationRatio = (scatteredLight[0]-scatteredLight[1])/(scatteredLight[0]+scatteredLight[1])
 
         # Check results
@@ -184,7 +187,7 @@ def main(cliArgs):
             log.critical("Validation failed for matrix '" + output["head"] + "'!")
             log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(finalDepolarisationRatio, cliArgs.threshold)))
             log.critical("TERMINATE EXECUTION.")
-            sys.exit(-1)
+            #sys.exit(-1)
 
     log.info("Validation done.")
 
@@ -203,8 +206,11 @@ def main(cliArgs):
         output_text += "\n\n# " + str(cliArgs.comment)
 
     # Add the calculated tensors to the string. The tensors are formated like the tensor input file
-    for tensor in convertedTensorlist:
-        output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["matrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
+    for dict in convertedTensorlist:
+        # Print mean of mueller matrices
+        output_text += "\n\n! " + dict["head"] + "\n" + np.array2string(dict["muellerMatrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
+        # Print mean of raman tensors as comments
+        output_text += "\n\n#! " + dict["head"] + " (Raman Tensor)\n" + np.array2string(dict["ramanTensor"], sign = None).replace("[[", "#").replace(" [", "#").replace("]", "")
 
     # Log and write text to file
     log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
