@@ -2,6 +2,7 @@
 # This file is the default cli setting for matrix file paths
 
 ! NO SMP GIVEN
-1.0 0.0 0.0
-0.0 1.0 0.0
-0.0 0.0 1.0
+1.0 0.0 0.0 0.0
+0.0 1.0 0.0 0.0
+0.0 0.0 1.0 0.0
+0.0 0.0 0.0 1.0

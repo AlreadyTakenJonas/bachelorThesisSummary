@@ -45,7 +45,7 @@ def main(cliArgs):
     log.info("Matrix File: " + str(cliArgs.matrixfile.resolve()) )
     # Read matrices from file
     # Result is a list of dictionaries containing the matrices and descriptive headers
-    sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile)
+    sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile, (4,4))
 
     # Make sure the matrix file is not the default matrix file containing just a unit matrix
     if cliArgs.matrixfile == pathlib.Path("unitmatrix.txt"):
@@ -93,9 +93,6 @@ def main(cliArgs):
                 if state["head"] == tensor["head"]:
                     # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector match
 
-                    # Convert the raman tensor into a mueller matrix
-                    matrix = util.buildRamanMuellerMatrix( tensor["matrix"] )
-
                     # Make sure the conversion formula for the raman tensor does apply
                     log.info("Check state vector '" + state["head"] + "'.")
                     # Make sure the polarisation grade is 1
@@ -111,7 +108,7 @@ def main(cliArgs):
 
                     log.info("Apply raman mueller matrix to state vector.")
                     # Apply mueller matrix to current state of the simulation
-                    currentState[index] = { "head": state["head"], "state": matrix @ state["state"] }
+                    currentState[index] = { "head": state["head"], "state": tensor["matrix"] @ state["state"] }
 
                 else:
                     # Raise an exception if headers don't match
