@@ -126,14 +126,16 @@ def main(cliArgs):
 
     log.info("Extract tensors from file.")
     try:
-        # Read tensor entries from string and covert them into matrices
+        # Read tensor entries from string and convert them into matrices
         # Find all tensors with util.findEntries()
-        # Create with the result of util.findEntries() a list of dictionaries containing a descriptive headder ("head") and the tensor as numpy float array ("matrix")
+        # With the result of util.findEntries(): create a list of dictionaries containing a descriptive headder ("head") and the tensor as numpy float array ("matrix")
         # The header will contain the unique incrementing number of the mode and the harmonix frequency of the mode
+        # Convert number formating 10D+1 into 10e+1
         tensorlist = [ { "head": "v_" + tensor[0] + " = " + frequency( int(tensor[0])-1 ) + "/cm",
                          "matrix": np.array([ tensor[2].replace("D", "e").split()[1:],
                                               tensor[3].replace("D", "e").split()[1:],
-                                              tensor[4].replace("D", "e").split()[1:]  ]).astype(np.float) } for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5) ]
+                                              tensor[4].replace("D", "e").split()[1:]  ]).astype(np.float)
+                       } for tensor in util.findEntries(gaussianfile, TENSOR_KEYWORD, lines = 5) ]
 
     except:
         # Log unexpected error
@@ -168,6 +170,7 @@ def main(cliArgs):
 
     # Add tensors to output
     for tensor in tensorlist:
+            # Format the matrices in a way the other sub-programs understand
             output_text += "\n\n! " + tensor["head"] + "\n" + np.array2string(tensor["matrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
 
     # Log and write text to file
