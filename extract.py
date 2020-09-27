@@ -87,13 +87,6 @@ def main(cliArgs):
         # Every triplett will be split into its elements and all frequencies are combined in a single flat list.
         frequencylist = [freq for triplett in util.findEntries(gaussianfile, FREQUENCY_KEYWORD) for freq in triplett[0].split()]
 
-        # Write function that returns elements of frequencylist
-        # Use function, not list in case exceptions is raised
-        # If the program can't find the frequencies of the vibrational modes an exception will be raised
-        # and this function will be redefined in exception handler
-        def frequency(mode_index):
-            return frequencylist[mode_index]
-
         # Make sure all frequencies are real
         # Gaussian writes imaginary frequencies as negative real numbers
         for freq in frequencylist:
@@ -120,8 +113,14 @@ def main(cliArgs):
         log.error("UNKNOWN ERROR: Unable to extract raman frequencies from file. Is the file corrupted? Continuing execution.")
         log.exception(sys.exc_info()[0])
 
-        # Define dummy values for following tensorlist definition
-        def frequency(mode_index):
+    # Write function that returns elements of frequencylist
+    # If the program can't find the frequencies of the vibrational modes an exception will be raised
+    # Use function, not list frequencylist in case exceptions was raised and the frequencylist was
+    # therefore not defined and this function will return '??' instead
+    def frequency(mode_index):
+        try:
+            return frequencylist[mode_index]
+        except NameError:
             return "??"
 
     log.info("Extract tensors from file.")
