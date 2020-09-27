@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 #
-#   UTILITIES
+#   UTILITIES: Defines functions used by the other python scripts
 #
 
 
@@ -62,7 +62,7 @@ def readFileAsText(path):
 
 def convertTextToMatrices(string, shape = None):
     """
-    Converting a string into a list of dictionaries. Each dictionary contains a 3x3 matrix and a head.
+    Converting a string into a list of dictionaries. Each dictionary contains a matrix and a head.
     The head is a descriptive header extracted from the text file.
     The text must follow this syntax:
     1. Lines starting with # will be ignored
@@ -70,10 +70,11 @@ def convertTextToMatrices(string, shape = None):
     3. The lines following the header define the headers matrix
     4. Matrix rows are seperated by a linebreak and columns by a white space
     If the matrix has more than 3 rows, will the function ignore all rows except the first three. If the matrix has to few, an exception will be raised.
-    An exception will be raised for a wrong number of columns.
+    An exception will be raised for a wrong number of columns and rows. The number of expected columns and rows can be defined with the shape argument.
+    If no shape is sepcified, there will be no check.
 
     Arguments:
-    string - string that will be converted into matrices
+    string - string that will be converted into matrices. The expected format is described in README.md.
     shape  - a integer tuple specifing the expected np.ndarray.shape of the matrices. If none is given, the shape won't be checked.
 
     Returns: list of dictionary with matrices and descriptive headers
@@ -114,7 +115,7 @@ def convertTextToMatrices(string, shape = None):
         # Check the shape of every matrix
         for matrix in matrixlist:
             if matrix["matrix"].shape != shape:
-                raise IndexError("Polaram expected matrices of shape " + str(shape) + "! The shape " + str(matrix["matrix"].shape) + " does not.")
+                raise IndexError("Polaram expected matrices of shape " + str(shape) + "! The shape " + str(matrix["matrix"].shape) + " does not meet the expectations.")
 
     # Return result
     return matrixlist
@@ -131,7 +132,9 @@ def readFileAsMatrices(path, *args):
 
 def buildRamanMuellerMatrix(ramanTensor: np.ndarray):
     """
-    This function builds the mueller matrix for a given raman tensor. Details for the conversion are given in the readme.
+    This function builds the mueller matrix for a given raman tensor. Details for the conversion are given in the README
+    and the seperate pdf-file ramanMuellerMatrix.pdf. This conversion does only work for fully polarised light with no
+    circular polarised component.
     Attribures:
     ramanTensor - raman tensor (3x3 numpy.ndarray) that will be translated into a mueller matrix
     Returns: Mueller matrix as 4x4 numpy.ndarray
@@ -150,6 +153,8 @@ def buildRamanMuellerMatrix(ramanTensor: np.ndarray):
     yy = ramanTensor[1,1]
 
     # Build new matrix
+    # The conversion is described in ramanMuellerMatrix.pdf
+    # This conversion does only work for fully polarised light with no circular polarised component
     muellerMatrix = np.array([  [ (xx**2 + yx**2 + xy**2 + yy**2)/2 , (xx**2 + yx**2 - xy**2 - yy**2)/2 , xy*xx + yx*yy , 0 ],
                                 [ (xx**2 - yx**2 + xy**2 - yy**2)/2 , (xx**2 - yx**2 - xy**2 + yy**2)/2 , xy*xx - yx*yy , 0 ],
                                 [  xx*yx + xy*yy                    ,  xx*yx - xy*yy                    , xx*yy + xy*yx , 0 ],
@@ -159,11 +164,14 @@ def buildRamanMuellerMatrix(ramanTensor: np.ndarray):
 
 def findEntries(string: str, keyword: str, lines: int = 1, returnKeyword: bool = False):
     """
-    This function searches for keyword in a string and yields for every occurence of keyword a list of strings of it.
+    This function searches for the string keyword in a string and yields for every occurence of keyword as a list of strings.
+    The strings contain the first lines following the keyword. Every string in the yielded list is a line in the original string.
+    The number of read lines is specified by the argument lines. returnKeyword specifies wether to include the keyword in
+    the final list or not.
     Attributes:
     string - string to be searched
-    keyword - keyword marking the begin of a substring to yield
-    lines - the number of lines following keyword that should be yielded when finding keyword
+    keyword - keyword marking the begining of a substring to yield
+    lines - the number of lines following keyword that should be yielded
     returnKeyword - leaves keyword out of yielded string if False
     Returns: Generator containing the searched substrings splitted by splitlines()
     """
@@ -228,7 +236,8 @@ def filepath(string):
 class joinString(argparse.Action):
     """
     ARGPARSE ACTION: Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself.
-    Class converts a list of strings (values) into a single string and sets the cli argument self.dest to this string.
+    Class converts a list of strings (values) into a single string and sets the cli argument self.dest to this string. This enables the program to read a list of words
+    in the command line as a single string.
     """
     def __call__(self, parser, args, values, option_string=None):
         setattr(args, self.dest, ' '.join(values))
