@@ -19,7 +19,8 @@ log.addHandler(logging.NullHandler())
 #
 class SetupDecoder:
     """
-    This class contains functions to create mueller matrices and stokes vectors as representation of optical elements and lasers. The decode method translates assembly-like commands into mentioned matrices and vectors.
+    This class contains functions to create mueller matrices and stokes vectors as representation of optical elements and lasers.
+    The decode method translates assembly-like commands into mentioned matrices and vectors. For more details see README.md.
     """
 
     def __init__(self):
@@ -146,10 +147,10 @@ class SetupDecoder:
 
         return stokes_vector
 
-    def ramanTensorOfSample(self):
+    def ramanMatrixOfSample(self):
         """
         Returns the string 'SMP'. The simulation will detect that and know how to proceed.
-        The raman matrix are given to the simulation by command line. The SetupDecoder has nothing to do with this part of the process.
+        The raman matrices are given to the simulation by command line arguments. The SetupDecoder has nothing to do with this part of the process.
         """
         return "SMP"
 
@@ -174,7 +175,7 @@ class SetupDecoder:
             raise ValueError("FATAL ERROR: Transmission must be a value between 0 and 1.")
 
         # Return filter matrix
-        return transmission * self.unityMatrix()
+        return transmission * self.unitMatrix()
 
     def halfWavePlate(self, theta):
         """
@@ -202,13 +203,13 @@ class SetupDecoder:
         matrix = self.generalLinearRetarder(theta, delta)
         return matrix
 
-    def unityMatrix(self):
+    def unitMatrix(self):
         """
-        Returns unity matrix. Comments in the input file are decoded as unity matrix (= no operation). The filter matrix also uses the unity matrix.
+        Returns unit matrix. Comments in the input file are decoded as unit matrix (= no operation). The filter matrix also uses the unit matrix.
         User command: NOP
         No attributes
         Return:
-            unity matrix
+            unit matrix
         """
         return np.array([ [1, 0, 0, 0],
                           [0, 1, 0, 0],
@@ -247,18 +248,18 @@ class SetupDecoder:
         return rotatedMatrix
 
     #
-    #   Dictionary for correlation user commands to appropriate function
+    #   Dictionary for correlating user commands to corresponding function
     #
     commandDictionary = {
         "GLR": generalLinearRetarder,
         "LHP": linearHorizontalPolariser,
         "LVP": linearVerticalPolariser,
         "LSR": initialStokesVector,
-        "SMP": ramanTensorOfSample,
+        "SMP": ramanMatrixOfSample,
         "FLR": attenuatingFilter,
         "HWP": halfWavePlate,
         "QWP": quarterWavePlate,
-        "NOP": unityMatrix
+        "NOP": unitMatrix
     }
 
     def decode(self, commandString: str):
@@ -282,9 +283,9 @@ class SetupDecoder:
         # Call function
         try:
             if command[0] == "#":
-                # If the command starts with '#' the line will be ignored and the unity matrix is returned
-                result = self.unityMatrix()
-                log.info("Comment found in input file ('" + commandString + "'). Unity matrix will be returned.")
+                # If the command starts with '#' the line will be ignored and the unit matrix is returned
+                result = self.unitMatrix()
+                log.info("Comment found in input file ('" + commandString + "'). Unit matrix will be returned.")
             else:
                 # Execute instruction
                 result = self.commandDictionary[command](self, *args)
