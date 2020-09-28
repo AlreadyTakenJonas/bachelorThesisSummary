@@ -17,7 +17,6 @@ Table of Contents
          * [Instruction File](#instruction-file)
          * [Raman Tensor File](#raman-tensor-file)
    * [convert: Matrix Transformation Between Molecular And Labratory Coordinate System](#convert-matrix-transformation-between-molecular-and-labratory-coordinate-system)
-      * [Planned Features](#planned-features)
       * [Usage](#usage-1)
       * [The Input File](#the-input-file)
    * [extract: Reading Log-Files Of Quantum Calculations](#extract-reading-log-files-of-quantum-calculations)
@@ -29,13 +28,13 @@ Table of Contents
 
 The simulation works by describing the state of the polarisation as a four dimensional stokes vector *S* and every optical element and the sample as 4x4 mueller matrices *M*. Applying *M* to *S* will give the new state of the system when the light interacts with the optical element. Every command in the input file descibes a mueller matrix that will be applied to the system one after another. The `LSR` command is special, because it describes the initial stokes vector.
 
-The simulation takes the raman tensor describing the sample as 3x3 matrix. Therefore the raman tensor is not compatible with the mueller formalism. To solve this problem the raman tensor will be transformed into a mueller matrix. Due to the mathematics behind the transformation the program is not able to describe the raman scattering process for light that is circular polarised or with a polarisation grade below one. The transformation and its assumptions will be explained in a seperate [pdf-file](./ramanMuellerMatrix.pdf).
-It is possible to pass multiple raman tensors to the simulation at once. There is a raman tensor for every vibrational mode of the sample and all of them can be simulated in parallel. Make sure to give each raman tensor a describtive title in the raman tensor file. More details about the input files are given below.
+The simulation takes the raman mueller matrix describing the sample as 4x4 matrix. However, this matrix is unknown, but the raman tensor can be calculated or measured. The raman tensor is a 3x3 matrix and therefore not compatible with the mueller formalism. To solve this problem the raman tensor will be transformed into a mueller matrix. The `convert` subprogram will handle this transformation. Due to the mathematics behind the transformation the program is not able to describe the raman scattering process for light that is circular polarised or with a polarisation grade below one. The transformation and its assumptions will be explained in a seperate [pdf-file](./ramanMuellerMatrix.pdf).
+It is possible to pass multiple raman mueller matrices to the simulation at once. There is a raman tensor for every vibrational mode of the sample and all of them can be simulated in parallel. Make sure to give each raman mueller matrix a describtive title in the raman mueller matrix file. More details about the input files are given below.
 
 This simulation is only looking at raman scattering in transmission. And at the current moment does it only support light with a polarisation grade *Π* of one. Circular polarisation can't be simulated in combination with the raman scattering process. All other optical elements do support circular polarisation.
 These assumptions are the basis of the raman-tensor-to-mueller-matrix-conversion described in a seperate [pdf-file](./ramanMuellerMatrix.pdf). Details and definitions of the coordinate systems are also given in the seperate [pdf-file](./ramanMuellerMatrix.pdf).
 
-In order to simulate a solution of a molecule and not only a single molecule, use the `convert` command. It derives a mean raman matrix for molecules in solution from the raman tensor of a single molecule. The raman tensor for the single molecule can be computed by quantum calculation programs like Gaussian. Details are given in the sections about the `convert` sub-program.
+In order to simulate a solution of a molecule and not only a single molecule, use the `convert` command. It derives a mean raman mueller matrix for molecules in solution from the raman tensor of a single molecule. The raman tensor for the single molecule can be computed by quantum calculation programs like Gaussian. Details are given in the sections about the `convert` sub-program.
 
 ## Usage
 
@@ -88,7 +87,7 @@ instruction | optical element             | number of arguments | describtion
 `QWP θ`     | quarter wave plate          | 1                   | Shortcut for `GLR θ 90`.
 `LHP θ`     | linear horizontal polariser | 1                   | This polariser accepts the optional angle θ in degrees. θ rotates the linear polariser in the x-y-plane of the labratory coordinate system counter-clockwise. θ defaults to zero and aligns the polariser with the x-axis of the labratory coordinate system.
 `LVP θ`     | linear vertical polariser   | 1                   | This polariser accepts the optional angle θ in degrees. θ rotates the linear polariser in the x-y-plane of the labratory coordinate system counter-clockwise. θ defaults to zero and aligns the polariser with the y-axis of the labratory coordinate system.
-`SMP`       | raman scattering sample     | 0                   | This command will cause the simulation program to use the raman tensors given via CLI in the next simulation step. If none is given, the unity matrix will be read from file `PolaRam/unitmatrix.txt`. The raman tensors will be converted into mueller matrices. This instruction is not compatible with circular polarised light and light with a polarisation grade below one. For more details see the seperate [pdf-file](./ramanMuellerMatrix.pdf) on the math behind it (WORK IN PROGRESS).
+`SMP`       | raman scattering sample     | 0                   | This command will cause the simulation program to use the raman mueller matrices, given via CLI, in the next simulation step. If none is given, the unit matrix will be read from the file `PolaRam/unitmatrix.txt`. This instruction is not compatible with circular polarised light and light with a polarisation grade below one. For more details on the math behind it see the seperate [pdf-file](./ramanMuellerMatrix.pdf).
 `FLR t`     | attenuating filter          | 1                   | The attenuating filter accepts the transmission t as argument. t must be a value between zero and one (including both) and describes the percentage of light that can pass the filter.
 `NOP`       | no operation                | 0                   | Returns unity matrix.
 `#`         | comment                     | ∞                   | This instruction ignores all its arguments and will cause the simulation to perform a `NOP`.
@@ -106,30 +105,34 @@ LVP
 FLR 0.25
 # END OF SIMULATION
 ```
-### Raman Tensor File
+### Raman Mueller Matrix File
 
-The raman tensor file contains all matrices, that describe the raman scattering properties of every mode of the sample. It may contain comment lines, marked with `#`, and 3x3 matrices. Comments will be ignored. Anything else will cause the program to misbehave or raise an exception. Matrices are written as four lines of code. The first line marks the beginning of the matrix with the `!` character. The following character will be saved as descriptive name of the matrix. The other three lines contain the rows of the raman tensor. Every line must contain three elements seperated by a space.
-A valid tensor file might look like this:
+The raman mueller matrix file contains all matrices, that describe the raman scattering properties of every mode of the sample. It may contain comment lines, marked with `#`, and 4x4 matrices. Comments will be ignored. Anything else will cause the program to misbehave or raise an exception. Matrices are written as five lines of code. The first line marks the beginning of the matrix with the `!` character. The following characters will be saved as descriptive name of the matrix. The other four lines contain the rows of the raman mueller matrix. Every line must contain four elements seperated by a space.
+A valid matrix file might look like this:
 ```
 # Some descriptive comment
 
 ! v_1 = 216.2523/cm
--0.00634609 -0.0166743   0.02670877
--0.0166743  -0.03183306  0.0195725 
- 0.02670877  0.0195725   0.03817915
+-0.00634609 -0.0166743   0.02670877 0.
+-0.0166743  -0.03183306  0.0195725  0.
+ 0.02670877  0.0195725   0.03817915 0.
+ 0.          0.          0.         0.
 
 ! v_2 = 216.2523/cm
--0.05350382  0.00476986 -0.00417874
- 0.00476986  0.01253425 -0.07968738
--0.00417874 -0.07968738  0.04096966
+-0.05350382  0.00476986 -0.00417874 0.
+ 0.00476986  0.01253425 -0.07968738 0.
+-0.00417874 -0.07968738  0.04096966 0.
+ 0.          0.          0.         0.
 ```
+The subprogram `convert` will create such a file. `convert` uses 3x3 raman tensors of molecules to calculate the mueller matrix equivalent of a whole solution of the molecules.
 
 # convert: Matrix Transformation Between Molecular And Labratory Coordinate System
 
-The sub-command `convert` will run a Monte-Carlo-Simulation on a list of 3x3 matrices given via CLI. The purpose of the simulation is the conversion of a raman tensor from the molecular coordinate system - which can be calculated by Gaussian and similar programs - into the labratory coordinate system of the Mueller-Simulation the `simulate` program performs. It is assumed that the sample is in a solved state so that each molecule is free to rotate. The effective raman tensor incoming light will experience is therefore the mean of all possible rotations of the molecular raman tensor. The Monte-Carlo-Simulation will calculate this mean by rotating the molecular raman tensor by random angles.
+The sub-command `convert` will run a Monte-Carlo-Simulation on a list of 3x3 matrices given via CLI. The purpose of the simulation is the conversion of a raman tensor from the molecular coordinate system - which can be calculated by Gaussian and similar programs - into the labratory coordinate system of the Mueller-Simulation the `simulate` program performs. In addition to the coordinate system conversion, the program will convert the raman tensors into the mueller matrix formalism. It is assumed that the sample is in a solved state so that each molecule is free to rotate. The effective raman mueller matrix incoming light will experience is therefore the mean of all possible rotations of the molecular raman tensor. The Monte-Carlo-Simulation will calculate this mean by rotating the molecular raman tensor by random angles.
 
-## Planned Features
-+ Self-check of the simulation by comparing the depolarisation ratio *ρ* 
+There are a few things to keep in mind, to understand the way this simulation is implemented: The random rotations are implemented with James Arvo's Algorithm "Fast Random Rotation Matrices" to ensure a uniform distribution of the rotations. Furthermore it is not possible to calculate the mean raman tensor of all possible rotations. The raman scattering process is linear and therefore a mean raman tensor should describe a solution, but the simulation and the matrix validation (described in the next paragraph) look at the intensity of the light, not the electrical field vectors. The relationship between electrical fiel and intensity is not linear and therefore is a mean of the raman tensors a bad describtion of a raman active solution. That is the reason why the raman tensor will be converted into a mueller matrix after its been rotated randomly. The mueller matrix are defined by the light intensities and not the electrical fields. The raman scattering process described in the mueller formalism is linear; even when considering the light's intensity. Therefore does the mean over all mueller matrices describe the behaviour of a raman active solution correctly.
+
+The validation of the monte-carlo-simulation is done by comparing the depolarisation ratio *ρ* of the initial raman tensor and the final mueller matrix. TODO....
 
 ## Usage
 
@@ -138,12 +141,12 @@ The conversion is started by typing `polaram convert PATH_TO_TENSOR_FILE`. The c
 $ polaram convert -h
 usage: polaram convert [-h] [-v] [-l LOGFILE] [-i ITERATIONLIMIT]
                        [-o OUTPUTFILE] [-c [COMMENT [COMMENT ...]]]
-                       [-p PROCESSCOUNT] [-s CHUNKSIZE]
+                       [-p PROCESSCOUNT] [-s CHUNKSIZE] [-t THRESHOLD]
                        tensorfile
 
 Converts raman tensors from the molecular coordinate system into the raman
-matrix of a solution in the labratory coordinate system via a monte carlo
-simulation.
+mueller matrix of a solution in the labratory coordinate system via a monte
+carlo simulation.
 
 positional arguments:
   tensorfile            text file containing the raman tensors that will be
@@ -160,15 +163,19 @@ optional arguments:
                         Default = 1000000
   -o OUTPUTFILE, --output OUTPUTFILE
                         path to output file.
-                        Default=PROGRAMMPATH/res/labratoryTensor.txt
+                        Default=PROGRAMMPATH/res/labratoryMuellerMatrix.txt
   -c [COMMENT [COMMENT ...]], --comment [COMMENT [COMMENT ...]]
                         comment that will be added to the output file
   -p PROCESSCOUNT, --processes PROCESSCOUNT
                         number of processes that compute in parallel.
                         Default=2
   -s CHUNKSIZE, --cunksize CHUNKSIZE
-                        Length of array each subprocess is given to calculate.
+                        length of array each subprocess is given to calculate.
                         Default=500
+  -t THRESHOLD, --threshold THRESHOLD
+                        number of digits the depolarisation ratio before and
+                        after the monte-carlo-simulation must match for the
+                        result to pass validation. Default=2
 ```
 The conversion will print the results as a file and on screen in the same format as the input file. This format can be understood by the `simulate` sub-program.
 
@@ -193,9 +200,9 @@ usage: polaram extract [-h] [-v] [-l LOGFILE] [-o OUTPUTFILE]
                        gaussianfile
 
 This program reads gaussian log files of frequency calculations and writes the
-raman tensors into a text file that can be read by the other scripts. Tested for
-Gaussian16. Raman tensors are not put into the log file by default. See the
-readMe for details.
+raman tensors into a text file that can be read by the other scripts. Tested
+for Gaussian16. Raman tensors are not put into the log file by default. See
+the readMe for details.
 
 positional arguments:
   gaussianfile          the log file of a gaussian frequency calculation
