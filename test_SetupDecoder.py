@@ -24,8 +24,8 @@ class TestSetupDecoder_UnitMatrix(unittest.TestCase):
         """
         Check if the output is correct
         """
-        self.assertEqual( SetupDecoder.unityMatrix().tolist(), np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]).tolist() )
-        self.assertTrue( type( SetupDecoder.unityMatrix() ) is np.ndarray )
+        self.assertEqual( SetupDecoder.unitMatrix().tolist(), np.array([ [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ]).tolist() )
+        self.assertTrue( type( SetupDecoder.unitMatrix() ) is np.ndarray )
 
 class TestSetupDecoder_GeneralLinearRetarder(unittest.TestCase):
     """
