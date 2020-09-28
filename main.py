@@ -78,8 +78,8 @@ if __name__ == "__main__":
 
     # Create convert command
     sap_convert = sap.add_parser("convert",
-                                 help = "Convert a raman tensor from the molecular to the labratory coordinate system",
-                                 description = "Converts raman tensors from the molecular coordinate system into the raman matrix of a solution in the labratory coordinate system via a monte carlo simulation.")
+                                 help = "Convert a raman tensor in the molecular coodinate system into a mueller matrix in the labratory coordinate system",
+                                 description = "Converts raman tensors from the molecular coordinate system into the raman mueller matrix of a solution in the labratory coordinate system via a monte carlo simulation.")
     # Adding arguments to convert command
     # Add verbose
     sap_convert.add_argument("-v", "--verbose",
