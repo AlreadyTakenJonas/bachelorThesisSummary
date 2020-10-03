@@ -9,7 +9,6 @@ The sub-program carrying out the simulation is called `polaram simulate`. There 
 Table of Contents
 =================
    * [Raman Scattering Of Linear Polarised Light With PolaRam](#raman-scattering-of-linear-polarised-light-with-polaram)
-   * [Table of Contents](#table-of-contents)
    * [simulate: Simulation Of Raman Scattering Of Linear Polarised Light](#simulate-simulation-of-raman-scattering-of-linear-polarised-light)
       * [Usage](#usage)
       * [The Input Files](#the-input-files)
