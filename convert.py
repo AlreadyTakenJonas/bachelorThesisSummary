@@ -107,7 +107,7 @@ def main(cliArgs):
     log.info("START RAMAN TENSOR CONVERSION")
 
     # Read tensor file as matrices
-    tensorlist = util.readFileAsMatrices(cliArgs.tensorfile, shape = (3,3))
+    tensorlist = util.readFileAsMatrices(cliArgs.tensorfile, (3,3))
 
 # PREPARE SIMULATION
 

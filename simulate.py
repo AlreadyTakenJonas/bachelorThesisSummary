@@ -52,7 +52,7 @@ def main(cliArgs):
     # the raman scattering behaviour of the vibrational modes
     # Result is a list of dictionaries containing the matrices and descriptive headers
     log.info("Matrix File: " + str(cliArgs.matrixfile.resolve()) )
-    sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile, shape = (4,4))
+    sampleMatrix = util.readFileAsMatrices(cliArgs.matrixfile, (4,4))
 
     # Make sure the matrix file is not the default matrix file containing just a unit matrix
     # If no matrix file is given every vibrational mode will be described by the unit matrix
