@@ -188,6 +188,8 @@ def main(cliArgs):
         anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
         initialDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
 
+        log.debug("Initial Depolarisation Ratio: " + str(initialDepolarisationRatio))
+
         # Compute the depolarisation ratio of the final mueller matrix via raman scattering in Mueller-Formalism. See Richard N. Zare: "Angluar Momentum", p.129.
         # Compute light intensities along x- and y-axis via stokes parameter:
         # I_x = S_0 + S_1
@@ -196,6 +198,8 @@ def main(cliArgs):
         incomingLight  = np.array([1,1,0,0])
         scatteredLight = output["muellerMatrix"] @ incomingLight
         finalDepolarisationRatio = (scatteredLight[0]-scatteredLight[1])/(scatteredLight[0]+scatteredLight[1])
+
+        log.debug("Final Depolarisation Ratio: " + str(finalDepolarisationRatio))
 
         # Check results
         if round(initialDepolarisationRatio, cliArgs.threshold) != round(finalDepolarisationRatio, cliArgs.threshold):
