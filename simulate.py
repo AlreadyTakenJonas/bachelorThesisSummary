@@ -164,31 +164,53 @@ def main(cliArgs):
                 raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
 
 # PRINT RESULTS TO FILE
-    # Add command line arguments and time of execution in the output file
-    output_text  = "# polaram simulate " + str(cliArgs.inputfile.resolve())
-    output_text += " --output " + str(cliArgs.outputfile.resolve())
-    output_text += " --log " + str(cliArgs.logfile.resolve())
-    output_text += " --matrix " + str(cliArgs.matrixfile.resolve())
-    output_text += "\n# Execution time: " + str(datetime.now()) + "\n"
+    # Format output minimalistic. Ideal for post processing large amounts of data
+    if cliArgs.rawOutput == True:
+        output_text = ""
 
-    # Add user comment to output file
-    if cliArgs.comment != "":
-        output_text += "\n# " + str(cliArgs.comment) + "\n"
+        # Add user comment to output file
+        if cliArgs.comment != "":
+            output_text += "# " + str(cliArgs.comment) + "\n"
 
-    # Add the optical elements and the labratory setup that was simulated to output file
-    output_text += "\n# Simulation Program:\n" + "\n".join(labratory_setup) + "\n"
+        # Create table containing: initial state, the header of every state and the final state of the simulation
+        # TODO: Improve table alignement
+        output_text += "# Final.State.Header   Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3      Initial.State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3"
+        for final, initial in zip(currentState, initialState):
+            output_text += "\n" + str(final["head"]) + "  " + str(final["state"]).replace("[", "").replace("]", "") + "      " + str(initial["head"]) + "  " + str(initial["state"]).replace("[", "").replace("]", "")
 
-    # Add the calculated states to the output file.
-    output_text += "\n# Simulation Results:"
-    # Create list of all calculated vectors as nicely formated strings
-    formattedTable = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
-    # Add calculated stokes vectors with header and value to the output file
-    for index, vector in enumerate(formattedTable):
-        output_text += "\n[" + vector + " ] " + currentState[index]["head"]
+        output_text += "\n\n"
+
+    # Format output nicely
+    else:
+        # Add command line arguments and time of execution in the output file
+        output_text  = "# polaram simulate " + str(cliArgs.inputfile.resolve())
+        output_text += " --output " + str(cliArgs.outputfile.resolve())
+        output_text += " --log " + str(cliArgs.logfile.resolve())
+        output_text += " --matrix " + str(cliArgs.matrixfile.resolve())
+        output_text += "\n# Execution time: " + str(datetime.now()) + "\n"
+
+        # Add user comment to output file
+        if cliArgs.comment != "":
+            output_text += "\n# " + str(cliArgs.comment) + "\n"
+
+        # Add the optical elements and the labratory setup that was simulated to output file
+        output_text += "\n# Simulation Program:\n" + "\n".join(labratory_setup) + "\n"
+
+        # Add the calculated states to the output file.
+        output_text += "\n# Simulation Results:"
+        # Create list of all calculated vectors as nicely formated strings
+        formattedTable = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
+        # Add calculated stokes vectors with header and value to the output file
+        for index, vector in enumerate(formattedTable):
+            output_text += "\n[" + vector + " ] " + currentState[index]["head"]
+
+        output_text += "\n\n"
 
     # Log and write text to file
     log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
     print(output_text)
-    cliArgs.outputfile.write_text(output_text)
+    with cliArgs.outputfile.open(cliArgs.writeMode) as file:
+        file.write(output_text)
+
 
     log.info("STOPPED MUELLER SIMULATION SUCCESSFULLY")

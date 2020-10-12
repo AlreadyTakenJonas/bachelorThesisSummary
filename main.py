@@ -75,6 +75,18 @@ if __name__ == "__main__":
                               action = util.joinString,
                               nargs = "*",
                               default = "")
+    sap_simulate.add_argument("-a", "--append",
+                              dest = "writeMode",
+                              action = "store_const",
+                              const = "a",
+                              default = "w",
+                              required = False,
+                              help = "if enabled the output file will not be overwritten, but the new results will be appended to the output file")
+    sap_simulate.add_argument("-r", "--raw-output",
+                               dest = "rawOutput",
+                               action = "store_true",
+                               default = False,
+                               help = "controls the format of the output file. If enabled the results will be written as a easy parseable table. Useful for post processing large amount of data.")
 
     # Create convert command
     sap_convert = sap.add_parser("convert",
