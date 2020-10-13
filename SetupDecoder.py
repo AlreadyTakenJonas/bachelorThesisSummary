@@ -142,8 +142,8 @@ class SetupDecoder:
             raise ValueError("The square sum of the last three stokes parameters can't be greater than the squared first stokes parameter!")
 
         # Normalise with s0
-        if stokes_vector[0] != 0:
-            stokes_vector = stokes_vector / stokes_vector[0]
+        #if stokes_vector[0] != 0:
+        #    stokes_vector = stokes_vector / stokes_vector[0]
 
         return stokes_vector
 
