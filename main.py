@@ -87,6 +87,12 @@ if __name__ == "__main__":
                                action = "store_true",
                                default = False,
                                help = "controls the format of the output file. If enabled the results will be written as a easy parseable table. Useful for post processing large amount of data.")
+    sap_simulate.add_argument("-s", "--silent",
+                               dest = "showPrint",
+                               action = "store_true",
+                               default = False,
+                               required = False,
+                               help = "if enabled the final output will be only written to file and not printed on the screen")
 
     # Create convert command
     sap_convert = sap.add_parser("convert",

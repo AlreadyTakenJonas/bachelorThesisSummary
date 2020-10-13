@@ -208,7 +208,8 @@ def main(cliArgs):
 
     # Log and write text to file
     log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
-    print(output_text)
+    if cliArgs.showPrint == True:
+        print(output_text)
     with cliArgs.outputfile.open(cliArgs.writeMode) as file:
         file.write(output_text)
 
