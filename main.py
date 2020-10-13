@@ -89,8 +89,8 @@ if __name__ == "__main__":
                                help = "controls the format of the output file. If enabled the results will be written as a easy parseable table. Useful for post processing large amount of data.")
     sap_simulate.add_argument("-s", "--silent",
                                dest = "showPrint",
-                               action = "store_true",
-                               default = False,
+                               action = "store_false",
+                               default = True,
                                required = False,
                                help = "if enabled the final output will be only written to file and not printed on the screen")
 
