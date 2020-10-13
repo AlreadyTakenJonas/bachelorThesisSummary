@@ -138,7 +138,7 @@ class SetupDecoder:
         # Make sure the parameters are physical possible
         if stokes_vector[0] < 0:
             raise ValueError("The first stokes parameter s_0 can't be negativ!")
-        if stokes_vector[0]**2 < round( sum([ s**2 for s in stokes_vector[1:] ]), 7):
+        if round(stokes_vector[0]**2, 7) < round( sum([ s**2 for s in stokes_vector[1:] ]), 7):
             raise ValueError("The square sum of the last three stokes parameters can't be greater than the squared first stokes parameter!")
 
         # Normalise with s0
