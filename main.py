@@ -10,6 +10,9 @@ import argparse
 # Handling file paths
 import pathlib
 
+# Math stuff
+import numpy as np
+
 #
 #   INTERNAL MODULES
 #
@@ -93,6 +96,11 @@ if __name__ == "__main__":
                                default = True,
                                required = False,
                                help = "if enabled the final output will be only written to file and not printed on the screen")
+    sap_simulate.add_argument("-lsr", "--laser",
+                              dest = "laser",
+                              action = util.stokesvectorlist,
+                              help = "the initial polarisation state of the simulation, encoded as stokes parameters. It is possible to pass more than one stokes vector by using the flag multiple times. Default=1 1 0 0",
+                              default = [np.array([1., 1., 0., 0.])] )
 
     # Create convert command
     sap_convert = sap.add_parser("convert",

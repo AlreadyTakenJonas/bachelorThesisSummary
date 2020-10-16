@@ -241,3 +241,53 @@ class joinString(argparse.Action):
     """
     def __call__(self, parser, args, values, option_string=None):
         setattr(args, self.dest, ' '.join(values))
+
+class stokesvectorlist(argparse.Action):
+    """
+    ARGPARSE ACTION: Used by argparse. DO NOT USE try-except-statements, because argparse can't detect errors if exceptions will be handled by the function itself.
+    This class converts a list of four numbers into a numpy array and puts the array into a list. If this class is called multiple times every new numpy array will
+    be appended to the list. Every numpy will be checked, to make sure that they are all physical possible stokes vectors.
+    """
+    def __init__(self, option_strings, dest, nargs=None, const=None, default=None, type=None, choices=None, required=False, help=None, metavar=None):
+        """
+        Constructor: Calls the constructor of the parent and sets defaultIsSet variable. defaultIsSet will be used to determine if a new array will be appended to
+        the vectorlist or if the vectorlist does only contain the default values and will therefore be overriden
+        """
+        # Call parents cunstroctur
+        argparse.Action.__init__(self, option_strings=option_strings, dest=dest, nargs=4, const=const, default=default, type=float, choices=None, required=required, help=help, metavar=metavar)
+
+        # Set a flag to keep track wether or not the currently saved vectorlist is the default. If the saved list is the default, it will be overriden, when the class is called
+        if dest is None:
+            self.defaultIsSet = False
+        else:
+            self.defaultIsSet = True
+
+    def __call__(self, parser, args, values, option_string=None):
+        """
+        This function takes as a list of and appends them as a numpy array to a list of numpy arrays
+        Attributes:
+            self - this class
+            parser - no idea, some argparse shit
+            args - namespace with all command line arguments
+            values - list of values given by user via command line
+            option_string - no idea; some argparse shit
+        """
+        # Check if given values make physical sense
+        if values[0] < 0:
+            raise argparse.ArgumentError(self, "The first stokes parameter in %s can't be negativ!" % values)
+        if 1 < round( sum([ s**2 for s in values[1:] ]) / values[0]**2 , 6):
+            raise argparse.ArgumentError(self, "The square sum of the last three stokes parameters in %s can't be greater than the squared first stokes parameter!" % values)
+
+        # Get current list of numpy arrays from argparse namespace
+        vectorlist = getattr(args, self.dest)
+
+        if self.defaultIsSet == False:
+            # Append new vector to the list
+            vectorlist = vectorlist + [np.array(values)]
+        else:
+            # Override default list
+            vectorlist = [np.array(values)]
+            self.defaultIsSet = False
+
+        # Save updated vectorlist ot argparse namespace
+        setattr( args, self.dest, vectorlist )
