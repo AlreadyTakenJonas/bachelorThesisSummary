@@ -59,152 +59,152 @@ def main(cliArgs):
     if cliArgs.matrixfile == pathlib.Path("unitmatrix.txt"):
         log.critical("WARNING: No matrix file specified. SMP will act as NOP!")
 
-# INITIALISE SIMULATION
+# RUN THE SIMULATION FOR EVERY GIVEN LASER POLARISATION
 
-    # Declare one stokes vector for every raman mueller matrix
-    # Include the header information of sampleMatrix in state values
-    # The header contains a unique description
-    initialState = [ { "head": matrix["head"], "state": np.array([0, 0, 0, 0]) } for matrix in sampleMatrix ]
-    currentState = [ { "head": matrix["head"], "state": np.array([0, 0, 0, 0]) } for matrix in sampleMatrix ]
+    # Create an empty string. The result of every simulation will be put into the string.
+    result_text = ""
 
-    # Get instruction decoder
-    # Used to decode the instructions given in the input file
-    # The SetupDecoder returns for every instruction a mueller matrix or a stokes vector
-    decoder = SetDec.SetupDecoder()
+    # DO LOOP over every initial stokes vector
+    for initialStokesSector in cliArgs.laser:
+        # INITIALISE SIMULATION
+            log.info("Initialise Simulation " + str(initialStokesSector))
 
-# RUN SIMULATION
+            # Declare one stokes vector for every raman mueller matrix
+            # Include the header information of sampleMatrix in state values
+            # The header contains a unique description
+            currentState = [ { "head": matrix["head"], "state": initialStokesSector } for matrix in sampleMatrix ]
 
-    # Decode instructions and calculate the simulation
-    # Start enumeration at index (= step) 1 not zero
-    for step, encodedInstruction in enumerate(labratory_setup, 1):
+            # Get instruction decoder
+            # Used to decode the instructions given in the input file
+            # The SetupDecoder returns for every instruction a mueller matrix or a stokes vector
+            decoder = SetDec.SetupDecoder()
 
-        # Log info about progress
-        log.info("Simulation Step: " + str(step) + "    Instruction: " + encodedInstruction)
+            # RUN SIMULATION
 
-        # Decode encoded instruction into mueller matrix or stokes vector
-        decodedInstruction = decoder.decode(encodedInstruction)
+            # Decode instructions and calculate the simulation
+            # Start enumeration at index (= step) 1 not zero
+            for step, encodedInstruction in enumerate(labratory_setup, 1):
 
-        # Check if instruction is a new stokes vector or a mueller matrix to multiply or the raman mueller matrix of the sample to multiply
-        if isinstance(decodedInstruction, np.ndarray) and decodedInstruction.ndim == 1:
-            # LSR command detected
-            # Reinitialsise the state of the simulation
-            currentState = [ { "head": state["head"], "state": decodedInstruction } for state in currentState ]
-            initialState = [ { "head": state["head"], "state": decodedInstruction } for state in initialState ]
+                # Log info about progress
+                log.info("Simulation Step: " + str(step) + "    Instruction: " + encodedInstruction)
 
-        elif isinstance(decodedInstruction, np.ndarray) and decodedInstruction.ndim == 2:
-            # Mueller matrix of optical element detected
-            # Alter stokes vector with the mueller matrix
-            currentState = [ { "head": state["head"], "state": decodedInstruction @ state["state"] } for state in currentState ]
+                # Decode encoded instruction into mueller matrix or stokes vector
+                decodedInstruction = decoder.decode(encodedInstruction)
 
-        elif decodedInstruction == "SMP":
-            # SMP command detected
-            # Use the raman mueller matrix specified via the command line interface
+                if isinstance(decodedInstruction, np.ndarray) and decodedInstruction.ndim == 2:
+                    # Mueller matrix of optical element detected
+                    # Alter stokes vector with the mueller matrix
+                    currentState = [ { "head": state["head"], "state": decodedInstruction @ state["state"] } for state in currentState ]
 
-            for index, (state, tensor) in enumerate( zip(currentState, sampleMatrix) ):
+                elif decodedInstruction == "SMP":
+                    # SMP command detected
+                    # Use the raman mueller matrix specified via the command line interface
 
-                # Make sure the headers of the stokes vector and the mueller matrix match
-                if state["head"] == tensor["head"]:
-                    # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector match
+                    for index, (state, tensor) in enumerate( zip(currentState, sampleMatrix) ):
 
-                    # Make sure the conversion formula for the raman tensor into the mueller matrix does apply
-                    # The math is explained in a seperate pdf-file (PolaRam/ramanMuellerMatrix.pdf)
-                    # The light must be fully polarised and there may be no circular polarisation
-                    log.info("Check state vector '" + state["head"] + "'.")
+                        # Make sure the headers of the stokes vector and the mueller matrix match
+                        if state["head"] == tensor["head"]:
+                            # The stokes vector will only be changed if the header of the mueller matrix and the header of the stokes vector match
 
-                    # Make sure the polarisation grade Π is 1
+                            # Make sure the conversion formula for the raman tensor into the mueller matrix does apply
+                            # The math is explained in a seperate pdf-file (PolaRam/ramanMuellerMatrix.pdf)
+                            # The light must be fully polarised and there may be no circular polarisation
+                            log.info("Check state vector '" + state["head"] + "'.")
+
+                            # Make sure the polarisation grade Π is 1
+                            # Π = sqrt( S_1^2 + S_2^2 + S_3^2 ) / S_0
+                            polarisation = np.sqrt(state["state"][1]**2 + state["state"][2]**2 + state["state"][3]**2) / state["state"][0]
+                            polarisation = round( polarisation , 7)
+                            if np.not_equal(polarisation, 1):
+                                log.error("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Must be equal to one for SMP instruction!")
+                                raise ValueError("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Must be equal to one for SMP instruction!")
+
+                            # Make sure there is no circular polarisation
+                            if round( state["state"][3], 7 ) != 0:
+                                log.error("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. The SMP instruction can't handle circular polarisation!")
+                                raise ValueError("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. The SMP instruction can't handle circular polarisation!")
+
+                            log.info("Apply raman mueller matrix to state vector.")
+                            # Apply mueller matrix to current state of the simulation
+                            currentState[index] = { "head": state["head"], "state": tensor["matrix"] @ state["state"] }
+
+                        else:
+                            # Raise an exception if headers don't match
+                            log.critical("INTERNAL ERROR: Error for initial state " + str(initialStokesSector) + ". The headers of the samples raman tensor and the current state of the simulation don't match.")
+                            raise ValueError("INTERNAL ERROR: Error for initial state " + str(initialStokesSector) + ". The headers of the samples raman tensor and the current state of the simulation don't match.")
+
+                else:
+                    # Handle unexpected/unknown instruction
+                    log.critical("INTERNAL ERROR: Error for initial state " + str(initialStokesSector) + ". Unexprected mueller matrix! '" + encodedInstruction + "' in line " + str(step) + " can't be executed. Exiting execution.")
+                    sys.exit(-1)
+
+                # Log current state of simulation
+                log.info("State of Simulation")
+                # Put all vectors in a list of nicely formated strings
+                logstring = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
+                # Log every state with its header and value
+                for index, state in enumerate(currentState):
+                    log.info("[ " + logstring[index] + " ] " + str(state["head"]))
+
+                # Make sure the computed stokes vectors are physical possible
+                log.info("Check validity of simulation step.")
+                for state in currentState:
+                    # Make sure that the polarisation grade Π is not greater than one
+                    # Rounding to avoid exceptions due to floating point errors
                     # Π = sqrt( S_1^2 + S_2^2 + S_3^2 ) / S_0
                     polarisation = np.sqrt(state["state"][1]**2 + state["state"][2]**2 + state["state"][3]**2) / state["state"][0]
                     polarisation = round( polarisation , 7)
-                    if np.not_equal(polarisation, 1):
-                        log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Must be equal to one for SMP instruction!")
-                        raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Must be equal to one for SMP instruction!")
+                    if np.greater(polarisation, 1):
+                        log.error("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Can't be greater than one!")
+                        raise ValueError("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. Polarisation grade greater than one is not possible!")
 
-                    # Make sure there is no circular polarisation
-                    if round( state["state"][3], 7 ) != 0:
-                        log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The SMP instruction can't handle circular polarisation!")
-                        raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The SMP instruction can't handle circular polarisation!")
+                    # Make sure that the light intensity is not smaller than zero
+                    elif state["state"][0] < 0:
+                        log.error("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
+                        raise ValueError("SIMULATION ERROR: Error for initial state " + str(initialStokesSector) + ". Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
 
-                    log.info("Apply raman mueller matrix to state vector.")
-                    # Apply mueller matrix to current state of the simulation
-                    currentState[index] = { "head": state["head"], "state": tensor["matrix"] @ state["state"] }
+        # SAVE RESULTS TO STRING
+            # Format output minimalistic. Ideal for post processing large amounts of data
+            if cliArgs.rawOutput == True:
+                # Create table containing: initial state, the header of every state and the final state of the simulation
+                # TODO: Improve table alignement
+                result_text += "# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3"
+                for final in currentState:
+                    result_text += "\n" + str(final["head"]).replace(" ", "_") + "  " + str(initialStokesSector).replace("[", "").replace("]", "") + "      " + str(final["state"]).replace("[", "").replace("]", "")
 
-                else:
-                    # Raise an exception if headers don't match
-                    log.critical("INTERNAL ERROR: The headers of the samples raman tensor and the current state of the simulation don't match.")
-                    raise ValueError("INTERNAL ERROR: The headers of the samples raman tensor and the current state of the simulation don't match.")
+                result_text += "\n"
 
-        else:
-            # Handle unexpected/unknown instruction
-            log.critical("INTERNAL ERROR: Unexprected mueller matrix! '" + encodedInstruction + "' in line " + str(step) + " can't be executed. Exiting execution.")
-            sys.exit(-1)
+            # Format output nicely
+            else:
+                # Add the calculated states to the output file.
+                result_text += "\n# Simulation Results For Initial State " + str(initialStokesSector) + ":"
+                # Create list of all calculated vectors as nicely formated strings
+                formattedTable = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
+                # Add calculated stokes vectors with header and value to the output file
+                for index, vector in enumerate(formattedTable):
+                    result_text += "\n[" + vector + " ] " + currentState[index]["head"]
 
-        # Log current state of simulation
-        log.info("State of Simulation")
-        # Put all vectors in a list of nicely formated strings
-        logstring = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
-        # Log every state with its header and value
-        for index, state in enumerate(currentState):
-            log.info("[ " + logstring[index] + " ] " + str(state["head"]))
-
-        # Make sure the computed stokes vectors are physical possible
-        log.info("Check validity of simulation step.")
-        for state in currentState:
-            # Make sure that the polarisation grade Π is not greater than one
-            # Rounding to avoid exceptions due to floating point errors
-            # Π = sqrt( S_1^2 + S_2^2 + S_3^2 ) / S_0
-            polarisation = np.sqrt(state["state"][1]**2 + state["state"][2]**2 + state["state"][3]**2) / state["state"][0]
-            polarisation = round( polarisation , 7)
-            if np.greater(polarisation, 1):
-                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade is " + str(polarisation) + ". Can't be greater than one!")
-                raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. Polarisation grade greater than one is not possible!")
-
-            # Make sure that the light intensity is not smaller than zero
-            elif state["state"][0] < 0:
-                log.error("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
-                raise ValueError("SIMULATION ERROR: Error in state vector '" + state["head"] + "'. The total light intensity can't be negative!")
+            result_text += "\n"
+    # END LOOP over every initial stokes vector
 
 # PRINT RESULTS TO FILE
-    # Format output minimalistic. Ideal for post processing large amounts of data
-    if cliArgs.rawOutput == True:
-        output_text = ""
 
-        # Add user comment to output file
-        if cliArgs.comment != "":
-            output_text += "# " + str(cliArgs.comment) + "\n"
+    # Add command line arguments and time of execution in the output file
+    output_text  = "# polaram simulate " + str(cliArgs.inputfile.resolve())
+    output_text += " --output " + str(cliArgs.outputfile.resolve())
+    output_text += " --log " + str(cliArgs.logfile.resolve())
+    output_text += " --matrix " + str(cliArgs.matrixfile.resolve())
+    output_text += "\n# Execution time: " + str(datetime.now()) + "\n"
 
-        # Create table containing: initial state, the header of every state and the final state of the simulation
-        # TODO: Improve table alignement
-        output_text += "# Final.State.Header   Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3      Initial.State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3"
-        for final, initial in zip(currentState, initialState):
-            output_text += "\n" + str(final["head"]) + "  " + str(final["state"]).replace("[", "").replace("]", "") + "      " + str(initial["head"]) + "  " + str(initial["state"]).replace("[", "").replace("]", "")
+    # Add user comment to output file
+    if cliArgs.comment != "":
+        output_text += "# " + str(cliArgs.comment) + "\n"
 
-        output_text += "\n\n"
-
-    # Format output nicely
-    else:
-        # Add command line arguments and time of execution in the output file
-        output_text  = "# polaram simulate " + str(cliArgs.inputfile.resolve())
-        output_text += " --output " + str(cliArgs.outputfile.resolve())
-        output_text += " --log " + str(cliArgs.logfile.resolve())
-        output_text += " --matrix " + str(cliArgs.matrixfile.resolve())
-        output_text += "\n# Execution time: " + str(datetime.now()) + "\n"
-
-        # Add user comment to output file
-        if cliArgs.comment != "":
-            output_text += "\n# " + str(cliArgs.comment) + "\n"
-
+    if cliArgs.rawOutput == False:
         # Add the optical elements and the labratory setup that was simulated to output file
-        output_text += "\n# Simulation Program:\n" + "\n".join(labratory_setup) + "\n"
+        output_text += "\n# Simulation Program:\n" + "\n".join(labratory_setup)
 
-        # Add the calculated states to the output file.
-        output_text += "\n# Simulation Results:"
-        # Create list of all calculated vectors as nicely formated strings
-        formattedTable = str( np.array([ state["state"] for i, state in enumerate(currentState) ]) ).replace("[[", "").replace(" [", "").replace("]", "").splitlines()
-        # Add calculated stokes vectors with header and value to the output file
-        for index, vector in enumerate(formattedTable):
-            output_text += "\n[" + vector + " ] " + currentState[index]["head"]
-
-        output_text += "\n\n"
+    output_text = output_text + "\n" + result_text
 
     # Log and write text to file
     log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
