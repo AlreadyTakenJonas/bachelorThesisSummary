@@ -422,13 +422,6 @@ class TestSetupDecoder_Decode(unittest.TestCase):
                          LVP False
                          LVP 1+1j
                          LVP [1,1]
-                         LSR string string string string
-                         LSR True True True True
-                         LSR False False False False
-                         LSR 1+1j 1+1j 1+1j 1+1j
-                         LSR [1,1] [1,1] [1,1] [1,1]
-                         LSR -1 0 0 0
-                         LSR 0 1 1 1
                          FLR string
                          FLR True
                          FLR False
@@ -449,8 +442,6 @@ class TestSetupDecoder_Decode(unittest.TestCase):
                         GLR 0 0 0
                         LHP 0 0
                         LVP 0 0
-                        LSR 0 0 0
-                        LSR 0 0 0 0 0
                         FLR
                         FLR 0 0
                         HWP 0 0
