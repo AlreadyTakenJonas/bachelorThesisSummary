@@ -112,41 +112,6 @@ class SetupDecoder:
 
         return  matrix
 
-    def initialStokesVector(self, s0, s1, s2, s3):
-        """
-        Initial polarisation vector of the laser.
-        User command: LSR * * * *
-        Attributes:
-            s0 - Component describing intensity
-            s1 - Component describing linear polarisation in horizontal and vertical direction
-            s2 - Component describing linear polarisation in diagonal direction
-            s3 - Component describing circular polarisation
-        Return:
-            stokes vector of initial laser polarisation
-        """
-
-        if type(s0) == bool or type(s1) == bool or type(s2) == bool or type(s3) == bool:
-            raise TypeError("Argument for stokes vector can't be bool!")
-
-        if np.iscomplex(s0) == True or np.iscomplex(s1) == True or np.iscomplex(s2) == True or np.iscomplex(s3) == True:
-            raise TypeError("Argument for stokes vector can't be complex!")
-
-
-        # Converting input to float
-        stokes_vector = np.array([s0, s1, s2, s3]).astype(float)
-
-        # Make sure the parameters are physical possible
-        if stokes_vector[0] < 0:
-            raise ValueError("The first stokes parameter s_0 can't be negativ!")
-        if 1 < round( sum([ s**2 for s in stokes_vector[1:] ]) / stokes_vector[0]**2 , 6):
-            raise ValueError("The square sum of the last three stokes parameters can't be greater than the squared first stokes parameter!")
-
-        # Normalise with s0
-        #if stokes_vector[0] != 0:
-        #    stokes_vector = stokes_vector / stokes_vector[0]
-
-        return stokes_vector
-
     def ramanMatrixOfSample(self):
         """
         Returns the string 'SMP'. The simulation will detect that and know how to proceed.
@@ -254,7 +219,6 @@ class SetupDecoder:
         "GLR": generalLinearRetarder,
         "LHP": linearHorizontalPolariser,
         "LVP": linearVerticalPolariser,
-        "LSR": initialStokesVector,
         "SMP": ramanMatrixOfSample,
         "FLR": attenuatingFilter,
         "HWP": halfWavePlate,

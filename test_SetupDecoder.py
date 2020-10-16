@@ -182,58 +182,6 @@ class TestSetupDecoder_LinearVerticalPolariser(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.linearVerticalPolariser, 1+1j)
 
 
-class TestSetupDecoder_InitialStokesVector(unittest.TestCase):
-    """
-    Test the initialStokesVector method in SetupDecoder
-    """
-
-    def sv(self, s0, s1, s2, s3):
-        """
-        Build stokes vector
-        """
-        vector = np.array([s0, s1, s2, s3])
-        if s0 != 0:
-            vector = vector/s0
-
-        return vector
-
-    def test_output(self):
-        """
-        Check if output is correct
-        """
-
-        for s0 in [0, 5, 7, 10]:
-            for s1 in [-10, -7, -5, 0, 5, 7, 10]:
-                for s2 in [-10, -7, -5, 0, 5, 7, 10]:
-                    for s3 in [-10, -7, -5, 0, 5, 7, 10]:
-
-                        # Make sure to only input physical meaningful values
-                        if s0**2 >= (s1**2 + s2**2 + s3**2):
-                            self.assertAlmostEqual(SetupDecoder.initialStokesVector(s0, s1, s2, s3).all(), self.sv(s0, s1, s2, s3).all(), msg = "Input: (" + str(s0) + "," + str(s1) + "," + str(s2) + "," + str(s3) + ")")
-
-                            self.assertTrue( type( SetupDecoder.initialStokesVector(s0, s1, s2, s3) ) is np.ndarray )
-
-    def test_values(self):
-        """
-        Make sure value errors are raised if necessary
-        """
-
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "string", "string", "string", "string")
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "True", "True", "True", "True")
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, "False", "False", "False", "False")
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, -1, 0, 0, 0)
-        self.assertRaises(ValueError, SetupDecoder.initialStokesVector, 1, 10, 0, 0)
-
-    def test_types(self):
-        """
-        Make sure type errors are raised if necessary
-        """
-
-        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, [1,1,1,1])
-        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, True, True, True, True)
-        self.assertRaises(TypeError, SetupDecoder.initialStokesVector, 1+1j, 1+1j, 1+1j, 1+1j)
-
-
 class TestSetupDecoder_attenuatingFilter(unittest.TestCase):
     """
     Test the attenuatingFilter method in SetupDecoder
