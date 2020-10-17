@@ -23,6 +23,10 @@ import pathlib
 # Get time and date for output file
 from datetime import datetime
 
+# Process bar
+from tqdm import tqdm
+
+
 #
 #   INTERNAL MODULES
 #
@@ -65,7 +69,7 @@ def main(cliArgs):
     result_text = ""
 
     # DO LOOP over every initial stokes vector
-    for initialStokesSector in cliArgs.laser:
+    for initialStokesSector in tqdm(cliArgs.laser):
         # INITIALISE SIMULATION
             log.info("Initialise Simulation " + str(initialStokesSector))
 
