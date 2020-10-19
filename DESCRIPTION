@@ -1,0 +1,15 @@
+Package: RHotStuff
+Title: Collection of frequently used functions
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Jonas",
+           family = "Eichhorn",
+           role = c("aut", "cre"),
+           email = "jonas@eichhorn-networks.de",
+           comment = structure("YOUR-ORCID-ID", .Names = "ORCID"))
+Description: This package does a bunch of hot stuff. Its basically a random collection of frequently used functions.
+License: use_mit_license()
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
