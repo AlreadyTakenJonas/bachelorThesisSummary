@@ -2,4 +2,5 @@
 
 export(GET.elabftw)
 export(better.acos)
+export(polaram.as.spectrum)
 importFrom(magrittr,"%>%")
