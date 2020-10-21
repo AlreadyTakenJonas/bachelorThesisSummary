@@ -7,7 +7,7 @@ To install this package you'll need the `devtools` package. Give following comma
 install.package('devtools')
 devtools::install_github("AlreadyTakenJonas/RHotStuff")
 ```
-an the package is installed.
+and the package is installed.
 
 ## Available Functions
 
