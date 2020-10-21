@@ -4,7 +4,7 @@ This package contains a collection of mostly unrelated utility functions written
 ## Installation
 To install this package you'll need the `devtools` package. Give following commands your R interpreter:
 ```
-install.package('devtools')
+install.package("devtools")
 devtools::install_github("AlreadyTakenJonas/RHotStuff")
 ```
 and the package is installed.
