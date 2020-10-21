@@ -32,7 +32,7 @@ polaram.as.spectrum <- function( x, stokes.S0, stokes.S1, peaks.wavenumber,
   # The intensity of the scatterd light in x- and y-direction
   # See the definition of stokes vectors for more details
   intensity.x <- (stokes.S0 + stokes.S1) / 2                                                                                                                                                                                                                                                                                                                                           
-  intensity.y <- (stokes.S1 - stokes.S1) / 2                                                                                                                                                                                                                                                                                                                                           
+  intensity.y <- (stokes.S0 - stokes.S1) / 2                                                                                                                                                                                                                                                                                                                                           
   
   # The signal response of the detector
   # It is assumed that a photo detector responds differntly to light along the x- and y-axis
