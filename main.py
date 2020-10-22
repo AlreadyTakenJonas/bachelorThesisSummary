@@ -13,6 +13,11 @@ import pathlib
 # Math stuff
 import numpy as np
 
+# Get current version from git tags
+from git import Repo
+# Execute "git describe --tags" in the folder of the currently running file
+__version__ =  Repo( str(pathlib.Path(__file__).parents[0]) ).git.execute(["git", "describe", "--tags"])
+
 #
 #   INTERNAL MODULES
 #
@@ -32,6 +37,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(prog = "polaram",
                                  description = "PolaRam simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculations are performed with the mueller calculus and stokes vectors.",
                                  epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
+    ap.add_argument('--version', "-v", action='version', version="%(prog)s " + __version__)
     sap = ap.add_subparsers(dest = "command", metavar = "subcommand")
     sap.required = True
 
