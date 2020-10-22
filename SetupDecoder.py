@@ -181,6 +181,30 @@ class SetupDecoder:
                           [0, 0, 1, 0],
                           [0, 0, 0, 1] ])
 
+    def depolariser(self, polarisedPart):
+        """
+        Mueller matrix for an ideal depolariser.
+        User command: DPL *
+        Attributes:
+            polarisedPart - Percentage of the light that stays polarised after interacting with the depolariser (value between 0 and 1)
+        Returns:
+            mueller matrix
+        """
+        try:
+            # Convert attribute to float
+            polarisedPart = float(polarisedPart)
+        except:
+            # Hanlde wrong input argument
+            # Raise Value Error to make sure that the decode function prints the right error message
+            raise ValueError("Argument can't be converted to float. Wrong argument was passed to depolariser().")
+
+        if polarisedPart < 0 or polarisedPart > 1:
+            raise ValueError("Argument for depolariser function may not be smaller than zero or greater than one!")
+
+        # Return mueller matrix
+        matrix = np.diag([1, polarisedPart, polarisedPart, polarisedPart])
+        return matrix
+
     def rotateMatrix(self, angle: float, matrix: np.ndarray):
         """
         Returns the rotated matrix of any given mueller matrix. The rotation works like the rotation of hypersphears in 4d space and quaternions.
@@ -223,7 +247,8 @@ class SetupDecoder:
         "FLR": attenuatingFilter,
         "HWP": halfWavePlate,
         "QWP": quarterWavePlate,
-        "NOP": unitMatrix
+        "NOP": unitMatrix,
+        "DPL": depolariser
     }
 
     def decode(self, commandString: str):

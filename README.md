@@ -1,6 +1,6 @@
 # Raman Scattering Of Linear Polarised Light With PolaRam
 
-The program PolaRam simulates the behaviour of polarised light with the mueller formalism and stokes vectors. The simulation contains the raman scattering process with a custom sample and the optical elements like attenuating filters, wave plates and linear retarders. The polarisation state and polarisation change of the scattered laser light is simulated as matrix multiplication of stokes vectors (polarisation state) and mueller matrices (polarisation change due to optical elements or sample). Due to mathematical issues this simulation does only support linear and completely polarised light in combination with the raman scattering process. More information on that in the [section](#instruction-file) below. 
+The program PolaRam simulates the behaviour of polarised light with the mueller formalism and stokes vectors. The simulation contains the raman scattering process with a custom sample and the optical elements like attenuating filters, wave plates and linear retarders. The polarisation state and polarisation change of the scattered laser light is simulated as matrix multiplication of stokes vectors (polarisation state) and mueller matrices (polarisation change due to optical elements or sample). Due to mathematical issues this simulation does only support linear and completely polarised light in combination with the raman scattering process. More information on that in the [section](#instruction-file) below.
 
 The program needs a file with instructions and a file with the raman tensors of the sample. The instructions file describes the experimental setup that shall be simulated. The syntax is assembly like and described below. The raman tensors are stored in a seperate file with a specific format and coordinate system also described below.
 
@@ -88,6 +88,7 @@ instruction | optical element             | number of arguments | describtion
 `SMP`       | raman scattering sample     | 0                   | This command will cause the simulation program to use the raman mueller matrices, given via CLI, in the next simulation step. If none is given, the unit matrix will be read from the file `PolaRam/unitmatrix.txt`. This instruction is not compatible with circular polarised light and light with a polarisation grade below one. For more details on the math behind it see the seperate [pdf-file](./ramanMuellerMatrix.pdf).
 `FLR t`     | attenuating filter          | 1                   | The attenuating filter accepts the transmission t as argument. t must be a value between zero and one (including both) and describes the percentage of light that can pass the filter.
 `NOP`       | no operation                | 0                   | Returns unity matrix.
+`DPL p`     | ideal depolariser           | 1                   | The depolariser accepts one argument p. It is the percentage of light that stays polarised after interacting with the depolariser. The argument p may take values between 0 and 1; including both.
 `#`         | comment                     | ∞                   | This instruction ignores all its arguments and will cause the simulation to perform a `NOP`.
 
 The following example might help to make the syntax clearer.
@@ -237,7 +238,7 @@ J. B. Foresman, and D. J. Fox, Gaussian, Inc., Wallingford CT, 2016.
 
 ******************************************
 Gaussian 16:  EM64W-G16RevB.01 16-Dec-2017
-               10-Sep-2020 
+               10-Sep-2020
 ******************************************
 %nprocshared = 6
 Will use up to    6 processors via shared memory.
@@ -249,7 +250,7 @@ Will use up to    6 processors via shared memory.
 [...]
 Dipole derivative wrt mode   1: -4.88694D-14  3.35287D-14  9.87113D+00
 Polarizability derivatives wrt mode          1
-                1             2             3 
+                1             2             3
      1  -0.911413D-01  0.000000D+00  0.000000D+00
      2   0.000000D+00  0.310911D+00  0.000000D+00
      3   0.000000D+00  0.000000D+00 -0.449127D+00
@@ -258,7 +259,7 @@ Vibrational hyperpolarizability contributions from mode   1       0.0000000     
 IFr=  0 A012= 0.79D-01 0.28D+01 0.46D+00 Act= 0.33D+01 DepolP= 0.65D+00 DepolU= 0.79D+00
 Dipole derivative wrt mode   2:  2.93067D-14  2.91767D-13 -2.45888D+00
 Polarizability derivatives wrt mode          2
-                1             2             3 
+                1             2             3
      1   0.215860D+00  0.000000D+00  0.000000D+00
      2   0.000000D+00  0.210041D+01  0.000000D+00
      3   0.000000D+00  0.000000D+00  0.119512D+01
@@ -267,7 +268,7 @@ Vibrational hyperpolarizability contributions from mode   2       0.0000000     
 IFr=  0 A012= 0.18D+02 0.53D+02 0.88D+01 Act= 0.80D+02 DepolP= 0.11D+00 DepolU= 0.20D+00
 Dipole derivative wrt mode   3:  7.66275D-13  7.28298D+00  2.95897D-12
 Polarizability derivatives wrt mode          3
-                1             2             3 
+                1             2             3
      1   0.000000D+00  0.000000D+00  0.000000D+00
      2   0.000000D+00  0.000000D+00 -0.137193D+01
      3   0.000000D+00 -0.137193D+01  0.000000D+00

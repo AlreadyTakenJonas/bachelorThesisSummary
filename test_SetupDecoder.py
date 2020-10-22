@@ -331,6 +331,45 @@ class TestSetupDecoder_QuarterWavePlate(unittest.TestCase):
         self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, False)
         self.assertRaises(TypeError, SetupDecoder.quarterWavePlate, 1+1j)
 
+class TestSetupDecoder_Depolariser(unittest.TestCase):
+    """
+    Test for the depolariser function in SetupDecoder
+    """
+
+    def test_output(self):
+        """
+        Make sure the function returns the right values
+        """
+        correct_matrix = lambda polarisedPart: np.diag([1, polarisedPart, polarisedPart, polarisedPart])
+
+        # Check for different input values
+        for value in [0, 0.1, 0.25, 0.5, 0.6, 0.9, 1]:
+            # Convert matrices into 1d-lists and check every element
+            for program, tester in zip( SetupDecoder.depolariser(value).ravel().tolist(), correct_matrix(value).ravel().tolist() ):
+                self.assertAlmostEqual( program, tester )
+
+            # Check sizes
+            self.assertEqual( SetupDecoder.depolariser(value).shape, correct_matrix(value).shape )
+
+            # Check type
+            self.assertTrue( type(SetupDecoder.depolariser(value)) is np.ndarray )
+
+    def test_values(self):
+        """
+        Make sure value errors are raised if necessary
+        """
+        self.assertRaises(ValueError, SetupDecoder.depolariser, "string")
+        self.assertRaises(ValueError, SetupDecoder.depolariser, "True")
+        self.assertRaises(ValueError, SetupDecoder.depolariser, "False")
+
+        self.assertRaises(ValueError, SetupDecoder.depolariser, [1,1])
+        self.assertRaises(ValueError, SetupDecoder.depolariser, 1+1j)
+        self.assertRaises(ValueError, SetupDecoder.depolariser, -0.1)
+        self.assertRaises(ValueError, SetupDecoder.depolariser, 1.1)
+
+    def test_types(self):
+        pass
+
 class TestSetupDecoder_RotateMatrix(unittest.TestCase):
     """
     Test the rotateMatrix method in SetupDecoder
