@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # Initialise and set helping information
     ap = argparse.ArgumentParser(prog = "polaram",
                                  description = "PolaRam simulates the influence of a raman active sample and the optical elements of the measurement setup on the polarisation of the laser. The calculations are performed with the mueller calculus and stokes vectors.",
-                                 epilog = "Author: Jonas Eichhorn; License: MIT; Date: Sep.2020")
+                                 epilog = "Author: Jonas Eichhorn; License: MIT; Date: Okt.2020")
     ap.add_argument('--version', "-v", action='version', version="%(prog)s " + __version__)
     sap = ap.add_subparsers(dest = "command", metavar = "subcommand")
     sap.required = True

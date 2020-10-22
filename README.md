@@ -4,11 +4,12 @@ The program PolaRam simulates the behaviour of polarised light with the mueller 
 
 The program needs a file with instructions and a file with the raman tensors of the sample. The instructions file describes the experimental setup that shall be simulated. The syntax is assembly like and described below. The raman tensors are stored in a seperate file with a specific format and coordinate system also described below.
 
-The sub-program carrying out the simulation is called `polaram simulate`. There are two more sub-programs helping with data and file conversion: `polaram convert`and `polaram extract`. More information below.
+The sub-program carrying out the simulation is called `polaram simulate`. There are two more sub-programs helping with data and file conversion: `polaram convert` and `polaram extract`. More information below.
 
 Table of Contents
 =================
    * [Raman Scattering Of Linear Polarised Light With PolaRam](#raman-scattering-of-linear-polarised-light-with-polaram)
+   * [Known Bugs](#known-bugs)
    * [simulate: Simulation Of Raman Scattering Of Linear Polarised Light](#simulate-simulation-of-raman-scattering-of-linear-polarised-light)
       * [Usage](#usage)
       * [The Input Files](#the-input-files)
@@ -21,6 +22,9 @@ Table of Contents
       * [Usage](#usage-2)
       * [The Input File](#the-input-file-1)
    * [Supplementary code: utilities and SetupDecoder](#supplementary-code-utilities-and-setupdecoder)
+
+# Known Bugs
+ * There is a bug in the external command line argument parser argparse: You can't enter negative numbers in scientific notations (like -1e3). The number will be mistaken for a command line flag. However, writing -1000 is accepted by argparse.
 
 # simulate: Simulation Of Raman Scattering Of Linear Polarised Light
 
@@ -40,7 +44,8 @@ The simulation is started by typing `polaram simulate PATH_TO_INPUT_FILE`. The c
 ```
 $ polaram simulate -h
 usage: polaram simulate [-h] [-v] [-l LOGFILE] [-m MATRIXFILE] [-o OUTPUTFILE]
-                        [-c [COMMENT [COMMENT ...]]]
+                        [-c [COMMENT [COMMENT ...]]] [-a] [-r] [-s]
+                        [-lsr LASER LASER LASER LASER]
                         inputfile
 
 This program simulates the influence of a raman active sample and the optical
@@ -66,8 +71,21 @@ optional arguments:
                         Default=PROGRAMMPATH/res/muellersimulation.txt
   -c [COMMENT [COMMENT ...]], --comment [COMMENT [COMMENT ...]]
                         comment that will be added to the output file
+  -a, --append          if enabled the output file will not be overwritten,
+                        but the new results will be appended to the output
+                        file
+  -r, --raw-output      controls the format of the output file. If enabled the
+                        results will be written as a easy parseable table.
+                        Useful for post processing large amount of data.
+  -s, --silent          if enabled the final output will be only written to
+                        file and not printed on the screen
+  -lsr LASER LASER LASER LASER, --laser LASER LASER LASER LASER
+                        the initial polarisation state of the simulation,
+                        encoded as stokes parameters. It is possible to pass
+                        more than one stokes vector by using the flag multiple
+                        times. Default=1 1 0 0
 ```
-The simulation will print its results in a file and on the screen. The file can be specified by the `-o/--output` option.
+The simulation will print its results in a file and on the screen. The file can be specified by the `-o/--output` option. The `-lsr/--laser` flag defines the initial polarisation state of the simulation. Using the flag multiple times allows you to run multiple simulations at the same time. The polarisation state is defined by the four stokes parameters of the stokes vector. Only physically valid vectors will be accepted. See the literature or google for an explanation on how stokes vectors work. There is a bug in the external command line argument parser argparse: You can't enter negative numbers in scientific notations (like -1e3). The number will be mistaken for a command line flag. However, writing -1000 is accepted by argparse.
 
 ## The Input Files
 
@@ -79,7 +97,6 @@ The instruction file is structured like assembly code. It describes the labrator
 
 instruction | optical element             | number of arguments | describtion
 :----------:|:---------------------------:|:-------------------:|:----------:
-`LSR s`     | initial laser polarisation  | 4                   | This instruction defines the initial polarisation state of the laser and takes four float numbers as input: s<sub>0</sub>, s<sub>1</sub>, s<sub>2</sub> and s<sub>3</sub>. The input must be a valid stokes vector for a linear, fully polarised state. The sqare sum of the last three components must equal the square of the first component. The first component must be zero or positve and the last component must be zero. For more details research stokes parameters. If the instruction is not used, the stokes vector defaults to zero and every call of `LSR` overrides the current state of the simulation.
 `GLR θ δ`   | general linear retarder     | 2                   | This element is the generalised form of a wave plate and takes the two angles θ and δ in degrees as input. δ characterises the phase shift between E<sub>x</sub> and E<sub>y</sub> and θ is the angle between the fast axis of the GLR and the x-axis of the labratory coordinate system.
 `HWP θ`     | half wave plate             | 1                   | Shortcut for `GLR θ 180`.
 `QWP θ`     | quarter wave plate          | 1                   | Shortcut for `GLR θ 90`.
