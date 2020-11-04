@@ -1,5 +1,5 @@
 # RHotStuff
-This package contains a collection of mostly unrelated utility functions written in the R language.
+This package contains a collection of mostly unrelated utility functions written in the R language. You'll find a summary of all available functionalities below; for more details have a look at the [man pages](./man).
 
 ## Installation
 To install this package you'll need the `devtools` package. Give following commands your R interpreter:
