@@ -3,5 +3,6 @@
 export(GET.elabftw.bycaption)
 export(GET.elabftw.byselector)
 export(better.acos)
+export(parseTable.elabftw)
 export(polaram.as.spectrum)
 importFrom(magrittr,"%>%")
