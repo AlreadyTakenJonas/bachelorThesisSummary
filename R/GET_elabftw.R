@@ -15,23 +15,31 @@
 #' the enviourmental variable READ_ELABFTW_TOKEN. This variable can be set in the ~/.Renviron file.
 #' @param url The url to the eLabFTW API. See the eLabFTW documentation for details. The default settings retrieve this value from
 #' the enviourmental variable ELABFTW_API_URL. This variable can be set in the ~/.Renviron file.
-#' @return A list of dataframes with the content of the selected html tables from the eLabFTW online labbook.
+#' @param outputHTTP Boolean value. If FALSE only the selected tables  will be returned. If TRUE the selected tables and the original http response received from the API will
+#' be returned. The http response contains meta information needed by other parsing functions.
+#' @return A list of dataframes with the content of the selected html tables from the eLabFTW online labbook. If outputHTTP is 
+#' set TRUE the return value is a list containing the list of all dataframes created from the selected html tables and the
+#' original http response received from the API.
 #' 
 #' @importFrom magrittr %>%
 #' @export
 GET.elabftw.byselector <- function(experiment.id, 
                              node.selector    = "#experimental-data", 
                              dec              = ",",
+                             # Default is FALSE for safety reasons. Data might get lost if the default is set TRUE and user doesn't notice
                              header           = F,
                              # Sys.getenv() gets the enviourment variable with the API token. It's defined in ~/.Reviron 
                              api.key          = Sys.getenv("READ_ELABFTW_TOKEN"),
                              # Sys.getenv() gets the enviourment variable with the URL. It's defined in ~/.Reviron 
-                             url              = Sys.getenv("ELABFTW_API_URL") ) {
+                             url              = Sys.getenv("ELABFTW_API_URL"),
+                             # Default is FALSE for backwards compatibility
+                             outputHTTP       = F ) {
   # api url
   url <- paste0(url, experiment.id)
   
   # Get HTML from url
-  page <- httr::GET(url, httr::add_headers(Authorization = api.key)) %>% httr::stop_for_status(.) %>% httr::content(.) %>% .$body
+  httpResponse <- httr::GET(url, httr::add_headers(Authorization = api.key)) %>% httr::stop_for_status(.) %>% httr::content(.) 
+  page <- httpResponse$body
   
   # Read HTML and extract desired table
   table <- xml2::read_html(page) %>% rvest::html_nodes(node.selector) %>% rvest::html_table(header = header, dec = dec) 
@@ -41,7 +49,9 @@ GET.elabftw.byselector <- function(experiment.id,
   }
   
   # Return table
-  table
+  if (outputHTTP == FALSE) return(table)
+  # Return table and http response
+  else return( list(table = table, http = httpResponse) )
 }
 
 #' Request Experimental Data From eLabFTW Via API
@@ -60,7 +70,11 @@ GET.elabftw.byselector <- function(experiment.id,
 #' the enviourmental variable READ_ELABFTW_TOKEN. This variable can be set in the ~/.Renviron file.
 #' @param url The url to the eLabFTW API. See the eLabFTW documentation for details. The default settings retrieve this value from
 #' the enviourmental variable ELABFTW_API_URL. This variable can be set in the ~/.Renviron file.
-#' @return A list of dataframes with the content of the selected html tables from the eLabFTW online labbook.
+#' @param outputHTTP Boolean value. If FALSE only the selected tables  will be returned. If TRUE the selected tables and the original http response received from the API will
+#' be returned. The http response contains meta information needed by other parsing functions.
+#' @return A list of dataframes with the content of the selected html tables from the eLabFTW online labbook. If outputHTTP is 
+#' set TRUE the return value is a list containing the list of all dataframes created from the selected html tables and the
+#' original http response received from the API.
 #' 
 #' @importFrom magrittr %>%
 #' @export
@@ -71,12 +85,15 @@ GET.elabftw.bycaption <- function(experiment.id,
                                   # Sys.getenv() gets the enviourment variable with the API token. It's defined in ~/.Revirons 
                                   api.key       = Sys.getenv("READ_ELABFTW_TOKEN"),
                                   # Sys.getenv() gets the enviourment variable with the URL. It's defined in ~/.Revirons 
-                                  url           = Sys.getenv("ELABFTW_API_URL") ) {
+                                  url           = Sys.getenv("ELABFTW_API_URL"),
+                                  # Default is FALSE for backwards compatibility
+                                  outputHTTP       = F ) {
   # api url
   url <- paste0(url, experiment.id)
   
   # Get HTML from url
-  page <- httr::GET(url, httr::add_headers(Authorization = api.key)) %>% httr::stop_for_status(.) %>% httr::content(.) %>% .$body
+  httpResponse <- httr::GET(url, httr::add_headers(Authorization = api.key)) %>% httr::stop_for_status(.) %>% httr::content(.) 
+  page <- httpResponse$body
   
   # Extract all table captions
   captionlist <- xml2::read_html(page) %>% rvest::html_nodes("table") %>% rvest::html_node("td")
@@ -97,6 +114,8 @@ GET.elabftw.bycaption <- function(experiment.id,
   }
   
   # Return table
-  table
+  if (outputHTTP == FALSE) return(table)
+  # Return table and http response
+  else return( list(table = table, http = httpResponse) )
 }
 
