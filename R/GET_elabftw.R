@@ -23,9 +23,9 @@ GET.elabftw.byselector <- function(experiment.id,
                              node.selector    = "#experimental-data", 
                              dec              = ",",
                              header           = F,
-                             # Sys.getenv() gets the enviourment variable with the API token. It's defined in ~/.Revirons 
+                             # Sys.getenv() gets the enviourment variable with the API token. It's defined in ~/.Reviron 
                              api.key          = Sys.getenv("READ_ELABFTW_TOKEN"),
-                             # Sys.getenv() gets the enviourment variable with the URL. It's defined in ~/.Revirons 
+                             # Sys.getenv() gets the enviourment variable with the URL. It's defined in ~/.Reviron 
                              url              = Sys.getenv("ELABFTW_API_URL") ) {
   # api url
   url <- paste0(url, experiment.id)
