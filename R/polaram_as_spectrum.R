@@ -12,8 +12,8 @@
 #' @param stokes.S1 The second stokes parameter of the scattered light. It may be a vector with one element for each peak.
 #' @param peaks.wavenumber The wavenumber of the raman peak. It may be a vector with one element for each peak.
 #' @param gamma A scalar describing the width of the peaks. It may be a vector with one element for each peak. If the vector gamma is shorter than the peaks.wavenumber
-#' vector, gamma will be reapeated until the length of both vectors match. The FWHM is in terms of the peaks width gamma (γ) and the peaks wavenumber (ν):
-#' FWHM = sqrt(ν^2 + νγ) - sqrt(ν^2 - νγ) .
+#' vector, gamma will be reapeated until the length of both vectors match. The FWHM is in terms of the peaks width gamma (g) and the peaks wavenumber (v):
+#' FWHM = sqrt(v^2 + vg) - sqrt(v^2 - vg) .
 #' @param normalise Boolean value. If true the spectrum will be divided by its maximum.
 #' @param scaleX Multiplicator, which describes how sensitive the photo detector is along the x-axis.
 #' @param scaleY Multiplicator, which describes how sensitive the photo detector is along the y-axis.
