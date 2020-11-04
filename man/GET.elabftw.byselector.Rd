@@ -4,14 +4,10 @@
 \alias{GET.elabftw.byselector}
 \title{Request Experimental Data From eLabFTW Via API}
 \usage{
-GET.elabftw.byselector(
-  experiment.id,
-  node.selector = "#experimental-data",
-  dec = ",",
-  header = F,
+GET.elabftw.byselector(experiment.id,
+  node.selector = "#experimental-data", dec = ",", header = F,
   api.key = Sys.getenv("READ_ELABFTW_TOKEN"),
-  url = Sys.getenv("ELABFTW_API_URL")
-)
+  url = Sys.getenv("ELABFTW_API_URL"), outputHTTP = F)
 }
 \arguments{
 \item{experiment.id}{The eLabFTW id of the experiment that will be fetched. The id can be found in the url of the experiment.}
@@ -28,9 +24,14 @@ the enviourmental variable READ_ELABFTW_TOKEN. This variable can be set in the ~
 
 \item{url}{The url to the eLabFTW API. See the eLabFTW documentation for details. The default settings retrieve this value from
 the enviourmental variable ELABFTW_API_URL. This variable can be set in the ~/.Renviron file.}
+
+\item{outputHTTP}{Boolean value. If FALSE only the selected tables  will be returned. If TRUE the selected tables and the original http response received from the API will
+be returned. The http response contains meta information needed by other parsing functions.}
 }
 \value{
-A list of dataframes with the content of the selected html tables from the eLabFTW online labbook.
+A list of dataframes with the content of the selected html tables from the eLabFTW online labbook. If outputHTTP is
+set TRUE the return value is a list containing the list of all dataframes created from the selected html tables and the
+original http response received from the API.
 }
 \description{
 This function fetches experimental data from the online labbook eLabFTW as a data frame. The html table that will be returned

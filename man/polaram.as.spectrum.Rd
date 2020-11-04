@@ -11,16 +11,8 @@ the spectrum was created with a hypothetical photo detector, that responds diffe
 and scaleY allow to influence the height of the signal, depending of the polarisation of the hypothetically detectable light. If both values are one, the light
 will be not distinguished by its polarisation.}
 \usage{
-polaram.as.spectrum(
-  x,
-  stokes.S0,
-  stokes.S1,
-  peaks.wavenumber,
-  gamma = 25,
-  normalise = FALSE,
-  scaleX = 2,
-  scaleY = 1
-)
+polaram.as.spectrum(x, stokes.S0, stokes.S1, peaks.wavenumber,
+  gamma = 25, normalise = FALSE, scaleX = 2, scaleY = 1)
 }
 \arguments{
 \item{x}{A vector of wavnumbers. The function computes for every wavenumber one point of the spectrum.}
@@ -32,8 +24,8 @@ polaram.as.spectrum(
 \item{peaks.wavenumber}{The wavenumber of the raman peak. It may be a vector with one element for each peak.}
 
 \item{gamma}{A scalar describing the width of the peaks. It may be a vector with one element for each peak. If the vector gamma is shorter than the peaks.wavenumber
-vector, gamma will be reapeated until the length of both vectors match. The FWHM is in terms of the peaks width gamma (γ) and the peaks wavenumber (ν):
-FWHM = sqrt(ν^2 + νγ) - sqrt(ν^2 - νγ) .}
+vector, gamma will be reapeated until the length of both vectors match. The FWHM is in terms of the peaks width gamma (g) and the peaks wavenumber (v):
+FWHM = sqrt(v^2 + vg) - sqrt(v^2 - vg) .}
 
 \item{normalise}{Boolean value. If true the spectrum will be divided by its maximum.}
 
