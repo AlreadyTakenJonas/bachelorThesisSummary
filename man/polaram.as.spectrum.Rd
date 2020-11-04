@@ -11,8 +11,16 @@ the spectrum was created with a hypothetical photo detector, that responds diffe
 and scaleY allow to influence the height of the signal, depending of the polarisation of the hypothetically detectable light. If both values are one, the light
 will be not distinguished by its polarisation.}
 \usage{
-polaram.as.spectrum(x, stokes.S0, stokes.S1, peaks.wavenumber,
-  gamma = 25, normalise = FALSE, scaleX = 2, scaleY = 1)
+polaram.as.spectrum(
+  x,
+  stokes.S0,
+  stokes.S1,
+  peaks.wavenumber,
+  gamma = 25,
+  normalise = FALSE,
+  scaleX = 2,
+  scaleY = 1
+)
 }
 \arguments{
 \item{x}{A vector of wavnumbers. The function computes for every wavenumber one point of the spectrum.}

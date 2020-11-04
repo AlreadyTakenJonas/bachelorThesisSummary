@@ -17,7 +17,7 @@
 #' the enviourmental variable ELABFTW_API_URL. This variable can be set in the ~/.Renviron file.
 #' @param outputHTTP Boolean value. If FALSE only the selected tables  will be returned. If TRUE the selected tables and the original http response received from the API will
 #' be returned. The http response contains meta information needed by other parsing functions.
-#' @return A list of dataframes with the content of the selected html tables from the eLabFTW online labbook. If outputHTTP is 
+#' @return A list of data frames with the content of the selected html tables from the eLabFTW online labbook. If outputHTTP is 
 #' set TRUE the return value is a list containing the list of all dataframes created from the selected html tables and the
 #' original http response received from the API.
 #' 
@@ -35,7 +35,7 @@ GET.elabftw.byselector <- function(experiment.id,
                              # Default is FALSE for backwards compatibility
                              outputHTTP       = F ) {
   # api url
-  url <- paste0(url, experiment.id)
+  url <- paste0(url, "experiments/", experiment.id)
   
   # Get HTML from url
   httpResponse <- httr::GET(url, httr::add_headers(Authorization = api.key)) %>% httr::stop_for_status(.) %>% httr::content(.) 
@@ -72,8 +72,8 @@ GET.elabftw.byselector <- function(experiment.id,
 #' the enviourmental variable ELABFTW_API_URL. This variable can be set in the ~/.Renviron file.
 #' @param outputHTTP Boolean value. If FALSE only the selected tables  will be returned. If TRUE the selected tables and the original http response received from the API will
 #' be returned. The http response contains meta information needed by other parsing functions.
-#' @return A list of dataframes with the content of the selected html tables from the eLabFTW online labbook. If outputHTTP is 
-#' set TRUE the return value is a list containing the list of all dataframes created from the selected html tables and the
+#' @return A list of data frames with the content of the selected html tables from the eLabFTW online labbook. If outputHTTP is 
+#' set TRUE the return value is a list containing the list of all data frames created from the selected html tables and the
 #' original http response received from the API.
 #' 
 #' @importFrom magrittr %>%
@@ -89,7 +89,7 @@ GET.elabftw.bycaption <- function(experiment.id,
                                   # Default is FALSE for backwards compatibility
                                   outputHTTP       = F ) {
   # api url
-  url <- paste0(url, experiment.id)
+  url <- paste0(url, "experiments/", experiment.id)
   
   # Get HTML from url
   httpResponse <- httr::GET(url, httr::add_headers(Authorization = api.key)) %>% httr::stop_for_status(.) %>% httr::content(.) 
