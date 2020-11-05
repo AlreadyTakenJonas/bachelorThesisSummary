@@ -16,3 +16,4 @@ and the package is installed. You will need to install the appropriate version o
 + GET.elabftw.byselector() : Scraps html tables from the online labbook eLabFTW using its API. Tables are selected by css or XPath selectors.
 + GET.elabftw.bycaption() : Scraps html tables from the online labbook eLabFTW using its API. Tables are selected by caption strings placed in the first cell of the first row of the tables.
 + parseTable.elabftw() : Combines data frames created by GET.elabftw.byselector and GET.elabftw.bycaption and files attached to a protocol in the online labbook eLabFTW. The file paths written in the data frames will be replaced by a single value derived from the content of the files (e.g. the mean or a sum).
++ qmean() : Combines the quantile and the mean function to allow the computation of a mean without considering outliners.
