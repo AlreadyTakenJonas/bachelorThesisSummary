@@ -4,9 +4,15 @@
 \alias{GET.elabftw.bycaption}
 \title{Request Experimental Data From eLabFTW Via API}
 \usage{
-GET.elabftw.bycaption(experiment.id, caption = "Messdaten", dec = ",",
-  header = F, api.key = Sys.getenv("READ_ELABFTW_TOKEN"),
-  url = Sys.getenv("ELABFTW_API_URL"), outputHTTP = F)
+GET.elabftw.bycaption(
+  experiment.id,
+  caption = "Messdaten",
+  dec = ",",
+  header = F,
+  api.key = Sys.getenv("READ_ELABFTW_TOKEN"),
+  url = Sys.getenv("ELABFTW_API_URL"),
+  outputHTTP = F
+)
 }
 \arguments{
 \item{experiment.id}{The eLabFTW id of the experiment that will be fetched. The id can be found in the url of the experiment.}

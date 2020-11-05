@@ -21,11 +21,11 @@ The mean of the data without considering the outliner.
 \description{
 This function subsets a given vector of numbers according to the quantiles specified with intervalsize
 and computes the mean of the subset. The intervalsize specifies the percentage of the data that should
-be used to compute the mean. The quantiles are defined as half the intervalsize left and right of 50%.
+be used to compute the mean. The quantiles are defined as half the intervalsize left and right of 50\%.
 Therefore the distribution of the subset will be centered at the median of the data vector. The interval
 can be also centered at other points of the distribution.
 }
 \details{
-For example: The intervalsize 0.5 will cause the function to compute the 25%- and the 75%-quantile and
+For example: The intervalsize 0.5 will cause the function to compute the 25\%- and the 75\%-quantile and
 get the mean of all the values in the data vector, that are between these quantiles.
 }
