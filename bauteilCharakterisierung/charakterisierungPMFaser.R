@@ -25,6 +25,7 @@ data <- lapply(data.elab, function(table) {
 })
 
 # CALCULATE STOKES VECTORS
+# ASSUMPTION: S3 = 0
 # Make sure the stokes vectors were measured for the same positions of the wave plate
 if( !all(data[[1]]$W == data[[2]]$W) | !all(data[[1]]$W == data[[3]]$W) | !all(data[[1]]$W == data[[4]]$W) ) {
   stop("The wave plate positions don't match for all given tables.") 
@@ -44,5 +45,14 @@ if( !all(data[[1]]$W == data[[2]]$W) | !all(data[[1]]$W == data[[3]]$W) | !all(d
 stokes[,c("PRE.S0","PRE.S1","PRE.S2")] <- stokes[,c("PRE.S0","PRE.S1","PRE.S2")]/stokes$PRE.S0
 stokes[,c("POST.S0","POST.S1","POST.S2")] <- stokes[,c("POST.S0","POST.S1","POST.S2")]/stokes$POST.S0
 
+# Compute polarisation ratio
+stokes$PRE.polarisation <- (stokes$PRE.S1^2 + stokes$PRE.S2^2)/stokes$PRE.S0
+stokes$POST.polarisation <- (stokes$POST.S1^2 + stokes$POST.S2^2)/stokes$POST.S0
 
-# TODO: CHECK IF STOKES VECTORS VALID
+# TODO Check if polarisation ratio is valid
+
+# Compute polar stokes parameter
+stokes$PRE.sigma <- better.acos(stokes$PRE.S0, stokes$PRE.S1, stokes$PRE.S2)
+stokes$POST.sigma <- better.acos(stokes$POST.S0, stokes$POST.S1, stokes$POST.S2)
+
+# PLOT SOMETHING?
