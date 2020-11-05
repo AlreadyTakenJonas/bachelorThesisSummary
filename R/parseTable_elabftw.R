@@ -103,8 +103,8 @@ parseTable.elabftw <- function(parseableTables,
       # Return the new value
       return( output )
     } )
-    # Return the new table
-    return(table)
+    # Return the new table as data frame
+    as.data.frame(table) %>% return(.)
     
   } )
   
