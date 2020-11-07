@@ -3,6 +3,7 @@
 export(GET.elabftw.bycaption)
 export(GET.elabftw.byselector)
 export(better.acos)
+export(better.subtraction)
 export(parseTable.elabftw)
 export(polaram.as.spectrum)
 export(qmean)
