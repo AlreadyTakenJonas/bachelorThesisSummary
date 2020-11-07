@@ -2,7 +2,7 @@ require(RHotStuff)
 require(magrittr)
 
 # Check the version of RHotStuff
-designedversion <- "1.0.0.0"
+designedversion <- "1.1.0"
 if (packageVersion("RHotStuff")!=designedversion) {
   warning("VERSION MISMATCH RHOTSTUFF")
   warning(paste0("This script was designed for RHotStuff version ", designedversion, 
@@ -14,9 +14,12 @@ if (packageVersion("RHotStuff")!=designedversion) {
 
 # Get data from elab
 data.elab <- GET.elabftw.bycaption(58, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
-                                                                    func=function(x) qmean(x[,4]),
+                                                                    func=function(x) qmean(x[,4], 0.8),
                                                                     header=T, skip=14, sep=";")
 
+#
+# CALCULATE STOKES VECTORS
+#
 # Normalise the data
 data <- lapply(data.elab, function(table) {
   data.frame( W    = table$X,
@@ -24,7 +27,6 @@ data <- lapply(data.elab, function(table) {
               POST = table$Y4/table$Y3 )
 })
 
-# CALCULATE STOKES VECTORS
 # ASSUMPTION: S3 = 0
 # Make sure the stokes vectors were measured for the same positions of the wave plate
 if( !all(data[[1]]$W == data[[2]]$W) | !all(data[[1]]$W == data[[3]]$W) | !all(data[[1]]$W == data[[4]]$W) ) {
@@ -49,10 +51,43 @@ stokes[,c("POST.S0","POST.S1","POST.S2")] <- stokes[,c("POST.S0","POST.S1","POST
 stokes$PRE.polarisation <- (stokes$PRE.S1^2 + stokes$PRE.S2^2)/stokes$PRE.S0
 stokes$POST.polarisation <- (stokes$POST.S1^2 + stokes$POST.S2^2)/stokes$POST.S0
 
-# TODO Check if polarisation ratio is valid
-
 # Compute polar stokes parameter
 stokes$PRE.sigma <- better.acos(stokes$PRE.S0, stokes$PRE.S1, stokes$PRE.S2)
 stokes$POST.sigma <- better.acos(stokes$POST.S0, stokes$POST.S1, stokes$POST.S2)
 
-# PLOT SOMETHING?
+# How does the plane of polarisation change?
+change.in.epsilon <- better.subtraction(stokes$POST.sigma - stokes$PRE.sigma)/2
+plot(stokes$W, change.in.epsilon*180/pi,
+     xaxt = "n",
+     type = "h",
+     main = "Änderung der Polarisationsebene durch die PM-Faser",
+     ylab = "Unterschied in der Polarisationsebene / °",
+     xlab = "Position der Wellenplatte / °")
+axis(1, at = stokes$W)
+abline(h=0)
+
+# How does the polarisation ratio change?
+change.in.polarisation <- stokes$POST.polarisation / stokes$PRE.polarisation - 1
+plot(stokes$W, change.in.polarisation*100,
+     xaxt = 'n',
+     type = "h",
+     main = "Änderung des Polarisationsgrades durch die PM-Faser",
+     xlab = "Position Wellenplatte / °",
+     ylab = "realtive Änderung des Polarisationsgrades / %")
+axis(1, at = stokes$W)
+abline(h=0)
+#
+# Who much does the fiber reduce the laser intensity?
+#
+intensity <- data.frame(W = data.elab[[1]]$X,
+                        PRE = data.elab[[1]]$Y1,
+                        POST = data.elab[[1]]$Y3 )
+intensity$LOSS <- intensity$POST/intensity$PRE
+
+plot( intensity$W, intensity$LOSS*100,
+      xaxt = "n",
+      type = "h", 
+      main = "Absorptionsverhalten der PM-Faser", 
+      xlab = "Position Wellenplatte / °", 
+      ylab = "Anteil des Lasers, der die Faser passiert / %")
+axis(1, at = intensity$W)
