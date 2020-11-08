@@ -11,8 +11,8 @@
 better.subtraction <- function(diff, base=2*pi) {
   # Check for smaller distances for every element in vector
   diff <- sapply(diff, function(elem) {
-    if      (elem > +base/2) elem <- base-elem
-    else if (elem < -base/2) elem <- base+elem
+    if      (elem > +base/2) elem <- elem-base
+    else if (elem < -base/2) elem <- elem+base
     return(elem)
   })
   # Return result
