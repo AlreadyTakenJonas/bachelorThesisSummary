@@ -56,14 +56,44 @@ stokes$PRE.sigma <- better.acos(stokes$PRE.S0, stokes$PRE.S1, stokes$PRE.S2)
 stokes$POST.sigma <- better.acos(stokes$POST.S0, stokes$POST.S1, stokes$POST.S2)
 
 # How does the plane of polarisation change?
-change.in.epsilon <- better.subtraction(stokes$POST.sigma - stokes$PRE.sigma)/2
-plot(stokes$W, change.in.epsilon*180/pi,
+mod.change.in.epsilon <- better.subtraction(stokes$POST.sigma - stokes$PRE.sigma)/2
+plot(stokes$W, mod.change.in.epsilon*180/pi,
      xaxt = "n",
      type = "h",
      main = "Änderung der Polarisationsebene durch die PM-Faser",
+     sub  = "minimal modular distance method",
      ylab = "Unterschied in der Polarisationsebene / °",
      xlab = "Position der Wellenplatte / °")
 axis(1, at = stokes$W)
+abline(h=0)
+
+simp.change.in.epsilon <- (stokes$POST.sigma - stokes$PRE.sigma)/2
+plot(stokes$W, simp.change.in.epsilon*180/pi,
+     xaxt = "n",
+     type = "h",
+     main = "Änderung der Polarisationsebene durch die PM-Faser",
+     sub  = "simple subtraction method",
+     ylab = "Unterschied in der Polarisationsebene / °",
+     xlab = "Position der Wellenplatte / °")
+axis(1, at = stokes$W)
+abline(h=0)
+
+plot(stokes$PRE.sigma*180/2/pi, simp.change.in.epsilon*180/pi,
+     xaxt = "n",
+     main = "Die Rotation der Polarisationsebene in Abängigkeit der initialen Polarisation",
+     sub  = "simple subtraction method",
+     xlab = expression("Orientierung der Polarisationsebene "*epsilon*" / °"),
+     ylab = expression("Änderung des Winkels "*epsilon*" / °") )
+axis(1, at = seq(from=0, to=180, by=10) )
+abline(h=0)
+
+plot(stokes$PRE.sigma*180/2/pi, mod.change.in.epsilon*180/pi,
+     xaxt = "n",
+     main = "Die Rotation der Polarisationsebene in Abängigkeit der initialen Polarisation",
+     sub  = "minimal modular distance method",
+     xlab = expression("Orientierung der Polarisationsebene "*epsilon*" / °"),
+     ylab = expression("Änderung des Winkels "*epsilon*" / °") )
+axis(1, at = seq(from=0, to=180, by=10) )
 abline(h=0)
 
 # How does the polarisation ratio change?
