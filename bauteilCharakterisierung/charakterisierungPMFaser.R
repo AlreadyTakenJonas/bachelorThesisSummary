@@ -1,14 +1,8 @@
 require(RHotStuff)
 require(magrittr)
 
-# Check the version of RHotStuff
-designedversion <- "1.1.0"
-if (packageVersion("RHotStuff")!=designedversion) {
-  warning("VERSION MISMATCH RHOTSTUFF")
-  warning(paste0("This script was designed for RHotStuff version ", designedversion, 
-                 ", but version ", packageVersion("RHotStuff"), 
-                 " is installed. Make sure the versions are compatible"))
-}
+# Make sure the version of RHotStuff is compatible with the code
+check.version("1.2.0")
 
 
 
