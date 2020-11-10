@@ -139,9 +139,9 @@ abline(h=0)
 # Who much does the fiber reduce the laser intensity?
 #
 intensity <- data.frame(W = data.elab[[1]]$X,
-                        PRE = data.elab[[1]]$Y1,
-                        POST = data.elab[[1]]$Y3 )
-intensity$LOSS <- intensity$POST/intensity$PRE
+                        PRE.I = data.elab[[1]]$Y1,
+                        POST.I = data.elab[[1]]$Y3 )
+intensity$LOSS.I <- intensity$POST.I/intensity$PRE.I
 
 plot( intensity$W, intensity$LOSS*100,
       xaxt = "n",
