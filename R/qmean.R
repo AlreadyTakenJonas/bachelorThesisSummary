@@ -22,5 +22,5 @@ qmean <- function(vector, intervalsize=0.95, intervalcenter=0.5) {
   # Calculate the quantiles for the area covering intervalsize part of the data centered at the median
   interval <- quantile(vector, intervalcenter+c(-intervalsize, +intervalsize)/2, names=F, na.rm=T) %>% sort(.)
   # Subset the data vector with the quantiles and compute the mean
-  vector[vector >= interval[1] & vector <= interval[2]] %>% mean(., rm.na=T) %>% return(.)
+  vector[vector >= interval[1] & vector <= interval[2]] %>% mean(., na.rm=T) %>% return(.)
 }
