@@ -14,13 +14,19 @@
 #' between 0 and 1.
 #' @param intervalcenter The center point of the interval specified by intervalsize. The default is the
 #' median at 0.5. It may take values between 0 and 1.
+#' @param na.rm Boolean value. Remove NA values from data vector before processing it?
+#' @param inf.rm Boolean value. Remove Inf values from data vector before processing it?
 #' @return The mean of the data without considering the outliner.
 #'  
 #' @importFrom magrittr %>%
 #' @export
-qmean <- function(vector, intervalsize=0.95, intervalcenter=0.5) {
+qmean <- function(vector, intervalsize=0.95, intervalcenter=0.5, na.rm=F, inf.rm=F) {
+  # Remove infinite values if necessary
+  if (inf.rm) vector <- vector[is.finite(vector)]
+  
   # Calculate the quantiles for the area covering intervalsize part of the data centered at the median
-  interval <- quantile(vector, intervalcenter+c(-intervalsize, +intervalsize)/2, names=F, na.rm=T) %>% sort(.)
+  interval <- quantile(vector, intervalcenter+c(-intervalsize, +intervalsize)/2, names=F, na.rm=na.rm) %>% sort(.)
+  
   # Subset the data vector with the quantiles and compute the mean
-  vector[vector >= interval[1] & vector <= interval[2]] %>% mean(., na.rm=T) %>% return(.)
+  vector[vector >= interval[1] & vector <= interval[2]] %>% mean(., na.rm=na.rm) %>% return(.)
 }

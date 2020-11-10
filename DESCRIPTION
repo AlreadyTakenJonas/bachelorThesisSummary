@@ -1,6 +1,6 @@
 Package: RHotStuff
 Title: Collection of frequently used functions
-Version: 1.2.1
+Version: 1.2.2
 Authors@R: 
     person(given = "Jonas",
            family = "Eichhorn",

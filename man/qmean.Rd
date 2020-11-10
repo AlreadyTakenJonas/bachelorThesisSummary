@@ -4,7 +4,7 @@
 \alias{qmean}
 \title{Compute The Mean Of Data Not Considering Outliners}
 \usage{
-qmean(vector, intervalsize = 0.95, intervalcenter = 0.5)
+qmean(vector, intervalsize = 0.95, intervalcenter = 0.5, na.rm = F, inf.rm = F)
 }
 \arguments{
 \item{vector}{Some vector with numbers.}
@@ -14,6 +14,10 @@ between 0 and 1.}
 
 \item{intervalcenter}{The center point of the interval specified by intervalsize. The default is the
 median at 0.5. It may take values between 0 and 1.}
+
+\item{na.rm}{Boolean value. Remove NA values from data vector before processing it?}
+
+\item{inf.rm}{Boolean value. Remove Inf values from data vector before processing it?}
 }
 \value{
 The mean of the data without considering the outliner.
