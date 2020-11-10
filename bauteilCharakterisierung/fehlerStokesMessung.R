@@ -63,5 +63,8 @@ intensity$LOSS.I <- intensity$POST.I/intensity$PRE.I
 #
 variables <- cbind.data.frame(stokes, mod.change.in.epsilon, change.in.polarisation, intensity[,-1])
 stats <- data.frame( var  = sapply(variables, var ),
-                     mean = sapply(variables, mean) 
+                     sd   = sapply(variables, sd  ),
+                     mean = sapply(variables, mean)
                    )
+
+# TODO: t-Test, Kruskal-Wallis-Test
