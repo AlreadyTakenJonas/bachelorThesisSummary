@@ -2,7 +2,7 @@ library(RHotStuff)
 library(magrittr)
 
 # Make sure the version of RHotStuff is compatible with the code
-check.version("1.2.2")
+check.version("1.3.0")
 
 
 
@@ -25,76 +25,11 @@ meta.elab <- GET.elabftw.bycaption(67, caption="Metadaten", header=T, outputHTTP
 
 
 #
-# CALCULATE STOKES VECTORS
+# CALCULATE STOKES VECTORS AND THEIR PROPERTIES
 #
 
-# Normalise data and compute stokes vectors for unmanipulated stokes vector of the laser
-getStokes.from.metaData <- function(meta.elab) {
-  # Extract tables from list
-  meta.laser     <- meta.elab[[1]]
-  meta.polariser <- meta.elab[[2]]
-  
-  # Normalise the data
-  # Not that great normalisation, because the maximal laser power (meta.laser[1,2]) 
-  # is only measured without the optical fiber
-  meta.polariser$Y2 <- as.numeric(as.character(meta.polariser$Y2)) / as.numeric(as.character(meta.laser[1,2]))
-  
-  # Compute stokes vectors
-  meta.stokes <- data.frame(S0 = meta.polariser[c(1,5),"Y2"]+meta.polariser[c(2,6),"Y2"],
-                            S1 = meta.polariser[c(1,5),"Y2"]-meta.polariser[c(2,6),"Y2"],
-                            S2 = meta.polariser[c(3,7),"Y2"]-meta.polariser[c(4,8),"Y2"]
-  )
-  meta.stokes <- list( PRE = data.frame(W = NA, 
-                                        S0 = meta.polariser[c(1),"Y2"]+meta.polariser[c(2),"Y2"],
-                                        S1 = meta.polariser[c(1),"Y2"]-meta.polariser[c(2),"Y2"],
-                                        S2 = meta.polariser[c(3),"Y2"]-meta.polariser[c(4),"Y2"],
-                                        I = NA),
-                       POST = data.frame(W = NA, 
-                                        S0 = meta.polariser[c(5),"Y2"]+meta.polariser[c(6),"Y2"],
-                                        S1 = meta.polariser[c(5),"Y2"]-meta.polariser[c(6),"Y2"],
-                                        S2 = meta.polariser[c(7),"Y2"]-meta.polariser[c(8),"Y2"],
-                                        I = NA) 
-                      )
-  # Return result
-  return(meta.stokes)
-}
-# Normalise data and compute stokes vectors for experimental data
-getStokes.from.expData <- function(data.elab) {
-  # Sort data.elab by position of the waveplate
-  data.elab <- lapply(data.elab, function(table) table[order(table$X),])
-  
-  # Normalise the data by the position of the waveplate
-  data <- lapply(data.elab, function(table) {
-    data.frame( W    = table$X,
-                PRE  = table$Y2/table$Y1,
-                POST = table$Y4/table$Y3 )
-  })
-  
-  # Compute the stokes vectors before and after the optical fiber
-  # ASSUMPTION: S3 = 0
-  # Make sure the stokes vectors were measured for the same positions of the wave plate
-  if( !all(data[[1]]$W == data[[2]]$W) | !all(data[[1]]$W == data[[3]]$W) | !all(data[[1]]$W == data[[4]]$W) ) {
-    stop("The wave plate positions don't match for all given tables.") 
-  } else {
-    # Calculate stokes vectors and the total laser intensity before and after the optical fiber
-    stokes <- list( PRE = data.frame( W = data[[1]]$W,
-                                      S0 = data[[1]]$PRE + data[[2]]$PRE,
-                                      S1 = data[[1]]$PRE - data[[2]]$PRE,
-                                      S2 = data[[3]]$PRE - data[[4]]$PRE,
-                                      I  = sapply(data.elab, function(table) table$Y1) %>% rowMeans ),
-                    POST = data.frame( W = data[[1]]$W,
-                                       S0 = data[[1]]$POST + data[[2]]$POST,
-                                       S1 = data[[1]]$POST - data[[2]]$POST,
-                                       S2 = data[[3]]$POST - data[[4]]$POST,
-                                       I  = sapply(data.elab, function(table) table$Y3) %>% rowMeans)
-                    )
-  }
-  
-  # Return the stokes vectors
-  return(stokes)
-}
-
 # Normalise stokes vector and compute polarisation ratio and such shit
+# ASSUMPTION: S3 = 0
 process.stokesVec <- function(stokes) {
   # Compute properties of stokes vectors and normalise -> polarisation ratio, ...
   stokes <- lapply(stokes, function(table) { 
@@ -135,11 +70,14 @@ process.stokesVec <- function(stokes) {
 }
 
 # Compute stokes vectors
-stokes      <- getStokes.from.expData(data.elab) %>% process.stokesVec
+stokes      <- getStokes.from.expData(data.elab)  %>% process.stokesVec
 meta.stokes <- getStokes.from.metaData(meta.elab) %>% process.stokesVec
 
 # TODO: CHECK POLARISATION RATIO <=1
 
+#
+# PLOT THAT SHIT
+#
 
 #
 # How does the polarisation ratio change?
