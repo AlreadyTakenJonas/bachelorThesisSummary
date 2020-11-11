@@ -47,22 +47,27 @@ getStokes.from.metaData <- function(meta.elab) {
   meta.stokes <- list( PRE = data.frame(W = NA, 
                                         S0 = meta.polariser[c(1),"Y2"]+meta.polariser[c(2),"Y2"],
                                         S1 = meta.polariser[c(1),"Y2"]-meta.polariser[c(2),"Y2"],
-                                        S2 = meta.polariser[c(3),"Y2"]-meta.polariser[c(4),"Y2"] ),
+                                        S2 = meta.polariser[c(3),"Y2"]-meta.polariser[c(4),"Y2"],
+                                        I = NA),
                        POST = data.frame(W = NA, 
                                         S0 = meta.polariser[c(5),"Y2"]+meta.polariser[c(6),"Y2"],
                                         S1 = meta.polariser[c(5),"Y2"]-meta.polariser[c(6),"Y2"],
-                                        S2 = meta.polariser[c(7),"Y2"]-meta.polariser[c(8),"Y2"] ) 
+                                        S2 = meta.polariser[c(7),"Y2"]-meta.polariser[c(8),"Y2"],
+                                        I = NA) 
                       )
   # Return result
   return(meta.stokes)
 }
 # Normalise data and compute stokes vectors for experimental data
 getStokes.from.expData <- function(data.elab) {
-  # Normalise and sort the data by the position of the waveplate
+  # Sort data.elab by position of the waveplate
+  data.elab <- lapply(data.elab, function(table) table[order(table$X),])
+  
+  # Normalise the data by the position of the waveplate
   data <- lapply(data.elab, function(table) {
     data.frame( W    = table$X,
                 PRE  = table$Y2/table$Y1,
-                POST = table$Y4/table$Y3 ) %>% .[order(.$W),]
+                POST = table$Y4/table$Y3 )
   })
   
   # Compute the stokes vectors before and after the optical fiber
@@ -71,25 +76,23 @@ getStokes.from.expData <- function(data.elab) {
   if( !all(data[[1]]$W == data[[2]]$W) | !all(data[[1]]$W == data[[3]]$W) | !all(data[[1]]$W == data[[4]]$W) ) {
     stop("The wave plate positions don't match for all given tables.") 
   } else {
-    # Calculate stokes vectors
+    # Calculate stokes vectors and the total laser intensity before and after the optical fiber
     stokes <- list( PRE = data.frame( W = data[[1]]$W,
                                       S0 = data[[1]]$PRE + data[[2]]$PRE,
                                       S1 = data[[1]]$PRE - data[[2]]$PRE,
-                                      S2 = data[[3]]$PRE - data[[4]]$PRE ),
+                                      S2 = data[[3]]$PRE - data[[4]]$PRE,
+                                      I  = sapply(data.elab, function(table) table$Y1) %>% rowMeans ),
                     POST = data.frame( W = data[[1]]$W,
                                        S0 = data[[1]]$POST + data[[2]]$POST,
                                        S1 = data[[1]]$POST - data[[2]]$POST,
-                                       S2 = data[[3]]$POST - data[[4]]$POST )
+                                       S2 = data[[3]]$POST - data[[4]]$POST,
+                                       I  = sapply(data.elab, function(table) table$Y3) %>% rowMeans)
                     )
   }
   
   # Return the stokes vectors
   return(stokes)
 }
-
-# Compute normalised stokes vectors
-stokes      <- getStokes.from.expData(data.elab)
-ssmeta.stokes <- getStokes.from.metaData(meta.elab)
 
 # Normalise stokes vector and compute polarisation ratio and such shit
 process.stokesVec <- function(stokes) {
@@ -102,87 +105,46 @@ process.stokesVec <- function(stokes) {
     table$polarisation <- sqrt(table$S1^2 + table$S2^2) / table$S0
     
     # Polar stokes angle
+    # !!! Keep in mind: This is bullshit, if the polarisation ratio is smaller than one!
     table$sigma <- better.acos(table$S0, table$S1, table$S2)
+    
+    # Polar electrical field coordinate
+    # !!! Keep in mind: This is bullshit, if the polarisation ratio is smaller than one!
     table$epsilon <- table$sigma / 2
     
     # Return result
     return(table)
   })
   
-  # Change in epsilon, change in polarisation, change in laser intensity -> new table in list for all the changes?
+  # CALCULATE CHANGE OF THE STOKES VECTORS PROPERTIES
+  # Change in epsilon, change in polarisation, change in laser intensity
+  stokes[["change"]]   <- data.frame("W"                      = stokes$PRE$W,
+                                     # How much gets the plane of polarisation rotated?
+                                     # Calculate the difference as smallest signed distance between two modular numbers
+                                     # !!! Keep in mind: This is bullshit, if the polarisation ratio is smaller than one!
+                                     "mod.change.in.epsilon"  = better.subtraction(stokes$POST$epsilon - stokes$PRE$epsilon, base=  pi),
+                                     "mod.change.in.sigma"    = better.subtraction(stokes$POST$sigma   - stokes$PRE$sigma  , base=2*pi),
+                                     # How much does the polarisation ratio change?
+                                     "change.in.polarisation" = stokes$POST$polarisation / stokes$PRE$polarisation - 1,
+                                     # How much does the intensity of the light change?
+                                     "change.in.intensity"    = stokes$POST$I / stokes$PRE$I
+                                    )
   
   return(stokes)
   
 }
 
-# Normalise stokes vectors
-#stokes[,c("PRE.S0","PRE.S1","PRE.S2")] <- stokes[,c("PRE.S0","PRE.S1","PRE.S2")]/stokes$PRE.S0
-#stokes[,c("POST.S0","POST.S1","POST.S2")] <- stokes[,c("POST.S0","POST.S1","POST.S2")]/stokes$POST.S0
-#meta.stokes <- meta.stokes/meta.stokes$S0
+# Compute stokes vectors
+stokes      <- getStokes.from.expData(data.elab) %>% process.stokesVec
+meta.stokes <- getStokes.from.metaData(meta.elab) %>% process.stokesVec
 
-# Compute polarisation ratio
-#stokes$PRE.polarisation <- sqrt(stokes$PRE.S1^2 + stokes$PRE.S2^2)/stokes$PRE.S0
-#stokes$POST.polarisation <- sqrt(stokes$POST.S1^2 + stokes$POST.S2^2)/stokes$POST.S0
-#meta.stokes$polarisation <- sqrt(meta.stokes$S1^2 + meta.stokes$S2^2)/meta.stokes$S0
+# TODO: CHECK POLARISATION RATIO <=1
 
-# Compute polar stokes parameter
-#stokes$PRE.sigma <- better.acos(stokes$PRE.S0, stokes$PRE.S1, stokes$PRE.S2)
-#stokes$POST.sigma <- better.acos(stokes$POST.S0, stokes$POST.S1, stokes$POST.S2)
-#meta.stokes$sigma <- better.acos(meta.stokes$S0, meta.stokes$S1, meta.stokes$S2)
 
-# How does the plane of polarisation change?
-mod.change.in.epsilon <- better.subtraction(stokes$POST.sigma - stokes$PRE.sigma)/2
-plot(stokes$W, mod.change.in.epsilon*180/pi,
-     xaxt = "n",
-     type = "h",
-     main = "Änderung der Polarisationsebene durch die PM-Faser",
-     sub  = "minimal modular distance method",
-     ylab = "Unterschied in der Polarisationsebene / °",
-     xlab = "Position der Wellenplatte / °")
-axis(1, at = stokes$W)
-abline(h=0)
-
-#simp.change.in.epsilon <- (stokes$POST.sigma - stokes$PRE.sigma)/2
-#plot(stokes$W, simp.change.in.epsilon*180/pi,
-#     xaxt = "n",
-#     type = "h",
-#     main = "Änderung der Polarisationsebene durch die PM-Faser",
-#     sub  = "simple subtraction method",
-#     ylab = "Unterschied in der Polarisationsebene / °",
-#     xlab = "Position der Wellenplatte / °")
-#axis(1, at = stokes$W)
-#abline(h=0)
-
-#plot(stokes$PRE.sigma*180/2/pi, simp.change.in.epsilon*180/pi,
-#     xaxt = "n",
-#     main = "Die Rotation der Polarisationsebene in Abängigkeit der initialen Polarisation",
-#     sub  = "simple subtraction method",
-#     xlab = expression("Orientierung der Polarisationsebene "*epsilon*" / °"),
-#     ylab = expression("Änderung des Winkels "*epsilon*" / °") )
-#axis(1, at = seq(from=0, to=180, by=10) )
-#abline(h=0)
-
-plot(stokes$PRE.sigma*180/2/pi, mod.change.in.epsilon*180/pi,
-     xaxt = "n",
-     main = "Die Rotation der Polarisationsebene in Abängigkeit der initialen Polarisation",
-     sub  = "minimal modular distance method",
-     xlab = expression("Orientierung der Polarisationsebene "~epsilon*" / °"),
-     ylab = expression("Änderung des Winkels "~epsilon*" / °") )
-axis(1, at = seq(from=0, to=180, by=5) )
-abline(h=0)
-
-# How is the polarisation plane initially oriented?
-plot(stokes$W, stokes$PRE.sigma*180/pi/2,
-     xaxt = "n",
-     type = "l",
-     main = "Orientierung der Polarisationsebene nach der Wellenplatte",
-     xlab = "Position der Wellenplatte / °",
-     ylab = expression("Orientierung der Polarisationsebene "~epsilon*" / °") )
-axis(1, at = stokes$W)
-
+#
 # How does the polarisation ratio change?
-change.in.polarisation <- stokes$POST.polarisation / stokes$PRE.polarisation - 1
-plot(stokes$W, change.in.polarisation*100,
+#
+plot(stokes$change$W, stokes$change$change.in.polarisation*100,
      xaxt = 'n',
      type = "h",
      main = "Änderung des Polarisationsgrades durch die PM-Faser",
@@ -193,15 +155,11 @@ abline(h=0)
 #
 # Who much does the fiber reduce the laser intensity?
 #
-intensity <- data.frame(W = data.elab[[1]]$X,
-                        PRE.I = data.elab[[1]]$Y1,
-                        POST.I = data.elab[[1]]$Y3 )
-intensity$LOSS.I <- intensity$POST.I/intensity$PRE.I
-
-plot( intensity$W, intensity$LOSS*100,
+plot( stokes$change$W, stokes$change$change.in.intensity*100,
       xaxt = "n",
       type = "h", 
       main = "Absorptionsverhalten der PM-Faser", 
       xlab = "Position Wellenplatte / °", 
       ylab = "Anteil des Lasers, der die Faser passiert / %")
-axis(1, at = intensity$W)
+axis(1, at = stokes$change$W)
+
