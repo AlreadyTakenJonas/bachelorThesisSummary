@@ -6,28 +6,34 @@ check.version("1.3.0")
 
 
 
-# Get data from elab
+# Get experimental data from elab
 data.elab.main <- GET.elabftw.bycaption(58, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
                                                                     func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                                                                     header=T, skip=14, sep=";")
 data.elab.nachtrag <- GET.elabftw.bycaption(67, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
                                                                                                func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                                                                                                header=T, skip=14, sep=";")
+# Combine the data of two different iterations of the experiment
 data.elab <- lapply(seq_along(data.elab.main), function(index) {
   table1 <- data.elab.main[[index]]
   table2 <- data.elab.nachtrag[[index]]
   return( rbind.data.frame(table1, table2) )
 })
 
+# Fetch the meta data of the experiment
 meta.elab <- GET.elabftw.bycaption(67, caption="Metadaten", header=T, outputHTTP=T) %>% parseTable.elabftw(.,
                         func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                         header=T, skip=14, sep=";")
+
+# Get the measurements for the error estimation
+error.elab <- GET.elabftw.bycaption(66, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
+                                                                           func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
+                                                                           header=T, skip=14, sep=";")
 
 
 #
 # CALCULATE STOKES VECTORS AND THEIR PROPERTIES
 #
-
 # Normalise stokes vector and compute polarisation ratio and such shit
 # ASSUMPTION: S3 = 0
 process.stokesVec <- function(stokes) {
@@ -68,20 +74,36 @@ process.stokesVec <- function(stokes) {
   return(stokes)
   
 }
-
 # Compute stokes vectors
-stokes      <- getStokes.from.expData(data.elab)  %>% process.stokesVec
-meta.stokes <- getStokes.from.metaData(meta.elab) %>% process.stokesVec
+data.stokes  <- getStokes.from.expData(data.elab)  %>% process.stokesVec
+meta.stokes  <- getStokes.from.metaData(meta.elab) %>% process.stokesVec
+error.stokes <- getStokes.from.expData(error.elab) %>% process.stokesVec
 
 # TODO: CHECK POLARISATION RATIO <=1
 
 #
-# PLOT THAT SHIT
+# DO THE STATISTICS
 #
+# error.stokes contains the data for several identical measurements
+# following function will therefore compute statistical properties 
+# like sd or mean for every column of the tables
+# !!! Keep in mind: The statistics for the angles sigma and epsilon are not done with modular functions
+#                   The modular numbers sigma and epsilon will therefore have the wrong mean, variance, sd, ...
+#                   In this case only the modular calculated difference can be trusted.
+error.stats <- lapply(error.stokes, function(table) {
+  stats.table <- data.frame( var  = sapply(table, var ),
+                             sd   = sapply(table, sd  ),
+                             mean = sapply(table, mean)
+                            )
+  return(stats.table)
+})
+
+# TODO: t-Test, Kruskal-Wallis-Test
 
 #
-# How does the polarisation ratio change?
+# PLOT THAT SHIT
 #
+# How does the polarisation ratio change?
 plot(stokes$change$W, stokes$change$change.in.polarisation*100,
      xaxt = 'n',
      type = "h",
@@ -90,9 +112,8 @@ plot(stokes$change$W, stokes$change$change.in.polarisation*100,
      ylab = "realtive Änderung des Polarisationsgrades / %")
 axis(1, at = stokes$W)
 abline(h=0)
-#
+
 # Who much does the fiber reduce the laser intensity?
-#
 plot( stokes$change$W, stokes$change$change.in.intensity*100,
       xaxt = "n",
       type = "h", 
