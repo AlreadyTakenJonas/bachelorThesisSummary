@@ -14,9 +14,9 @@
 #' template is used, the data can be downloaded like shown in the examples.
 #' @examples
 #' # Read data from elabFTW
-#' input.data <- GET.elabftw.bycaption(EXPID, caption="Metadaten", header=T)
+#' input.data <- GET.elabftw.bycaption(EXPID, caption="Metadaten")
 #' # Read data from elabFTW and read the attached .csv files
-#' input.data <- GET.elabftw.bycaption(EXPID, caption="Metadaten", header=T, outputHTTP=T) 
+#' input.data <- GET.elabftw.bycaption(EXPID, caption="Metadaten", outputHTTP=T) 
 #'                %>% parseTable.elabftw(., func=function(x) qmean(x[,4], 
 #'                                                                 0.8, 
 #'                                                                 na.rm=T, 
