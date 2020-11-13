@@ -67,7 +67,7 @@ parseTable.elabftw <- function(parseableTables,
     
     # Create a progress bar
     progress <- progress::progress_bar$new(total = unlist(table) %>% length, 
-                                           format = paste0("Table ", index, "/", length(tables), " [:bar] :eta remaining.") )
+                                           format = paste0("ExpID ", metadata$id, " (Table ", index, "/", length(tables), ") [:bar] :eta remaining.") )
     # Loop over every item of the data frame
     table <- apply( table, c(1,2), function(element) {
       # Check if the current element of the table is listed in the look-up table 'filetable'
