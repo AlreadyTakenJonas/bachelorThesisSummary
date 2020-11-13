@@ -18,3 +18,5 @@ and the package is installed. You will need to install the appropriate version o
 + parseTable.elabftw() : Combines data frames created by GET.elabftw.byselector and GET.elabftw.bycaption and files attached to a protocol in the online labbook eLabFTW. The file paths written in the data frames will be replaced by a single value derived from the content of the files (e.g. the mean or a sum).
 + qmean() : Combines the quantile and the mean function to allow the computation of a mean without considering outliners.
 + better.subtraction() : Computes the signed distance between two modular numbers.
++ check.version() : Checks if the running R script is compatible with the used version of this library. This library does change a lot in a short period of time.
++ check.attachment.elabftw() : Checks the attachment of an entry in the online labbook eLabFTW for missing, misspelled and duplicate files.
