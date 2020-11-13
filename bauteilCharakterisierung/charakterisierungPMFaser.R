@@ -2,26 +2,20 @@ library(RHotStuff)
 library(magrittr)
 
 # Make sure the version of RHotStuff is compatible with the code
-check.version("1.3.0")
+check.version("1.4.0")
 
 
 
 # Get experimental data from elab
-data.elab.main <- GET.elabftw.bycaption(58, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
-                                                                    func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
-                                                                    header=T, skip=14, sep=";")
-data.elab.nachtrag <- GET.elabftw.bycaption(67, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
-                                                                                               func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
-                                                                                               header=T, skip=14, sep=";")
-# Combine the data of two different iterations of the experiment
-data.elab <- lapply(seq_along(data.elab.main), function(index) {
-  table1 <- data.elab.main[[index]]
-  table2 <- data.elab.nachtrag[[index]]
-  return( rbind.data.frame(table1, table2) )
-})
+# The experimental data will be combined from three different experiments
+data.elab <- lapply(c(58, 67, 68), function(experimentID) {
+  GET.elabftw.bycaption(experimentID, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
+                                                                           func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
+                                                                           header=T, skip=14, sep=";")
+}) %>% better.rbind(., sort.byrow=1)
 
-# Fetch the meta data of the experiment
-meta.elab <- GET.elabftw.bycaption(67, caption="Metadaten", header=T, outputHTTP=T) %>% parseTable.elabftw(.,
+# Fetch the meta data of one of the experiments
+meta.67.elab <- GET.elabftw.bycaption(67, caption="Metadaten", header=T, outputHTTP=T) %>% parseTable.elabftw(.,
                         func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                         header=T, skip=14, sep=";")
 
@@ -76,9 +70,9 @@ process.stokesVec <- function(stokes) {
   
 }
 # Compute stokes vectors
-data.stokes  <- getStokes.from.expData(data.elab)  %>% process.stokesVec
-meta.stokes  <- getStokes.from.metaData(meta.elab) %>% process.stokesVec
-error.stokes <- getStokes.from.expData(error.elab) %>% process.stokesVec
+data.stokes    <- getStokes.from.expData(data.elab)     %>% process.stokesVec
+meta.67.stokes <- getStokes.from.metaData(meta.67.elab) %>% process.stokesVec
+error.stokes   <- getStokes.from.expData(error.elab)    %>% process.stokesVec
 
 # TODO: CHECK POLARISATION RATIO <=1
 
