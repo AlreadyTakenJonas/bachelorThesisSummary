@@ -11,12 +11,14 @@ and the package is installed. You will need to install the appropriate version o
 
 ## Available Functions
 
-+ better.acos() : The inverse function of cosine. Returns values between 0 and 2pi instead of 0 and pi.
-+ polaram.as.spectrum() : Computes the spectrum of a sample from the simulation output of `polaram simulate`. See the Repo of [PolaRam](https://github.com/AlreadyTakenJonas/PolaRam) for details. The frequencies of the peaks must be given, because PolaRam does not know them.
-+ GET.elabftw.byselector() : Scraps html tables from the online labbook eLabFTW using its API. Tables are selected by css or XPath selectors.
-+ GET.elabftw.bycaption() : Scraps html tables from the online labbook eLabFTW using its API. Tables are selected by caption strings placed in the first cell of the first row of the tables.
-+ parseTable.elabftw() : Combines data frames created by GET.elabftw.byselector and GET.elabftw.bycaption and files attached to a protocol in the online labbook eLabFTW. The file paths written in the data frames will be replaced by a single value derived from the content of the files (e.g. the mean or a sum).
-+ qmean() : Combines the quantile and the mean function to allow the computation of a mean without considering outliners.
-+ better.subtraction() : Computes the signed distance between two modular numbers.
-+ check.version() : Checks if the running R script is compatible with the used version of this library. This library does change a lot in a short period of time.
-+ check.attachment.elabftw() : Checks the attachment of an entry in the online labbook eLabFTW for missing, misspelled and duplicate files.
+Function                  | Description
+:------------------------:|-------------------------------------------------------------------------------------
+better.acos               | The inverse function of cosine. Returns values between 0 and 2pi instead of 0 and pi.
+polaram.as.spectrum       | Computes the spectrum of a sample from the simulation output of `polaram simulate`. See the Repo of [PolaRam](https://github.com/AlreadyTakenJonas/PolaRam) for details. The frequencies of the peaks must be given, because PolaRam does not know them.
+GET.elabftw.byselector    | Scraps html tables from the online labbook eLabFTW using its API. Tables are selected by css or XPath selectors.
+GET.elabftw.bycaption     | Scraps html tables from the online labbook eLabFTW using its API. Tables are selected by caption strings placed in the first cell of the first row of the tables.
+parseTable.elabftw        | Combines data frames created by GET.elabftw.byselector and GET.elabftw.bycaption and files attached to a protocol in the online labbook eLabFTW. The file paths written in the data frames will be replaced by a single value derived from the content of the files (e.g. the mean or a sum).
+qmean                     | Combines the quantile and the mean function to allow the computation of a mean without considering outliners.
+better.subtraction        | Computes the signed distance between two modular numbers.
+check.version             | Checks if the running R script is compatible with the used version of this library. This library does change a lot in a short period of time.
+check.attachment.elabftw  | Checks the attachment of an entry in the online labbook eLabFTW for missing, misspelled and duplicate files.
