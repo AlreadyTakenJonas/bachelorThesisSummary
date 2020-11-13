@@ -99,21 +99,21 @@ error.stats <- lapply(error.stokes, function(table) {
 # PLOT THAT SHIT
 #
 # How does the polarisation ratio change?
-plot(stokes$change$W, stokes$change$change.in.polarisation*100,
+plot(data.stokes$change$W, data.stokes$change$change.in.polarisation*100,
      xaxt = 'n',
      type = "h",
      main = "Änderung des Polarisationsgrades durch die PM-Faser",
      xlab = "Position Wellenplatte / °",
      ylab = "realtive Änderung des Polarisationsgrades / %")
-axis(1, at = stokes$W)
+axis(1, at = data.stokes$PRE$W)
 abline(h=0)
 
 # Who much does the fiber reduce the laser intensity?
-plot( stokes$change$W, stokes$change$change.in.intensity*100,
+plot( data.stokes$change$W, data.stokes$change$change.in.intensity*100,
       xaxt = "n",
       type = "h", 
       main = "Absorptionsverhalten der PM-Faser", 
       xlab = "Position Wellenplatte / °", 
       ylab = "Anteil des Lasers, der die Faser passiert / %")
-axis(1, at = stokes$change$W)
+axis(1, at = data.stokes$change$W)
 
