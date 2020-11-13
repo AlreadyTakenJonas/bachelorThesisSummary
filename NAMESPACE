@@ -3,6 +3,7 @@
 export(GET.elabftw.bycaption)
 export(GET.elabftw.byselector)
 export(better.acos)
+export(better.rbind)
 export(better.subtraction)
 export(check.attachment.elabftw)
 export(check.version)

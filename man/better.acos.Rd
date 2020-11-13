@@ -21,7 +21,7 @@ Angle between the x-axis and the hypotenuse of an arbitrary triangle
 \description{
 This function is a wrapper around the standard acos function, which returns the corresponding angle between 0 and pi for any
 output of the cosine function. This wrapper is able to return an angle between 0 and 2pi by looking at the sides of a right
-angled triangle. The triangle angle this function returns is placed at the origin of a cartesian coordinate system and spans
+angled triangle. The angle this function returns is placed at the origin of a cartesian coordinate system and spans
 between the hypotenuse and the adjacent side. The sign of the opposite side enables this function to return angles between 0
 and 2pi.
 }
