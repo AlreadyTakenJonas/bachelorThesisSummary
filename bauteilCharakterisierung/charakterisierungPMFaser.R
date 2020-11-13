@@ -46,16 +46,17 @@ process.stokesVec <- function(stokes) {
     table$polarisation <- sqrt(table$S1^2 + table$S2^2) / table$S0
     
     # Polar stokes angle
-    # !!! Keep in mind: This is bullshit, if the polarisation ratio is smaller than one!
-    table$sigma <- better.acos(table$S0, table$S1, table$S2)
+    table$sigma <- better.acos( table$polarisation*table$S0, table$S1, table$S2)
     
     # Polar electrical field coordinate
-    # !!! Keep in mind: This is bullshit, if the polarisation ratio is smaller than one!
+    # !!! Keep in mind: This may be bullshit, if the polarisation ratio is smaller than one!
+    # I'm to 90% sure that this conversion is also valid for partially polarised light
     table$epsilon <- table$sigma / 2
     
     # Return result
     return(table)
   })
+  print(stokes)
   
   # CALCULATE CHANGE OF THE STOKES VECTORS PROPERTIES
   # Change in epsilon, change in polarisation, change in laser intensity
