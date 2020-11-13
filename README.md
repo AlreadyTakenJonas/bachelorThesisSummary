@@ -22,3 +22,6 @@ qmean                     | Combines the quantile and the mean function to allow
 better.subtraction        | Computes the signed distance between two modular numbers.
 check.version             | Checks if the running R script is compatible with the used version of this library. This library does change a lot in a short period of time.
 check.attachment.elabftw  | Checks the attachment of an entry in the online labbook eLabFTW for missing, misspelled and duplicate files.
+getStokes.from.expData    | Preprocessing function for experiments that measure the Stokes vector of lasers before and after travelling trough an optical fiber. This function calculates the first three Stokes parameters for all measurements from GET.elabftw's or parseTable.elabftw's output. The return values of getStokes.from.metaData and getStokes.from.expData have the same format.
+getStokes.from.metaData   | Preprocessing function for experiments that measure the Stokes vector of lasers before and after travelling trough an optical fiber. This function calculates the first three Stokes parameters for the meta data of the experiment from GET.elabftw's or parseTable.elabftw's output. The return values of getStokes.from.metaData and getStokes.from.expData have the same format.
+
