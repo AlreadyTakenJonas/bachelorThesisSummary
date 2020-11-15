@@ -110,12 +110,12 @@ library(ggplot2)
 #abline(h=0)
 # How does the polarisation ratio change relative to the initial polarisation ratio?
 ggplot(data    = data.stokes$change,
-       mapping = aes(x = W, y = change.in.polarisation*100) ) +
+       mapping = aes(x = as.factor(W), y = change.in.polarisation*100) ) +
   geom_bar(stat="identity") +
-  scale_x_continuous(breaks = data.stokes$change$W,
-                     expand = c(0.01,0)) +
+  #scale_x_continuous(breaks = data.stokes$change$W,
+   #                  expand = c(0.01,0)) +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+  theme(#axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text = element_text(size=12),
         panel.grid.major.y = element_line("black", size = 0.1),
         panel.grid.minor.y = element_line("grey", size = 0.5) ) +
@@ -127,15 +127,12 @@ ggplot(data = data.frame(W = c(data.stokes$POST$W, data.stokes$PRE$W),
                          polarisation = c(data.stokes$POST$polarisation, data.stokes$PRE$polarisation),
                          group = c( rep("B_POST", length(data.stokes$POST$W)), rep("A_PRE", length(data.stokes$PRE$W)) )
                         ),
-       mapping=aes(x=W, y=polarisation*100, fill=group)) +
+       mapping=aes(x=as.factor(W), y=polarisation*100, fill=group)) +
   geom_bar(stat="identity", position = "dodge") +
   theme_classic() +
-  scale_x_continuous(breaks = data.stokes$change$W,
-                     expand = c(0.01,0)) +
   scale_y_continuous(breaks = seq(from=0, to=110, by=10),
                      expand=c(0,0)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-        axis.text = element_text(size=12),
+  theme(axis.text = element_text(size=12),
         panel.grid.major.y = element_line("black", size = 0.1),
         panel.grid.minor.y = element_line("grey", size = 0.5) ) +
   labs(title = expression(bold("The Effect Of An Optical PM-Fiber On The Polarisation Ratio "*Pi)),
@@ -154,13 +151,10 @@ ggplot(data = data.frame(W = c(data.stokes$POST$W, data.stokes$PRE$W),
 #axis(1, at = data.stokes$change$W)
 # How much does the fiber reduce the laser intensity?
 ggplot( data    = data.stokes$change, 
-        mapping = aes(x = W, y = change.in.intensity*100) ) +
+        mapping = aes(x = as.factor(W), y = change.in.intensity*100) ) +
   geom_bar(stat="identity") +
-  scale_x_continuous(breaks = data.stokes$change$W,
-                     expand = c(0.01,0) ) +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-        axis.text = element_text(size=12),
+  theme(axis.text = element_text(size=12),
         panel.grid.major.y = element_line("black", size = 0.1),
         panel.grid.minor.y = element_line("grey", size = 0.5) ) +
   labs(title = expression(bold("The Transmittance Of An Optical PM-Fiber")),
@@ -171,15 +165,12 @@ ggplot(data = data.frame(W = c(data.stokes$POST$W, data.stokes$PRE$W),
                          intensity = c(data.stokes$POST$I, data.stokes$PRE$I),
                          group = c( rep("B_POST", length(data.stokes$POST$W)), rep("A_PRE", length(data.stokes$PRE$W)) )
                         ),
-       mapping=aes(x=W, y=intensity*100, fill=group)) +
+       mapping=aes(x=as.factor(W), y=intensity*100, fill=group)) +
   geom_bar(stat="identity", position = "dodge") +
   theme_classic() +
-  scale_x_continuous(breaks = data.stokes$change$W,
-                     expand = c(0.01,0)) +
   scale_y_continuous(breaks = seq(from=0, to=1, by=0.1),
                      expand=c(0,0)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-        axis.text = element_text(size=12),
+  theme(axis.text = element_text(size=12),
         panel.grid.major.y = element_line("black", size = 0.1),
         panel.grid.minor.y = element_line("grey", size = 0.5) ) +
   labs(title = expression(bold("The Effect Of An Optical PM-Fiber On The Lasers Power "*P)),
