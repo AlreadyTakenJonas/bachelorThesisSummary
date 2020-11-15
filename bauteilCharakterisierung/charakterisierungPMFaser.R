@@ -50,7 +50,6 @@ process.stokesVec <- function(stokes) {
     # Return result
     return(table)
   })
-  print(stokes)
   
   # CALCULATE CHANGE OF THE STOKES VECTORS PROPERTIES
   # Change in epsilon, change in polarisation, change in laser intensity
