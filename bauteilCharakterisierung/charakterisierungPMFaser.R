@@ -98,22 +98,93 @@ error.stats <- lapply(error.stokes, function(table) {
 #
 # PLOT THAT SHIT
 #
+library(ggplot2)
+
 # How does the polarisation ratio change?
-plot(data.stokes$change$W, data.stokes$change$change.in.polarisation*100,
-     xaxt = 'n',
-     type = "h",
-     main = "Änderung des Polarisationsgrades durch die PM-Faser",
-     xlab = "Position Wellenplatte / °",
-     ylab = "realtive Änderung des Polarisationsgrades / %")
-axis(1, at = data.stokes$PRE$W)
-abline(h=0)
+#plot(data.stokes$change$W, data.stokes$change$change.in.polarisation*100,
+#     xaxt = 'n',
+#     type = "h",
+#     main = "Änderung des Polarisationsgrades durch die PM-Faser",
+#     xlab = "Position Wellenplatte / °",
+#     ylab = "realtive Änderung des Polarisationsgrades / %")
+#axis(1, at = data.stokes$PRE$W)
+#abline(h=0)
+# How does the polarisation ratio change relative to the initial polarisation ratio?
+ggplot(data    = data.stokes$change,
+       mapping = aes(x = W, y = change.in.polarisation*100) ) +
+  geom_bar(stat="identity") +
+  scale_x_continuous(breaks = data.stokes$change$W,
+                     expand = c(0.01,0)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text = element_text(size=12),
+        panel.grid.major.y = element_line("black", size = 0.1),
+        panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+  labs(title = expression(bold("The Depolarising Behaviour Of An Optical PM-Fiber")),
+       x = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+       y = expression(bold("the relative change in the ratio of polarisation "*Delta*Pi*" / %")) )
+# Comparing polarisation ratios before and after interacting with the fiber
+ggplot(data = data.frame(W = c(data.stokes$POST$W, data.stokes$PRE$W),
+                         polarisation = c(data.stokes$POST$polarisation, data.stokes$PRE$polarisation),
+                         group = c( rep("B_POST", length(data.stokes$POST$W)), rep("A_PRE", length(data.stokes$PRE$W)) )
+                        ),
+       mapping=aes(x=W, y=polarisation*100, fill=group)) +
+  geom_bar(stat="identity", position = "dodge") +
+  theme_classic() +
+  scale_x_continuous(breaks = data.stokes$change$W,
+                     expand = c(0.01,0)) +
+  scale_y_continuous(breaks = seq(from=0, to=110, by=10),
+                     expand=c(0,0)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text = element_text(size=12),
+        panel.grid.major.y = element_line("black", size = 0.1),
+        panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+  labs(title = expression(bold("The Effect Of An Optical PM-Fiber On The Polarisation Ratio "*Pi)),
+       x     = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+       y     = expression(bold("the polarisation ratio "*Pi*" / %")),
+       fill  = "" ) +
+  scale_fill_discrete( labels=c( expression(bold("before")), expression(bold("after")) ) )
 
-# Who much does the fiber reduce the laser intensity?
-plot( data.stokes$change$W, data.stokes$change$change.in.intensity*100,
-      xaxt = "n",
-      type = "h", 
-      main = "Absorptionsverhalten der PM-Faser", 
-      xlab = "Position Wellenplatte / °", 
-      ylab = "Anteil des Lasers, der die Faser passiert / %")
-axis(1, at = data.stokes$change$W)
-
+# How much does the fiber reduce the laser intensity?
+#plot( data.stokes$change$W, data.stokes$change$change.in.intensity*100,
+#      xaxt = "n",
+#      type = "h", 
+#      main = "Absorptionsverhalten der PM-Faser", 
+#      xlab = "Position Wellenplatte / °", 
+#      ylab = "Anteil des Lasers, der die Faser passiert / %")
+#axis(1, at = data.stokes$change$W)
+# How much does the fiber reduce the laser intensity?
+ggplot( data    = data.stokes$change, 
+        mapping = aes(x = W, y = change.in.intensity*100) ) +
+  geom_bar(stat="identity") +
+  scale_x_continuous(breaks = data.stokes$change$W,
+                     expand = c(0.01,0) ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text = element_text(size=12),
+        panel.grid.major.y = element_line("black", size = 0.1),
+        panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+  labs(title = expression(bold("The Transmittance Of An Optical PM-Fiber")),
+       x = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+       y = expression(bold("the transmitted part of the laser P"[trans]*" / %")) )
+# Comparing laser power before and after interacting with the fiber
+ggplot(data = data.frame(W = c(data.stokes$POST$W, data.stokes$PRE$W),
+                         intensity = c(data.stokes$POST$I, data.stokes$PRE$I),
+                         group = c( rep("B_POST", length(data.stokes$POST$W)), rep("A_PRE", length(data.stokes$PRE$W)) )
+                        ),
+       mapping=aes(x=W, y=intensity*100, fill=group)) +
+  geom_bar(stat="identity", position = "dodge") +
+  theme_classic() +
+  scale_x_continuous(breaks = data.stokes$change$W,
+                     expand = c(0.01,0)) +
+  scale_y_continuous(breaks = seq(from=0, to=1, by=0.1),
+                     expand=c(0,0)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text = element_text(size=12),
+        panel.grid.major.y = element_line("black", size = 0.1),
+        panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+  labs(title = expression(bold("The Effect Of An Optical PM-Fiber On The Lasers Power "*P)),
+       x     = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+       y     = expression(bold("the normalised laser power "*P*" / %")),
+       fill  = "" ) +
+  scale_fill_discrete( labels=c( expression(bold("before")), expression(bold("after")) ) )
