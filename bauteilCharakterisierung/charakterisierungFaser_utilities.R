@@ -1,5 +1,6 @@
 library(RHotStuff)
 library(magrittr)
+library(ggplot2)
 
 # Make sure the version of RHotStuff is compatible with the code
 check.version("1.4.0")
@@ -68,4 +69,112 @@ do.statistics <- function(error.stokes) {
   
   
   # TODO: t-Test, Kruskal-Wallis-Test
+}
+
+#
+#   PLOT THAT SHIT
+#
+# How does the POLARSATION RATIO change RELATIVE to the initial polarisation ratio?
+plot.polarisation.change <- function(data, 
+                                     title = expression(bold("The Depolarising Behaviour Of <YOUR OPTICAL FIBER>"))
+                                     ) {
+  # EXPECTED PARAMETERS:
+  # data : processedStokesExperiments (output of process.stokesVec)
+  # title : expression(bold("The Depolarising Behaviour Of <YOUR OPTICAL FIBER>"))
+  
+  # Create the plot
+  ggplot(data    = data$change,
+         mapping = aes(x = as.factor(W), y = change.in.polarisation*100) ) +
+    geom_bar(stat="identity") +
+    theme_classic() +
+    theme( axis.text = element_text(size=12),
+           panel.grid.major.y = element_line("black", size = 0.1),
+           panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+    labs(title = title,
+         x = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+         y = expression(bold("the relative change in the ratio of polarisation "*Delta*Pi*" / %")) )
+  
+}
+
+# COMPARING POLARISATION RATIOS before and after interacting with the fiber
+plot.polarisation <- function(data,
+                              statistics,
+                              title = expression(bold("The Effect Of An <YOUR OPTICAL FIBER> On The Polarisation Ratio "*Pi)) 
+                              ) {
+  # PARAMETERS
+  # data : processedStokesExperiments (output of process.stokesVec)
+  # statistics : processsedErrorMeasurementExperiment (output of process.stokesVec)
+  # title : expression(bold("The Effect Of An <YOUR OPTICAL FIBER> On The Polarisation Ratio "*Pi))
+  
+  ggplot(data = data.frame(W = c(data$POST$W, data$PRE$W),
+                           polarisation = c(data$POST$polarisation, data$PRE$polarisation),
+                           group = c( rep("B_POST", length(data$POST$W)), rep("A_PRE", length(data$PRE$W)) )
+                          ),
+        mapping=aes(x=as.factor(W), y=polarisation*100, fill=group)) +
+    geom_bar(stat="identity", position = "dodge") +
+    theme_classic() +
+    scale_y_continuous(breaks = seq(from=0, to=110, by=10),
+                       expand=c(0,0)) +
+    theme(axis.text = element_text(size=12),
+          panel.grid.major.y = element_line("black", size = 0.1),
+          panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+    labs(title = title,
+         x     = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+         y     = expression(bold("the polarisation ratio "*Pi*" / %")),
+         fill  = "" ) +
+    scale_fill_discrete( labels=c( expression(bold("before")), expression(bold("after")) ) ) +
+    geom_errorbar(data=data.frame(W     = c(data$PRE$W, data$POST$W) %>% as.factor, 
+                                  upper = c(data$PRE$polarisation+statistics$POST["polarisation","sd"]*3, data$POST$polarisation+statistics$POST["polarisation","sd"]*3)*100,
+                                  lower = c(data$PRE$polarisation-statistics$POST["polarisation","sd"]*3, data$POST$polarisation-statistics$POST["polarisation","sd"]*3)*100,
+                                  group = c( rep("A_PRE", length(data$POST$W)), rep("B_POST", length(data$PRE$W)) ),
+                                  polarisation = c(data$PRE$polarisation, data$POST$polarisation) ),
+                  mapping = aes(x=W, ymin = lower, ymax=upper, group=group),
+                  position = "dodge"
+    ) 
+}
+
+# CHANGE in LASER POWER due to optical fiber
+plot.intensity.change <- function(data, 
+                                  title = expression(bold("The Transmittance Of <YOUR OPTICAL FIBER>"))
+                                  ) {
+  # EXPECTED PARAMETERS:
+  # data : processedStokesExperiments (output of process.stokesVec)
+  # title : expression(bold("The Depolarising Behaviour Of <YOUR OPTICAL FIBER>"))
+  
+  ggplot( data    = data$change, 
+          mapping = aes(x = as.factor(W), y = change.in.intensity*100) ) +
+    geom_bar(stat="identity") +
+    theme_classic() +
+    theme(axis.text = element_text(size=12),
+          panel.grid.major.y = element_line("black", size = 0.1),
+          panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+    labs(title = title,
+         x = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+         y = expression(bold("the transmitted part of the laser P"[trans]*" / %")) )
+}
+
+
+# COMPARING LASER POWER before and after interacting with the fiber
+plot.intensity <- function(data, 
+                           title = expression(bold("The Effect Of <YOUR OPTICAL FIBER> On The Lasers Power "*P))
+                          ) {
+  # EXPECTED PARAMETERS:
+  # data : processedStokesExperiments (output of process.stokesVec)
+  # title : expression(bold("The Depolarising Behaviour Of <YOUR OPTICAL FIBER>"))
+  
+  ggplot(data = data.frame(W = c(data$POST$W, data$PRE$W),
+                           intensity = c(data$POST$I, data$PRE$I) /  data$PRE$I,
+                           group = c( rep("B_POST", length(data$POST$W)), rep("A_PRE", length(data$PRE$W)) )
+                          ),
+         mapping=aes(x=as.factor(W), y=intensity*100, fill=group)) +
+    geom_bar(stat="identity", position = "dodge") +
+    theme_classic() +
+    theme(axis.text = element_text(size=12),
+          panel.grid.major.y = element_line("black", size = 0.1),
+          panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+    labs(title = title,
+         x     = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
+         y     = expression(bold("the normalised laser power "*P*" / %")),
+         fill  = "" ) +
+    scale_fill_discrete( labels=c( expression(bold("before")), expression(bold("after")) ) )  
 }
