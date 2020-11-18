@@ -178,3 +178,28 @@ plot.intensity <- function(data,
          fill  = "" ) +
     scale_fill_discrete( labels=c( expression(bold("before")), expression(bold("after")) ) )  
 }
+
+
+# How does the fiber influence the PLANE OF POLARISATIONS ORIENTATION?
+plot.plane.rotation <- function(data, 
+                                title = expression(bold("The Impact Of The <YOUR FIBER> On The Orientation Of The Plane Of Polarisation")) 
+) {
+  # EXPECTED PARAMETERS:
+  # data : elabFTW table of angle dependent rotation behavior of optical fibers
+  # title : expression(bold("The Impact Of The <YOUR FIBER> On The Orientation Of The Plane Of Polarisation"))
+  
+  ggplot( data = data[!is.na(data$X),] ) +
+    geom_abline( mapping = aes(intercept = 0, slope = 2, color="ideal waveplate") ) +
+    geom_abline( mapping = aes(intercept = 0, slope = -2, color="ideal waveplate") ) +
+    geom_point( mapping = aes(x = X, y = Y1-Y1[X==0], color = "after") ) +
+    geom_point( mapping = aes(x = X, y = Y2-Y2[X==0], color = "before") ) +
+    theme_classic() +
+    theme(panel.grid.major = element_line("black", size=0.1),
+          panel.grid.minor = element_line("grey", size=0.1) ) +
+    scale_x_continuous(breaks = seq(from=-20, to=300, by=20) ) +
+    scale_y_continuous(breaks = seq(from=-360, to=360, by=90) ) +
+    labs(title = expression(bold("The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation")),
+         x = expression(bold("rotation waveplate / °")),
+         y = expression(bold("rotation linear polariser / °")),
+         color = "" )
+}

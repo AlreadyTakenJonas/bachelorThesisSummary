@@ -20,6 +20,8 @@ F2.data.elab <- lapply(c(69, 70), function(experimentID) {
                                                                    func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                                                                    header=T, skip=14, sep=";")
 }) %>% better.rbind(., sort.byrow=1)
+# Fiber2 (Single-Mode-Fiber)
+F2.rotation.elab <- GET.elabftw.bycaption(72, header=T)[[1]]
 
 
 # Fetch the meta data of one of the experiments
@@ -108,18 +110,8 @@ plot.intensity(data  = F2.data.stokes,
                title = expression(bold("The Effect Of An Optical SM-Fiber (F2) On The Lasers Power "*P))
 )
 
-
-
-#
-# Wie dreht die Faser die Polarisationsebene?
-#
 # Fiber2 (SM-Fiber)
-ohneFaser <- read.csv("../data/2020-11-18_expID-NoneGiven/schnellcharakterisierungW1P3.txt", sep=";", header=T)[-1,]
-colnames(ohneFaser) <- c("X", "Y1")
-
-plot(mitFaser$X, mitFaser$Y1-mitFaser$Y1[2],pch=19,ylim=c(-360,50), 
-     main="The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation",
-     xlab="rotation waveplate / °", ylab = "rotation linear polariser / °",
-     sub="Black: after fiber; Red: in front of fiber")
-lines(mitFaser$X, -mitFaser$X*2)
-points(ohneFaser$X, -(ohneFaser$Y1-ohneFaser$Y1[1]),col="red",pch=19)
+# How does the fiber influence the PLANE OF POLARISATIONS ORIENTATION
+plot.plane.rotation(F2.rotation.elab, 
+                    title = expression(bold("The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation"))
+                    
