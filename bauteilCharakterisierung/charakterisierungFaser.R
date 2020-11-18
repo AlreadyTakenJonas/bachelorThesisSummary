@@ -41,7 +41,7 @@ F1.error.elab <- GET.elabftw.bycaption(66, header=T, outputHTTP=T) %>% parseTabl
                                                                         func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                                                                         header=T, skip=14, sep=";")
 # Fiber2 (Single-Mode-Fiber)
-F1.error.elab <- GET.elabftw.bycaption(71, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
+F2.error.elab <- GET.elabftw.bycaption(71, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
                                                                         func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                                                                         header=T, skip=14, sep=";")
 #
@@ -114,4 +114,5 @@ plot.intensity(data  = F2.data.stokes,
 # How does the fiber influence the PLANE OF POLARISATIONS ORIENTATION
 plot.plane.rotation(F2.rotation.elab, 
                     title = expression(bold("The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation"))
+)
                     
