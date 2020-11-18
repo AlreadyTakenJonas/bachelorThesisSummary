@@ -107,3 +107,19 @@ plot.intensity.change(data  = F2.data.stokes,
 plot.intensity(data  = F2.data.stokes, 
                title = expression(bold("The Effect Of An Optical SM-Fiber (F2) On The Lasers Power "*P))
 )
+
+
+
+#
+# Wie dreht die Faser die Polarisationsebene?
+#
+# Fiber2 (SM-Fiber)
+ohneFaser <- read.csv("../data/2020-11-18_expID-NoneGiven/schnellcharakterisierungW1P3.txt", sep=";", header=T)[-1,]
+colnames(ohneFaser) <- c("X", "Y1")
+
+plot(mitFaser$X, mitFaser$Y1-mitFaser$Y1[2],pch=19,ylim=c(-360,50), 
+     main="The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation",
+     xlab="rotation waveplate / °", ylab = "rotation linear polariser / °",
+     sub="Black: after fiber; Red: in front of fiber")
+lines(mitFaser$X, -mitFaser$X*2)
+points(ohneFaser$X, -(ohneFaser$Y1-ohneFaser$Y1[1]),col="red",pch=19)
