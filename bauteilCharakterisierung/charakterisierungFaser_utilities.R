@@ -198,7 +198,7 @@ plot.plane.rotation <- function(data,
           panel.grid.minor = element_line("grey", size=0.1) ) +
     scale_x_continuous(breaks = seq(from=-20, to=300, by=20) ) +
     scale_y_continuous(breaks = seq(from=-360, to=360, by=90) ) +
-    labs(title = expression(bold("The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation")),
+    labs(title = title,
          x = expression(bold("rotation waveplate / °")),
          y = expression(bold("rotation linear polariser / °")),
          color = "" )
