@@ -18,11 +18,15 @@ detector.spectra <- GET.elabftw.bycaption(76, header=T, outputHTTP=T) %>% parseT
 # PLOT THAT SHIT
 #
 
-# Plot the white lamp spectra
+# Plot the white lamp spectra for the detector without the microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[2]], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
                         title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector")
 
+# Plot the white lamp spectra for the detector with the microscope
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[1]], 
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
+                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope")
 
 
 
