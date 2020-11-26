@@ -26,4 +26,4 @@ getStokes.from.expData    | Preprocessing function for experiments that measure 
 getStokes.from.metaData   | Preprocessing function for experiments that measure the Stokes vector of lasers before and after travelling trough an optical fiber. This function calculates the first three Stokes parameters for the meta data of the experiment from GET.elabftw's or parseTable.elabftw's output. The return values of getStokes.from.metaData and getStokes.from.expData have the same format.
 better.rbind              | This function takes a list of lists of data.frames as input and row binds the data.frames to create a list of row binded data.frames. Data.frames with the same list index will be row binded. Data.frames with different list indices will be left untouched.
 parseTimeSeries.elab      | Combines data frames created by GET.elabftw.byselector and GET.elabftw.bycaption and files attached to a protocol in the online labbook eLabFTW. The attached files supposed to be spectra. The table will be turned into a time series, showing the changing spectra for different measuring conditions.
-
+theme_hot                 | A custom ggplot2 theme. It's pretty hot.
