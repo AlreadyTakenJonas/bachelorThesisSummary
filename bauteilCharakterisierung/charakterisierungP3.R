@@ -8,7 +8,7 @@ library("ggplot2")
 #
 P3.absorbance <- GET.elabftw.bycaption(78, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
                                                                           func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
-                                                                          header=T, skip=14, sep=";")[[1]]
+                                                                          header=T, skip=14, sep=";") %>% .[[1]]
 colnames(P3.absorbance) <- c("P3", "P4", "background", "measured")
 
 #
