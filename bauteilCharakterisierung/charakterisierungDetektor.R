@@ -3,12 +3,12 @@
 #
 # How does the detector response changes when changing the orientation of the lasers plane of polarisation?
 
-library("RHotStuff")
-library("magrittr")
-library("ggplot2")
+#
+# Get some libraries and functions used for characterising the detector and plotting stuff
+#
+source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 
-# Make sure the version of RHotStuff is compatible with the code
-check.version("1.5.0")
+
 
 # Fetch experimental data from elabFTW
 detector.spectra <- GET.elabftw.bycaption(76, header=T, outputHTTP=T) %>% parseTimeSeries.elab(., header=F, sep="")
@@ -17,18 +17,16 @@ detector.spectra <- GET.elabftw.bycaption(76, header=T, outputHTTP=T) %>% parseT
 #
 # PLOT THAT SHIT
 #
-ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
-                          signal = unlist(detector.spectra[[2]][,-1]) %>% unname,
-                          group = lapply(seq_along(detector.spectra[[2]][,-1])+1, function(index) rep( colnames(detector.spectra[[2]])[index], length.out=length(detector.spectra[[2]][,index]) ) ) %>% unlist,
-                          color = lapply(seq_along(detector.spectra[[2]][,-1])+1, function(index) rep( colnames(detector.spectra[[2]])[index], length.out=length(detector.spectra[[2]][,index]) ) ) %>% unlist %>%  as.numeric %>% `-`(.,170) %>% mod(.,90) %>% abs
-                          ),
-        mapping = aes(x = wavenumber, y = signal, group = group, color = color)
-        ) +
-  geom_line() +
-  scale_color_gradient(low="blue", high="red")
+
+# Plot the white lamp spectra
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[2]], 
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
+                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector")
 
 
-colnames(detector.spectra[[2]])[apply(detector.spectra[[2]][,-1],1,which.min)]
+
+
+colnames(detector.spectra[[2]][,-1])[apply(detector.spectra[[2]][,-1],1,which.max)]
 
  #plot(detector.spectra[[2]][,1], as.numeric(colnames(detector.spectra[[2]])[-1]), col=detector.spectra[[2]][,-1])
 
