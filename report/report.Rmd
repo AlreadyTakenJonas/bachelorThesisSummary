@@ -1,0 +1,108 @@
+---
+title: "__Zusammenfassung der Experimente und Auswertung__"
+output:
+  html_notebook
+---
+
+## __Charakterisierung der Bauteile__
+
+### __Linearpolarisatoren__
+
+#### __Experiment__
+
+Es werden zwei Experimente durchgeführt:
+
+1. Nullpunktbestimmung: Welche Position des Linearpolarisators ist parallel/orthogonal zum Laser?
+2. Transmissionsverhalten: Ist der Linearpolarisator unterschiedlich durchlässig für einen parallel polarisierten Laser, wenn sowohl der Laser als auch der Polarisator im gleichen Maß gedreht werden?
+
+__Nullpunktsbestimmung von Linearpolarisatoren__:
+
+![Aufbau Nullpunktsbestimmung](./img/aufbau_nullpunktPolarisator.png)
+
+Durchführung:
+
++ Auxilliar Polarisator parallel zum Laser ausrichten
++ Leistung für verschiedene Rotationen des zu charakterisierenden Polarisators
+
+__Transmissionsverhalten von Linearpolarisatoren__ (Variante eine Fiberbench):
+
+![Aufbau Transmissionsverhalten von Linearpolarisatoren (A: Egtl. Messung, B: Normierung)](./img/aufbau_transmissionPolarisator-1.png)
+
+
+
+Durchführung:
+
++ Verwendet für Polarisatoren, die nur eine Position in der Fiberbench einnehmen
++ Für beliebige Positionen der Wellenplatte werden folgende Schritte wiederholt
++ Der auxilliare Polarisator wird so gedreht, dass die Transmission maximal ist
++ Der zu charaktarisierende Polarisator wird so gedreht, dass die Transmission maximal ist
++ Leistung wird vor und hinter den zu charakterisierenden Polarisator gemessen
+
+__Transmissionsverhalten von Linearpolarisatoren__ (Variante zwei Fiberbenches):
+
+![Aufbau Transmissionsverhalten von Linearpolarisatoren (A: Egtl. Messung, B: Normierung)](./img/aufbau_transmissionPolarisator-2.png)
+
+
+Durchführung:
+
++ Für beliebige Positionen des zu charakterisierenden Linearpolarisators wird der Auxilliarpolarisator auf maximale Transmission gedreht
++ Die Leistung wird vor und hinter dem zu charakterisierenden Polarisator gemessen
+
+#### __Auswertung__
+Wie erfolgt Auswertung?
+
+##### __Linearpolarisator P1__
+Plot/Diskussion
+
+##### __Linearpolarisator P2__
+Plot/Diskussion
+
+##### __Linearpolarisator P3__
+Plot/Diskussion
+
+### __Wellenplatten__
+
+#### __Experiment__
+Aufbau/Durchführung
+
+#### __Auswertung__
+Wie erfolgt Auswertung?
+
+##### __Wellenplatte W1__
+Plot/Diskussion
+
+##### __Wellenplatte W2__
+Plot/Diskussion
+
+### __Optische Fasern__
+
+#### __Experiment__
+Aufbau/Durchführung
+
+#### __Auswertung__
+Wie erfolgt Auswertung?
+
+##### __PM-Faser F1__
+Plot/Diskussion
+
+##### __SM-Faser F2__
+Plot/Diskussion
+
+##### __MM-Faser F3__
+Plot/Diskussion
+
+### __WiTec-Detektor__
+
+#### __Experiment__
+Aufbau/Durchführung
+
+#### __Auswertung__
+Wie erfolgt Auswertung?
+Plot/Diskussion/Mit und ohne Mikriskop
+
+
+## __Polarisaionsabhängige Ramanspektroskopie am WiTec__
+Aufbau/Durchführung
+
+### __Ramanspektren von Tetrachlormethan__
+Plot/Diskussion
