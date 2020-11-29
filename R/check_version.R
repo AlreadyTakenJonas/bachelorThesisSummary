@@ -29,15 +29,15 @@ check.version <- function(expected.version, package="RHotStuff", strict=FALSE, .
   # Check if versions are not exactly matching, but compatible
   else {
     # Get the version of the package and split the versions at the "." into numeric vectors for easier comparision
-    expected.version <- strsplit(expected.version, ".", fixed=TRUE) %>% .[[1]] %>% as.numeric
+    expected.version.split <- strsplit(expected.version, ".", fixed=TRUE) %>% .[[1]] %>% as.numeric
     package.version  <- packageVersion(package, ...) %>% as.character %>% strsplit(., ".", fixed=TRUE) %>% .[[1]] %>% as.numeric
     
     # Check if major digits [1] match exactly, to ensure compatibility of code and library
-    if ( expected.version[1] == package.version[1] ) {
+    if ( expected.version.split[1] == package.version[1] ) {
       # Check if minor digits [2] of used version is not smaller than the expected version, to ensure all needed functions are implemented
       # Check if bug fix digits [3] of used version is not smaller than the expected version, to ensure the used functions behave the way it's expected
-      if ( expected.version[2] == package.version[2] & expected.version[3] <= package.version[3] ) version.match <- TRUE
-      else if ( expected.version[2] < package.version[2] ) version.match <- TRUE
+      if ( expected.version.split[2] == package.version[2] & expected.version.split[3] <= package.version[3] ) version.match <- TRUE
+      else if ( expected.version.split[2] < package.version[2] ) version.match <- TRUE
     }  
   }
   
