@@ -4,6 +4,13 @@ output:
   html_notebook
 ---
 
+```{r}
+library(RHotStuff)
+library(ggplot2)
+library(magrittr)
+```
+
+
 ## __Charakterisierung der Bauteile__
 
 ### __Linearpolarisatoren__
@@ -49,16 +56,152 @@ Durchführung:
 + Die Leistung wird vor und hinter dem zu charakterisierenden Polarisator gemessen
 
 #### __Auswertung__
-Wie erfolgt Auswertung?
+
+__Nullpunktbstimmung__
+
++ Herunterladen von Messdaten
++ Normalisieren der Daten mit der Leistung gemessen ohne Linearpolarisator
+```{r}
+#
+# LINEARPOLARISATOR P1
+#
+# Extract Data from eLabFTW
+P1.maxmin.metadata <- GET.elabftw.byselector(25, node.selector = "#meta-data")[[1]]
+P1.maxmin.data <- GET.elabftw.byselector(25, header = T)[[1]]
+
+# Normalise data
+P1.maxmin.data$Y1 <- P1.maxmin.data$Y1 / P1.maxmin.metadata[3,2] *100
+
+#
+# LINEARPOLARISATOR P2
+#
+# Extract Data from eLabFTW
+P2.maxmin.metadata <- GET.elabftw.byselector(26, node.selector = "#meta-data")[[1]]
+P2.maxmin.data <- GET.elabftw.byselector(26, header = T)[[1]]
+
+# Normalise data
+P2.maxmin.data$Y1 <- P2.maxmin.data$Y1 / P2.maxmin.metadata[3,2] *100
+```
+
+__Winkelabhängige Transmission__
+
++ Herunterladen der Messdaten
++ Ggf. .csv Dateien auslesen und den Mittelwert (unter Vernachlässigung der ersten und letzten 10%-Quantille) der gemessenen Leistungen nehmen
++ Normalisieren mit der Leistung hinter dem Polarisator mit der Leistung vor dem Polarisator
+
+```{r}
+#
+# LINEARPOLARISATOR P1
+#
+# Extract data from eLabFTW
+P1.transmission.data <- GET.elabftw.byselector(29, header = T)[[1]]
+
+# Normalise data
+P1.transmission.data$Y4 <- P1.transmission.data$Y4/P1.transmission.data$Y2 *100
+
+#
+# LINEARPOLARISATOR P2
+#
+# Extract data from eLabFTW
+P2.transmission.data <- GET.elabftw.byselector(30, header = T)[[1]]
+
+# Normalise data
+P2.transmission.data$Y4 <- P2.transmission.data$Y4/P2.transmission.data$Y2 *100
+
+#
+# LINEARPOLARISATOR P3
+#
+# Extract data from elabFTW
+P3.absorbance <- GET.elabftw.bycaption(78, header=T, outputHTTP=T) %>% 
+                  parseTable.elabftw(., func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
+                                     header=T, skip=14, sep=";") %>% 
+                  .[[1]]
+colnames(P3.absorbance) <- c("P3", "P4", "background", "measured")
+
+# Normalise data
+P3.absorbance$transmittance <- P3.absorbance$measured / P3.absorbance$background
+```
+
 
 ##### __Linearpolarisator P1__
-Plot/Diskussion
+
+```{r}
+# Plot Zero Point
+ggplot(data = P1.maxmin.data, mapping = aes(x = X, y = Y1)) +
+  geom_point(size = 0.5) +
+  theme_minimal() +
+  labs(title = "Die Durchlässigkeit des Linearpolarisators P1 in Abhänigkeit des Rotationswinkels",
+       x = "Winkel / °",
+       y = "Anteil der Strahlung, die den Polarisator passiert / %")
+
+# Plot Transmissionsverhalten
+ggplot(data = P1.transmission.data, mapping = aes(x = Y3, y = Y4)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Winkelabhängige Transmission von Linearpolarisator P1",
+       x = "Rotationswinkel / °",
+       y = "Anteil der Strahlung, die den Polarisator passieren / %")
+
+```
+__Fazit:__
+
++ Rotation parallel zu Laser: 6°, 192°
++ Rotation orthogonal zu Laser: 102°, 280°
++ Transmissionsverhalten schwankt wenig und scheint keinem Muster zu folgen (+/- 0.5%?)
++ Transmittiert ca. 85.6%
 
 ##### __Linearpolarisator P2__
-Plot/Diskussion
+
+```{r}
+# Plot Zero Point
+ggplot(data = P2.maxmin.data, mapping = aes(x = X, y = Y1)) +
+  geom_point(size = 0.5) +
+  theme_minimal() +
+  labs(title = "Die Durchlässigkeit des Linearpolarisators P2 in Abhänigkeit des Rotationswinkels",
+       x = "Winkel / °",
+       y = "Anteil der Strahlung, die den Polarisator passiert / %")
+
+# Plot Transmissionsverhalten
+ggplot(data = P2.transmission.data, mapping = aes(x = Y3, y = Y4)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Winkelabhängige Transmission von Linearpolarisator P2",
+       x = "Rotationswinkel / °",
+       y = "Anteil der Strahlung, die den Polarisator passieren / %")
+
+```
+__Fazit:__
+
++ Rotation parallel zu Laser: 158°, 340°
++ Rotation orthogonal zu Laser: 72°, 250°
++ Transmissionsverhalten schwankt wenig und scheint keinem Muster zu folgen (+/- 0.5%?)
++ Transmittiert ca. 86.2%
 
 ##### __Linearpolarisator P3__
-Plot/Diskussion
+
+```{r}
+# Plot transmission behaviour
+# Does the transmittance of the linear polariser change when rotating the polariser and the laser in the same manner?
+ggplot(data = P3.absorbance,
+       mapping = aes(x = P3, y = transmittance*100) ) +
+  geom_bar(stat="identity") +
+  theme_classic() +
+  theme( axis.text = element_text(size=12),
+         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+         panel.grid.major.y = element_line("black", size = 0.1),
+         panel.grid.minor.y = element_line("grey", size = 0.5) ) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous(breaks = P3.absorbance$P3) +
+  labs(title = expression(bold("The maximal transmittance of the linear polariser P3")),
+       x = expression(bold("rotation of P3 or the lasers plane of polarisation / °")),
+       y = expression(bold("transmittance / %"))
+       )
+
+```
+__Fazit:__
+
++ Transmission schwankt wenig (stärker als P1/P2) und scheint keinem Muster zu folgen (+/- 1% bis zu 2.5%)
++ Transmittiert ca. 60% (weniger als P1/P2)
 
 ### __Wellenplatten__
 

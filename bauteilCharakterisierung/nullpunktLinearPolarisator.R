@@ -5,14 +5,14 @@ require(ggplot2)
 # LINEARPOLARISATOR P1
 #
 # Extract Data from eLabFTW
-metadata <- GET.elabftw.byselector(25, node.selector = "#meta-data")[[1]]
-data <- GET.elabftw.byselector(25, header = T)[[1]]
+P1.maxmin.metadata <- GET.elabftw.byselector(25, node.selector = "#meta-data")[[1]]
+P1.maxmin.data <- GET.elabftw.byselector(25, header = T)[[1]]
 
 # Normalise data
-data$Y1 <- data$Y1 / metadata[3,2] *100
+P1.maxmin.data$Y1 <- P1.maxmin.data$Y1 / P1.maxmin.metadata[3,2] *100
 
 # Plot
-ggplot(data = data, mapping = aes(x = X, y = Y1)) +
+ggplot(data = P1.maxmin.data, mapping = aes(x = X, y = Y1)) +
   geom_point(size = 0.5) +
   theme_minimal() +
   labs(title = "Die Durchlässigkeit des Linearpolarisators P1 in Abhänigkeit des Rotationswinkels",
@@ -25,14 +25,14 @@ ggplot(data = data, mapping = aes(x = X, y = Y1)) +
 # LINEARPOLARISATOR P2
 #
 # Extract Data from eLabFTW
-metadata <- GET.elabftw.byselector(26, node.selector = "#meta-data")[[1]]
-data <- GET.elabftw.byselector(26, header = T)[[1]]
+P2.maxmin.metadata <- GET.elabftw.byselector(26, node.selector = "#meta-data")[[1]]
+P2.maxmin.data <- GET.elabftw.byselector(26, header = T)[[1]]
 
 # Normalise data
-data$Y1 <- data$Y1 / metadata[3,2] *100
+P2.maxmin.data$Y1 <- P2.maxmin.data$Y1 / P2.maxmin.metadata[3,2] *100
 
 # Plot
-ggplot(data = data, mapping = aes(x = X, y = Y1)) +
+ggplot(data = P2.maxmin.data, mapping = aes(x = X, y = Y1)) +
   geom_point(size = 0.5) +
   theme_minimal() +
   labs(title = "Die Durchlässigkeit des Linearpolarisators P2 in Abhänigkeit des Rotationswinkels",

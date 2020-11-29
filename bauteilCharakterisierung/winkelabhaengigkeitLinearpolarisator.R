@@ -6,13 +6,13 @@ require(ggplot2)
 # LINEARPOLARISATOR P1
 #
 # Extract data from eLabFTW
-data <- GET.elabftw.byselector(29, header = T)[[1]]
+P1.transmission.data <- GET.elabftw.byselector(29, header = T)[[1]]
 
 # Normalise data
-data$Y4 <- data$Y4/data$Y2 *100
+P1.transmission.data$Y4 <- P1.transmission.data$Y4/P1.transmission.data$Y2 *100
 
 # Plot
-ggplot(data = data, mapping = aes(x = Y3, y = Y4)) +
+ggplot(data = P1.transmission.data, mapping = aes(x = Y3, y = Y4)) +
   geom_point() +
   theme_minimal() +
   labs(title = "Winkelabhängige Transmission von Linearpolarisator P1",
@@ -24,13 +24,13 @@ ggplot(data = data, mapping = aes(x = Y3, y = Y4)) +
 # LINEARPOLARISATOR P2
 #
 # Extract data from eLabFTW
-data <- GET.elabftw.byselector(30, header = T)[[1]]
+P2.transmission.data <- GET.elabftw.byselector(30, header = T)[[1]]
 
 # Normalise data
-data$Y4 <- data$Y4/data$Y2 *100
+P2.transmission.data$Y4 <- P2.transmission.data$Y4/P2.transmission.data$Y2 *100
 
 # Plot
-ggplot(data = data, mapping = aes(x = Y3, y = Y4)) +
+ggplot(data = P2.transmission.data, mapping = aes(x = Y3, y = Y4)) +
   geom_point() +
   theme_minimal() +
   labs(title = "Winkelabhängige Transmission von Linearpolarisator P2",
