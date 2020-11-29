@@ -35,8 +35,6 @@ __Transmissionsverhalten von Linearpolarisatoren__ (Variante eine Fiberbench):
 
 ![Aufbau Transmissionsverhalten von Linearpolarisatoren (A: Egtl. Messung, B: Normierung)](./img/aufbau_transmissionPolarisator-1.png)
 
-
-
 Durchführung:
 
 + Verwendet für Polarisatoren, die nur eine Position in der Fiberbench einnehmen
@@ -49,11 +47,12 @@ __Transmissionsverhalten von Linearpolarisatoren__ (Variante zwei Fiberbenches):
 
 ![Aufbau Transmissionsverhalten von Linearpolarisatoren (A: Egtl. Messung, B: Normierung)](./img/aufbau_transmissionPolarisator-2.png)
 
-
 Durchführung:
 
 + Für beliebige Positionen des zu charakterisierenden Linearpolarisators wird der Auxilliarpolarisator auf maximale Transmission gedreht
 + Die Leistung wird vor und hinter dem zu charakterisierenden Polarisator gemessen
+
+
 
 #### __Auswertung__
 
@@ -203,24 +202,167 @@ __Fazit:__
 + Transmission schwankt wenig (stärker als P1/P2) und scheint keinem Muster zu folgen (+/- 1% bis zu 2.5%)
 + Transmittiert ca. 60% (weniger als P1/P2)
 
+
+
+
+
+
+
+
 ### __Wellenplatten__
 
 #### __Experiment__
-Aufbau/Durchführung
+
+Es werden zwei Experimente durchgeführt:
+
+1. Nullpunktsbestimmung: Wie muss die Wellenplatte orientiert sein, um die Laserpolarisation um 90° zu drehen?
+2. Transmissionsverhalten: Absorbiert die Wellenplatte unterschiedlich für verschiedene Orientierungen der Wellenplatte?
+
+__Nullpunktbestimmung von Wellenplatten:__
+
+![Aufbau Nullpunktbestimmung von Wellenplatten (A: Egtl. Messung, B: Normierung)](./img/aufbau_nullpunktWellenplatte.png)
+
+Durchführung:
+
++ Der erste Linearpolarisator wird parallel zum Laser ausgerichtet
++ Der zweite Linearpolarisator wird orthogonal zum Laser ausgerichtet
++ Für verschiedene Positionen der Wellenplatte wird die Leistung sowohl mit als auch ohne Wellenplatte gemessen
+
+__Winkelabhängiges Transmissionsverhalten von Wellenplatten:__
+
+![Aufbau Transmissionsverhalten von Wellenplatten (A: Egtl. Messung, B: Normierung)](./img/aufbau_transmissionWellenplatte.png)
+
+Durchführung:
+
++ Der Linearpolarisator wird parallel zum Laser ausgerichtet
++ Für verschiedene Positionen der Wellenplatte wird die Leistung vor und hinter der Wellenplatte gemessen
+
+
 
 #### __Auswertung__
-Wie erfolgt Auswertung?
+
+__Nullpunkt/Transmissionsverhalten:__
+
++ Herunterladen der Messdaten
++ Sich wiederholende Daten sind mit NA abgekürzt -> Ersetzen von NA duch die letzte Zahl in der Spalte
++ Normalisieren der Messwerte mit der Leistung ohne der Wellenplatte
+
+```{r}
+#
+# Wave Plate W1
+#
+# Extract data from eLabFTW
+W1.data <- GET.elabftw.byselector(27, header = T)[[1]]
+
+# Replace NA values by using the previous value in the vector
+fillVector <- function(vector) {
+  for (index in seq_along(vector)) {
+    if (is.na(vector[index])) { vector[index] <- vector[index-1] }
+  }
+  return(vector)
+}
+W1.data$Y2 <- fillVector(W1.data$Y2)
+W1.data$Y4 <- fillVector(W1.data$Y4)
+
+# Normalise
+W1.data$Y1 <- (W1.data$Y1/W1.data$Y2) *100
+W1.data$Y3 <- (W1.data$Y3/W1.data$Y4) *100
+
+#
+# Wave Plate W2
+#
+# Extract data from eLabFTW
+W2.data <- GET.elabftw.byselector(28, header = T)[[1]]
+
+# Replace NA values by using the previous value in the vector
+fillVector <- function(vector) {
+  for (index in seq_along(vector)) {
+    if (is.na(vector[index])) { vector[index] <- vector[index-1] }
+  }
+  return(vector)
+}
+W2.data$Y2 <- fillVector(W2.data$Y2)
+W2.data$Y4 <- fillVector(W2.data$Y4)
+
+# Normalise
+W2.data$Y1 <- (W2.data$Y1/W2.data$Y2) *100
+W2.data$Y3 <- (W2.data$Y3/W2.data$Y4) *100
+```
+
 
 ##### __Wellenplatte W1__
-Plot/Diskussion
+
+```{r}
+# Plot Transmissionverhalten
+ggplot(data = W1.data, mapping = aes(x = X, y=Y3)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Durchlässigkeit der Wellenplatte W1 in Abhängigkeit des Rotationswinkels",
+       x = "Rotationswinkel / °",
+       y = "Anteil der Strahlung, die die Wellenplatte passiert / %")
+# Plot Nullpunktsbestimmung
+ggplot(data = W1.data, mapping = aes(x=X, y=Y1)) +
+  geom_point(size=0.5) +
+  theme_minimal() +
+  labs(title = "Nullpunktsbestimmung der Wellenplatte W1",
+       x = "Rotationswinkel / °",
+       y = "Gesteigerte Transmission durch die Wellenplatte / %")
+
+```
+
+__Fazit:__
+
++ Wellenplatte rotiert Polarisation um  0° bei:       358°,  90°, 180°, 268°
++ Wellenplatte rotiert Polarisation um 90° bei: ~[40°;50°], 134°, 224°, 314°
++ Wellenplatte transmittiert gut (~98%)
++ Transmission schwankt ein wenig (bis zu 2.3%)
++ Transmission scheint bei großen Rotationswinkeln zu sinken; es gibt allerdings viele Ausreißer
+
 
 ##### __Wellenplatte W2__
-Plot/Diskussion
+
+```{r}
+# Plot Transmissionsverhalten
+ggplot(data = W2.data, mapping = aes(x = X, y=Y3)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Durchlässigkeit der Wellenplatte W2 in Abhängigkeit des Rotationswinkels",
+       x = "Rotationswinkel / °",
+       y = "Anteil der Strahlung, die die Wellenplatte passiert / %")
+# Plot Nullpunktbestimmung
+ggplot(data = W2.data, mapping = aes(x=X, y=Y1)) +
+  geom_point(size=0.5) +
+  theme_minimal() +
+  labs(title = "Nullpunktsbestimmung der Wellenplatte W2",
+       x = "Rotationswinkel / °",
+       y = "Gesteigerte Transmission durch die Wellenplatte / %")
+```
+
++ Wellenplatte rotiert Polarisation um  0° bei: 350°,  82°, 172°, 262°
++ Wellenplatte rotiert Polarisation um 90° bei:  42°, 128°, 216°, 206°
++ Wellenplatte transmittiert sehr gut (~96.5%)
++ Transmission schwankt ein wenig (bis zu 2.3%)
++ Transmission verhält sich vielleicht periodisch? Es gibt allerdings viele Ausreißer.
+
+
 
 ### __Optische Fasern__
 
 #### __Experiment__
-Aufbau/Durchführung
+
+Es werden drei Experimente durchgeführt:
+
+1. Messung der Stokesvektoren: Die Stokesvektoren werden vor und nach Passieren der optischen Faser für verschiedene Laserpolarisationen bestimmt
+2. Messfehler der Stokesvektoren: Die Stokesvektoren werden wiederholt für die selbe initiale Laserpolarisation gemessen, um den Messfehler abzuschätzen
+3. Rotation der Polarisationsebene: Es wird gemessen wie stark und in welche Richtung die Faser die Polarisationsebene des Lasers dreht
+
+__Messung der Stokesvektoren:__
+
+![Aufbau Messung Stokesvektoren (A: Stokes hinter der Faser, B: Normierung hinter der Faser, C: Stokes vor der Faser, D: Normierung vor der Faser)](./img/aufbau_stokesFaser.png)
+
+Duchführung:
+
++ 
 
 #### __Auswertung__
 Wie erfolgt Auswertung?
