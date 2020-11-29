@@ -68,33 +68,56 @@ ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
 #
 # Plot all spectra as 3d-surface
 #
-colnames(PlotMat)
-PlotMat <- as.matrix(detector.spectra[[2]][,-c(1,21:24)])
-grid <- list(ordinate=detector.spectra[[2]]$wavenumber,
-             abcissa=as.numeric(colnames(PlotMat)))
-grid.mat <- make.surface.grid(grid)             
-output <- as.surface(grid.mat,PlotMat)
+library(fields)
+plot.detector.allSpectra <- function(data,
+                                     title = expression(bold("The White Lamp Raman Spectra For Different Polarised Light")),
+                                     color.resolution = 100,
+                                     color.ramp = c("blue", "red"),
+                                     theta = 270,
+                                     phi = 20,
+                                     grid.resolution.X = 20,
+                                     grid.resolution.Y = 2
+                                     
+) {
+  # Seperate wavenumber axis, polariser position and spectra
+  PlotMat <- as.matrix(data[, -1])
+  wavenumber <- data$wavenumber
+  polariser <- as.numeric( colnames(PlotMat) )
+  
+  # Create a grid for plotting
+  grid <- list(ordinate = wavenumber, abcissa = polariser)
+  grid.surface <- make.surface.grid(grid)
+  
+  # Create a 3d plottable surface
+  surface <- as.surface(grid.surface, PlotMat)
+  
+  # Create color palette
+  col.Palette <- colorRampPalette(color.ramp)(color.resolution)
+  # Calculate Color of the surface according to the z-value of the corresponding point
+  zfacet <- PlotMat[-1, -1] + PlotMat[-1, -ncol(PlotMat)] + PlotMat[-nrow(PlotMat), -1] + PlotMat[-nrow(PlotMat), -ncol(PlotMat)] 
+  facetcol <- cut(zfacet, color.resolution)
+  plotCol <- persp(surface, theta=theta, phi=phi)
+  
+  # Create the plor
+  plot.surface(surface, type="p", theta=theta, border=NA, phi=phi)
+  
+  # Add grid lines
+  # Get the position of the gridlines
+  select.X <- seq(1,length(grid[[1]]), by=grid.resolution.X)
+  select.Y <- seq(1,length(grid[[2]]), by=grid.resolution.Y)
+  xGrid <- grid[[1]][select.X]
+  yGrid <- grid[[2]][select.Y]
+  
+  # Draw the gridlines
+  for(i in select.X) lines(trans3d(x=rep(grid[[1]][i],ncol(PlotMat)),
+                               y=grid[[2]],
+                               z=PlotMat[i,],pmat=plotCol))
+  for(i in select.Y) lines(trans3d(x=grid[[1]],
+                               y=rep(grid[[2]][i],nrow(PlotMat)),
+                               z=PlotMat[,i],pmat=plotCol))
+}
+plot.detector.allSpectra(detector.spectra[[2]][,-c(21:24)])
 
-ncol <- 100
-colPal <- colorRampPalette(c("blue","red"))(ncol)
-zfacet <- PlotMat[-1, -1] + PlotMat[-1, -ncol(PlotMat)] + PlotMat[-nrow(PlotMat), -1] + PlotMat[-nrow(PlotMat), -ncol(PlotMat)]
-facetcol <- cut(zfacet, ncol)
-plotCol <- persp(output,border=NA,col=colPal[facetcol],phi=20,theta=270)
 
-fields::plot.surface(output,type="p",theta=270,border=NA)
 
-# Add gridlines
-resX <- 20
-resY <- 2
-selX <- seq(1,length(grid[[1]]),by=resX)
-selY <- seq(1,length(grid[[2]]),by=resY)
-xGrid <- grid[[1]][selX]
-yGrid <- grid[[2]][selY]
-
-for(i in selX) lines(trans3d(x=rep(grid[[1]][i],ncol(PlotMat)),
-                             y=grid[[2]],
-                             z=PlotMat[i,],pmat=plotCol))
-
-for(i in selY) lines(trans3d(x=grid[[1]],
-                             y=rep(grid[[2]][i],nrow(PlotMat)),
-                             z=PlotMat[,i],pmat=plotCol))
+rgl::persp3d()
