@@ -61,6 +61,41 @@ colnames(tetra.peakChange) <- c("waveplate", tetra.peakLocations)
 tetra.peakChange <- as.data.frame(tetra.peakChange)
 
 
+# COMPUTE DETECTORS SENSITIBLITY FOR LIGHT POLARISED ALONG DIFFERENT OPTICAL AXIS
+tetra.sensibility <- sapply(tetra.peakChange[,-1], function(peakheight) max(peakheight)/min(peakheight))
+tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.numeric,
+                                quotient   = tetra.sensibility %>% unname)
+
+
+# HWO ARE THE OPTICAL AXIS OF THE DETECTOR ALIGNED?
+# The wave plates position of the maximal detector response
+# Loop over all peaks and compare the height between the different spectra
+sapply(seq_along(tetra.peakChange[,-1]), function(index) {
+  # The maximal height of the current peak
+  peakHeight <- max(tetra.peakChange[,index+1])
+  # Get the index of the maximum
+  select <- which(peakHeight==tetra.peakChange[,index+1])
+  # If there are multiple maxima its propably the peak I normalised with
+  # Just return NA in this case
+  if (length(select)>1) return(NA)
+  # Return the wave plates position
+  return( tetra.peakChange[ select,1 ] )
+})
+# The wave plates position of the minimal detector response
+# Loop over all peaks and compare the height between the different spectra
+sapply(seq_along(tetra.peakChange[,-1]), function(index) {
+  # The minimal height of the current peak
+  peakHeight <- min(tetra.peakChange[,index+1])
+  # Get the index of the minimal
+  select <- which(peakHeight==tetra.peakChange[,index+1])
+  # If there are multiple minima its propably the peak I normalised with
+  # Just return NA in this case
+  if (length(select)>1) return(NA)
+  # Return the wave plates position
+  return( tetra.peakChange[ select,1 ] )
+})
+
+
 # PLOT THE RESULTS
 # Plot all spectra as 3d surface
 plot.detector.allSpectra.interactable(tetra.spectra[ which(tetra.spectra$wavenumber>100 & tetra.spectra$wavenumber<1000), ], 
@@ -72,4 +107,10 @@ plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n", ylim=c(0,1)
      xlab = "waveplate rotation / °",
      ylab = "normalised peak height")
 for (index in seq_along(tetra.peakChange[,-1])) lines(x=tetra.peakChange$waveplate, y=tetra.peakChange[,index+1], col=index)
+
+# Plot the quotient of the detectors response along its optical axis
+plot(tetra.sensibility, type="h", lwd=2,
+     main = "Quotient of maximal and minimal detector response",
+     xlab = "max/min",
+     ylab = expression("wavenumber / cm"^"-1") )
 
