@@ -4,6 +4,17 @@ output:
   html_document:
     df_print: paged
 ---
+<!--- Change width options to apppropiate values for your desired page size-->
+<!--- Important for printing HTML as PDF-->
+<style type="text/css">
+.main-container {
+  width: 20cm;
+  max-width: 20cm;
+  min-width: 20cm;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
 
 ```{r, libraries, echo=F, results="hide", warning=F, message=F}
 # Get som libraries
