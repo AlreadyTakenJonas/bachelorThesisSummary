@@ -67,7 +67,7 @@ plot.detector.allSpectra.interactable(tetra.spectra[ which(tetra.spectra$wavenum
                                       title=expression(bold("Normalised Raman Spectra Of Tetrachloromethane For Different Polarised Light")))
 
 # Plot the height of the peaks against the wave plates position
-plot(x=tetra.peakChange$waveplate, type="n", ylim=c(0,1),
+plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n", ylim=c(0,1),
      main = "Peakheight Change Due To Polarisation Change",
      xlab = "waveplate rotation / °",
      ylab = "normalised peak height")
