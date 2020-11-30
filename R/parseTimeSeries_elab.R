@@ -110,6 +110,8 @@ parseTimeSeries.elab <- function(parseableTables,
     # Create a column for the combined wavenumber-axis
     timeSeries.formatted <- data.frame(wavenumber = wavenumbers)
     
+
+    
     # Create a progress bar
     progress <- progress::progress_bar$new(total = length(timeSeries), 
                                            format = paste0("Restructure ExpID ", metadata$id, " (Table ", index, "/", length(tables), ") [:bar] :eta remaining.") )
@@ -123,7 +125,7 @@ parseTimeSeries.elab <- function(parseableTables,
       
       # Get for every wavenumber the corresponding measured signal from the spectrum
       for (currentWavenumber in timeSeries.formatted$wavenumber) {
-        # If the needed value is part of the spectrum ad the value
+        # If the needed value is part of the spectrum add the value
         # Do nothing if the needed value is not part of the spectrum, result will contain NA for this wavenumber
         if (currentWavenumber %in% spectrum[,col.wavenumber]) {
           # Add the measured signal for the current wavenumber from the original spectrum to the new data.frame
