@@ -64,5 +64,5 @@ ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
   geom_line()
 
 # Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
-plot.detector.allSpectra.interactable(detector.spectra[[2]][,-c(21:24)])
+plot.detector.allSpectra.interactable(detector.spectra[[2]])
 plot.detector.allSpectra(detector.spectra[[2]][,-c(21:24)], theta=240)

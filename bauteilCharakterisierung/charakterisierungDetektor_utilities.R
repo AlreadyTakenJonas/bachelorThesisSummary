@@ -71,17 +71,17 @@ plot.detector.allSpectra.interactable <- function(data,
   # title : Some descriptive title
   
   # Extract data
-  wavenumber <- detector.spectra[[2]][,1]
-  polariser  <- colnames(detector.spectra[[2]][,-1]) %>% as.numeric
-  counts     <- detector.spectra[[2]][,-1] %>% as.matrix
+  wavenumber <- data[,1]
+  polariser  <- colnames(data[,-1]) %>% as.numeric
+  counts     <- data[,-1] %>% as.matrix
   # Create a color ramp
   ncol = 100
   color = rev(rainbow(ncol, start = 0/6, end = 4/6))
   zcol  = cut(counts, ncol)
   # Plot the spectra as 3d surface
-  rgl::persp3d( x = detector.spectra[[2]][,1],
-                y = colnames(detector.spectra[[2]][,-1]) %>% as.numeric,
-                z = detector.spectra[[2]][,-1] %>% as.matrix,
+  rgl::persp3d( x = wavenumber,
+                y = polariser,
+                z = counts,
                 col = color[zcol],
                 xlab = expression(bold("wavenumber / cm"^"-1")),
                 ylab = expression(bold("wave plate position / °")),
@@ -103,9 +103,9 @@ plot.detector.allSpectra <- function(data,
 
 ) {
   # Seperate wavenumber axis, polariser position and spectra
-  PlotMat <- as.matrix(data[, -1])
+  PlotMat    <- as.matrix(data[, -1])
   wavenumber <- data$wavenumber
-  polariser <- as.numeric( colnames(PlotMat) )
+  polariser  <- as.numeric( colnames(PlotMat) )
 
   # Create a grid for plotting
   grid <- list(ordinate = wavenumber, abcissa = polariser)
