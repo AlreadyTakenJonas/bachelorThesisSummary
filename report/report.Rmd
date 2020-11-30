@@ -999,7 +999,6 @@ __Fazit:__
 + Die Messung mit dem Mirkoskop ist sehr verrauscht. Die Weißlichtlampe ist nicht hell genug dafür.
 + Weißlichtspektren zeigen Abhängigkeit von Lichtpolarisation
 + Nicht vergessen: Die Linearpolarisatorposition kann nicht vom Freespace auf die Fiberbenches übertragen werden!
-+ Für größere Wellenlängen ist der Einfluss der Polarisation auf die Spektren größer
 + Für jede Wellenzahl gibt es je eine Polarisation, die das gemessene Signal maximiert bzw. minimiert
 + Der Detektor ist entlang der 0°-Axe empfindlicher als entlang der 90°-Axe
 + Der Quotient aus max/min beschreibt wie empfindlich der Detektor entlang der 0°-Axe im Vergleich zur 90°-Axe ist
