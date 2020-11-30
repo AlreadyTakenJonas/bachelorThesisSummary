@@ -5,10 +5,15 @@ output:
     df_print: paged
 ---
 
-```{r}
+```{r, libraries, echo=F, results="hide", warning=F, message=F}
+# Get som libraries
+# Downloads and processes data
 library(RHotStuff)
+# Plotting
 library(ggplot2)
+# Piping
 library(magrittr)
+# Plotting
 library(fields)
 ```
 
@@ -62,7 +67,7 @@ __Nullpunktbstimmung__
 
 + Herunterladen von Messdaten
 + Normalisieren der Daten mit der Leistung gemessen ohne Linearpolarisator
-```{r}
+```{r, auswertung-polarisator-nullpunkt}
 #
 # LINEARPOLARISATOR P1
 #
@@ -90,7 +95,7 @@ __Winkelabhängige Transmission__
 + Ggf. .csv Dateien auslesen und den Mittelwert (unter Vernachlässigung der ersten und letzten 10%-Quantille) der gemessenen Leistungen nehmen
 + Normalisieren mit der Leistung hinter dem Polarisator mit der Leistung vor dem Polarisator
 
-```{r}
+```{r, auswertung-polarisator-transmission}
 #
 # LINEARPOLARISATOR P1
 #
@@ -126,7 +131,7 @@ P3.absorbance$transmittance <- P3.absorbance$measured / P3.absorbance$background
 
 ##### __Linearpolarisator P1__
 
-```{r}
+```{r, plot-P1}
 # Plot Zero Point
 ggplot(data = P1.maxmin.data, mapping = aes(x = X, y = Y1)) +
   geom_point(size = 0.5) +
@@ -153,7 +158,7 @@ __Fazit:__
 
 ##### __Linearpolarisator P2__
 
-```{r}
+```{r, plot-P2}
 # Plot Zero Point
 ggplot(data = P2.maxmin.data, mapping = aes(x = X, y = Y1)) +
   geom_point(size = 0.5) +
@@ -180,7 +185,7 @@ __Fazit:__
 
 ##### __Linearpolarisator P3__
 
-```{r}
+```{r, plot-P3}
 # Plot transmission behaviour
 # Does the transmittance of the linear polariser change when rotating the polariser and the laser in the same manner?
 ggplot(data = P3.absorbance,
@@ -249,7 +254,7 @@ __Nullpunkt/Transmissionsverhalten:__
 + Sich wiederholende Daten sind mit NA abgekürzt -> Ersetzen von NA duch die letzte Zahl in der Spalte
 + Normalisieren der Messwerte mit der Leistung ohne der Wellenplatte
 
-```{r}
+```{r, auswertung-waveplate}
 #
 # Wave Plate W1
 #
@@ -294,7 +299,7 @@ W2.data$Y3 <- (W2.data$Y3/W2.data$Y4) *100
 
 ##### __Wellenplatte W1__
 
-```{r}
+```{r, plot-W1}
 # Plot Transmissionverhalten
 ggplot(data = W1.data, mapping = aes(x = X, y=Y3)) +
   geom_point() +
@@ -323,7 +328,7 @@ __Fazit:__
 
 ##### __Wellenplatte W2__
 
-```{r}
+```{r, plot-W2}
 # Plot Transmissionsverhalten
 ggplot(data = W2.data, mapping = aes(x = X, y=Y3)) +
   geom_point() +
@@ -393,7 +398,7 @@ Definition von Funktionen, die die Messdaten auswerten:
 + Berechnen von Mittelwert, Standardabweichung und Varianz für die wiederholte Messung der selben Laserpolarisation
 + Erstellen von Funktionen, die Graphen produzieren. Die Änderung 
 
-```{r}
+```{r, auswertung-fiber-stokes-def}
 #
 # CALCULATE STOKES VECTORS AND THEIR PROPERTIES
 #
@@ -601,7 +606,7 @@ Nutzung der eben definierten Funktionen:
 + Polarisationsgrad berechnen
 + Messfehler berechnen (Mittelwert, Standardabweichung, Varianz für wiederholte Messung)
 
-```{r}
+```{r, auswertung-fiber-stokes-process}
 # F1 : POLARISATION-MAINTAING-FIBER
 
 # FETCH data from elabftw
@@ -670,7 +675,7 @@ F3.error.stats <- getStokes.from.expData(F3.error.elab) %>% process.stokesVec %>
 
 ##### __PM-Faser F1__
 
-```{r}
+```{r, plot-F1}
 # How does the polarisation ratio change relative to the initial polarisation ratio?
 plot.polarisation.change(data  = F1.data.stokes, 
                          title = expression(bold("The Depolarising Behaviour Of An Optical PM-Fiber (F1)") )
@@ -706,7 +711,7 @@ __Fazit:__
 
 ##### __SM-Faser F2__
 
-```{r}
+```{r, plot-F2}
 # How does the polarisation ratio change relative to the initial polarisation ratio?
 plot.polarisation.change(data  = F2.data.stokes, 
                          title = expression(bold("The Depolarising Behaviour Of An Optical SM-Fiber (F2)") )
@@ -747,7 +752,7 @@ __Fazit:__
 
 ##### __MM-Faser F3__
 
-```{r}
+```{r, plot-F3}
 # How does the polarisation ratio change relative to the initial polarisation ratio?
 plot.polarisation.change(data  = F3.data.stokes, 
                          title = expression(bold("The Depolarising Behaviour Of An Optical MM-Fiber (F3)") )
@@ -804,7 +809,7 @@ Durchführung:
 
 + Definition von Funktionen zum Plotten und organisieren der Daten
 
-```{r}
+```{r, auswertung-detector-def}
 # CONVERT TIME SERIES OF SPECTRA INTO EASY PLOTABLE DATA.FRAME
 # This function turns a data.frame with multiple spectra organised in multiple columns into a data.frames with all spectra staked in the same columns
 # Makes plotting with ggplot easier
@@ -920,7 +925,7 @@ plot.detector.allSpectra <- function(data,
 + Die Spektren werden coloriert, wenn sie in einem Plot überlagert werden
 + Positionen des Linearpolarisators, die die selbe absolute Auslenkung aus der 90°/270°-Axe haben, werden gleich coloriert
 
-```{r}
+```{r, auswertung-detector-process-plot}
 # Fetch experimental data from elabFTW
 detector.spectra <- GET.elabftw.bycaption(76, header=T, outputHTTP=T) %>% parseTimeSeries.elab(., header=F, sep="")
 
