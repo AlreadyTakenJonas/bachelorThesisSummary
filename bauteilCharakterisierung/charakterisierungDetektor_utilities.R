@@ -60,3 +60,80 @@ plot.detector.whitelamp <- function(data,
     geom_line()
   
 }
+
+# Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
+plot.detector.allSpectra <- function(data, 
+                                     title = expression(bold("White Lamp Raman Spectra For Different Polarised Light")) 
+) {
+  # PARAMETER
+  # data : plotable time series of spectra. Use the return value of RHotStuff::parseTimeSeries.elab() %>% makeSpectraPlotable()
+  # title : Some descriptive title
+  
+  # Extract data
+  wavenumber <- detector.spectra[[2]][,1]
+  polariser  <- colnames(detector.spectra[[2]][,-1]) %>% as.numeric
+  counts     <- detector.spectra[[2]][,-1] %>% as.matrix
+  # Create a color ramp
+  ncol = 100
+  color = rev(rainbow(ncol, start = 0/6, end = 4/6))
+  zcol  = cut(counts, ncol)
+  # Plot the spectra as 3d surface
+  rgl::persp3d( x = detector.spectra[[2]][,1],
+                y = colnames(detector.spectra[[2]][,-1]) %>% as.numeric,
+                z = detector.spectra[[2]][,-1] %>% as.matrix,
+                col = color[zcol],
+                xlab = expression(bold("wavenumber / cm"^"-1")),
+                ylab = expression(bold("wave plate position / °")),
+                zlab = expression(bold("detector signal / counts")),
+                main = title )
+  # Add grid to the axis
+  rgl::grid3d(c("x+", "y+", "z"))
+}
+# library(fields)
+# plot.detector.allSpectra <- function(data,
+#                                      title = expression(bold("The White Lamp Raman Spectra For Different Polarised Light")),
+#                                      color.resolution = 100,
+#                                      color.ramp = c("blue", "red"),
+#                                      theta = 270,
+#                                      phi = 20,
+#                                      grid.resolution.X = 20,
+#                                      grid.resolution.Y = 2
+#                                      
+# ) {
+#   # Seperate wavenumber axis, polariser position and spectra
+#   PlotMat <- as.matrix(data[, -1])
+#   wavenumber <- data$wavenumber
+#   polariser <- as.numeric( colnames(PlotMat) )
+#   
+#   # Create a grid for plotting
+#   grid <- list(ordinate = wavenumber, abcissa = polariser)
+#   grid.surface <- make.surface.grid(grid)
+#   
+#   # Create a 3d plottable surface
+#   surface <- as.surface(grid.surface, PlotMat)
+#   
+#   # Create color palette
+#   col.Palette <- colorRampPalette(color.ramp)(color.resolution)
+#   # Calculate Color of the surface according to the z-value of the corresponding point
+#   zfacet <- PlotMat[-1, -1] + PlotMat[-1, -ncol(PlotMat)] + PlotMat[-nrow(PlotMat), -1] + PlotMat[-nrow(PlotMat), -ncol(PlotMat)] 
+#   facetcol <- cut(zfacet, color.resolution)
+#   plotCol <- persp(surface, theta=theta, phi=phi)
+#   
+#   # Create the plor
+#   plot.surface(surface, type="p", theta=theta, border=NA, phi=phi)
+#   
+#   # Add grid lines
+#   # Get the position of the gridlines
+#   select.X <- seq(1,length(grid[[1]]), by=grid.resolution.X)
+#   select.Y <- seq(1,length(grid[[2]]), by=grid.resolution.Y)
+#   xGrid <- grid[[1]][select.X]
+#   yGrid <- grid[[2]][select.Y]
+#   
+#   # Draw the gridlines
+#   for(i in select.X) lines(trans3d(x=rep(grid[[1]][i],ncol(PlotMat)),
+#                                y=grid[[2]],
+#                                z=PlotMat[i,],pmat=plotCol))
+#   for(i in select.Y) lines(trans3d(x=grid[[1]],
+#                                y=rep(grid[[2]][i],nrow(PlotMat)),
+#                                z=PlotMat[,i],pmat=plotCol))
+# }

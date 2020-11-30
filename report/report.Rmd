@@ -799,8 +799,158 @@ Durchführung:
 + Wichtig: Die Position des Linearpolarisators im Freespace ist nicht mit der Position des selben Polarisators in der Fiberbench vergleichbar!
 
 #### __Auswertung__
-Wie erfolgt Auswertung?
-Plot/Diskussion/Mit und ohne Mikriskop
+
++ Definition von Funktionen zum Plotten und organisieren der Daten
+
+```{r}
+# CONVERT TIME SERIES OF SPECTRA INTO EASY PLOTABLE DATA.FRAME
+# This function turns a data.frame with multiple spectra organised in multiple columns into a data.frames with all spectra staked in the same columns
+# Makes plotting with ggplot easier
+makeSpectraPlotable <- function(spectra, colorFunc=function(x) return(x)) {
+  # PARAMETERS
+  # spectra : the return value of parseTimeSeries.elab, contains a time series with multiple spectra
+  # colorFunc : a custom function applied to the time variable (in this case the position of the linear polariser) to tweak the color scale
+  # RETURN VALUE
+  # A data.frame with all spectra stacked on top of each other. data.frame has the columns: wavenumber, signal, P (linear polarisers rotation), color
+  
+  # Extract the position of the linear polariser from the column names and repeat the value to match the length of the corresponding spectrum
+  # Used for colouring and grouping the data correctly when plotting with ggplot
+  polariser <- lapply(seq_along(spectra[,-1])+1, function(index) {
+    rep( colnames(spectra)[index], length.out=length(spectra[,index]) ) 
+  } ) %>% unlist %>% as.numeric
+  
+  # Create a dataframe with all spectra stacked on top of each other, instead of every spectrum in an own column
+  data.frame(wavenumber   = spectra$wavenumber,
+             signal       = unlist(spectra[,-1]) %>% unname,
+             P            = polariser,
+             # Hand the polariser position to a custom function to tweak the color scale
+             color        = colorFunc(polariser)
+  )
+}
+
+
+
+#
+# PLOTING FUNCTIONS
+#
+# Plot all measured WHITE LIGHT SPECTRA in one plot and color code them according to the rotation of the linear polariser
+# The color should show the absolute DEVIATION of the lasers plane of polarisation FROM THE DETECTORS MOST SENSITIVE AXIS 
+plot.detector.whitelamp <- function(data,
+                                    title = "The Changing Detector Response For Different Linear Polarised White Light <Of Your Equipment>"
+                                   ) {
+  # PARAMETERS
+  # data : plotable time series of spectra. Use the return value of RHotStuff::parseTimeSeries.elab() %>% makeSpectraPlotable()
+  # title : Some descriptive title
+  
+  ggplot( data = data,
+          mapping = aes(x = wavenumber, y = signal, group = P, color = color)
+         ) +
+    scale_color_gradient(low    = "blue", 
+                         high   = "red", 
+                         breaks = seq(from=0, to=90, by=22.5)
+                        ) +
+    theme_hot() +
+    labs(title = title,
+         y = "counts",
+         x = expression(bold("wavenumber / cm"^"-1")),
+         subtitle = "the color gradient encodes the absolute deviation D of the linear polarisers position \nfrom the detectors most sensitive axis",
+         color = "D / °") +
+    geom_line()
+  
+}
+
+# Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
+plot.detector.allSpectra <- function(data, 
+                                     title = expression(bold("White Lamp Raman Spectra For Different Polarised Light")) 
+) {
+  # PARAMETER
+  # data : plotable time series of spectra. Use the return value of RHotStuff::parseTimeSeries.elab() %>% makeSpectraPlotable()
+  # title : Some descriptive title
+  
+  # Extract data
+  wavenumber <- detector.spectra[[2]][,1]
+  polariser  <- colnames(detector.spectra[[2]][,-1]) %>% as.numeric
+  counts     <- detector.spectra[[2]][,-1] %>% as.matrix
+  # Create a color ramp
+  ncol = 100
+  color = rev(rainbow(ncol, start = 0/6, end = 4/6))
+  zcol  = cut(counts, ncol)
+  # Plot the spectra as 3d surface
+  rgl::persp3d( x = detector.spectra[[2]][,1],
+                y = colnames(detector.spectra[[2]][,-1]) %>% as.numeric,
+                z = detector.spectra[[2]][,-1] %>% as.matrix,
+                col = color[zcol],
+                xlab = expression(bold("wavenumber / cm"^"-1")),
+                ylab = expression(bold("wave plate position / °")),
+                zlab = expression(bold("detector signal / counts")),
+                main = title )
+  # Add grid to the axis
+  rgl::grid3d(c("x+", "y+", "z"))
+}
+```
+
++ Spektren herunterladen
++ .txt-Dateien mit den Ramanspektren auslesen und alle Spektren in einem data.frame vereinigen
+
+```{r}
+# Fetch experimental data from elabFTW
+detector.spectra <- GET.elabftw.bycaption(76, header=T, outputHTTP=T) %>% parseTimeSeries.elab(., header=F, sep="")
+
+
+#
+# PLOT THAT SHIT
+#
+
+# Plot the white lamp spectra for the detector without the microscope
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[2]], 
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
+                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector")
+
+# Plot the white lamp spectra for the detector with the microscope
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[1]], 
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
+                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope")
+
+
+# How does the sensitivity of the detector change with the wavenumber
+ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
+                          difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
+                          ),
+        mapping = aes(x=wavenumber, y=difference)) +
+  theme_hot() +
+  labs(title = "Difference between maximal and minimal detector response",
+       x = expression(bold("wavenumber / cm"^"-1")),
+       y = "count difference") +
+  geom_line()
+
+# How does the sensitivity of the detector change with the wavenumber (difference method)
+ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
+                          difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
+                        ),
+        mapping = aes(x=wavenumber, y=difference) ) +
+  theme_hot() +
+  labs(title = "Difference between maximal and minimal detector response",
+       x = expression(bold("wavenumber / cm"^"-1")),
+       y = "count difference") +
+  geom_line()
+
+
+# How does the sensitivity of the detector change with the wavenumber (quotient method)
+ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
+                          quotient   = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)/min(slice) }) 
+                          ),
+        mapping = aes(x=wavenumber, y=quotient) ) +
+  theme_hot() +
+  labs(title = "Quotient of maximal and minimal detector response",
+       x = expression(bold("wavenumber / cm"^"-1")),
+       y = "max/min") +
+  geom_line()
+
+# Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
+plot.detector.allSpectra(detector.spectra[[2]][,-c(21:24)])
+```
+
+TODO: Fazit, 3D-Sufrace Snapshot
 
 
 ## __Polarisaionsabhängige Ramanspektroskopie am WiTec__
