@@ -2,11 +2,12 @@
 # ANALYSING POLARISED RAMAN SPECTRA OF TETRA
 #
 
+
+# Load functions and libraries from detector analysis for plotting spectra
+source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 #library("RHotStuff")
 #library("magrittr")
 #check.version("1.6.0")
-# Load functions and libraries from detector analysis for plotting spectra
-source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 
 # Load library for background correction
 library.dynam("Peaks","Peaks",lib.loc=NULL)
@@ -96,19 +97,41 @@ sapply(seq_along(tetra.peakChange[,-1]), function(index) {
 })
 
 
+
+#
 # PLOT THE RESULTS
-# Plot all spectra as 3d surface
+#
+# Plot ALL SPECTRA OVERLAYERD as 2d plot
+tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[tetra.spectra$wavenumber>100,-c(21:24)], 
+                                                           colorFunc=function(waveplateRotation) 
+                                                           { mod(waveplateRotation, 90) %>% `-`(., 45) %>% abs } ),
+                                mapping = aes(x = wavenumber, ymax = signal, ymin=0, group = P, fill = color) ) +
+   scale_fill_gradientn(colors = c("red", "orange", "green"),
+                        breaks = seq(from=0, to=45, length.out=4) ) +
+  theme_hot() +
+  labs(title = "Influence Of Light Polarisation On Raman Spectrum Of Tetrachloromethane",
+       y = "normalised intensity",
+       x = expression(bold("wavenumber / cm"^"-1")),
+       subtitle = "the color gradient encodes the absolute deviation D of the wave plates position \nfrom the detectors least sensitive axis",
+       fill = "D / °") +
+   geom_ribbon()
+# Plot all wavenumbers
+tetra.plot.allSpetra
+# Show just the interesting part
+tetra.plot.allSpetra + coord_cartesian(xlim = c(150, 850), ylim = c(0,0.55))
+
+# Plot ALL SPECTRA as 3d SURFACE
 plot.detector.allSpectra.interactable(tetra.spectra[ which(tetra.spectra$wavenumber>100 & tetra.spectra$wavenumber<1000), ], 
                                       title=expression(bold("Normalised Raman Spectra Of Tetrachloromethane For Different Polarised Light")))
 
-# Plot the height of the peaks against the wave plates position
+# Plot the HEIGHT OF PEAKS against the wave plates position
 plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n", ylim=c(0,1),
      main = "Peakheight Change Due To Polarisation Change",
      xlab = "waveplate rotation / °",
      ylab = "normalised peak height")
 for (index in seq_along(tetra.peakChange[,-1])) lines(x=tetra.peakChange$waveplate, y=tetra.peakChange[,index+1], col=index)
 
-# Plot the quotient of the detectors response along its optical axis
+# Plot the quotient of the DETECTOR RESPONSE along its optical axis
 plot(tetra.sensibility, type="h", lwd=2,
      main = "Quotient of maximal and minimal detector response",
      xlab = "max/min",
