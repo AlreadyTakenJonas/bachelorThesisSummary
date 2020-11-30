@@ -1,12 +1,15 @@
 ---
 title: "__Zusammenfassung der Experimente und Auswertung__"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
 library(RHotStuff)
 library(ggplot2)
 library(magrittr)
+library(fields)
 ```
 
 
@@ -984,11 +987,19 @@ __Fazit:__
 + Für jede Wellenzahl gibt es je eine Polarisation, die das gemessene Signal maximiert bzw. minimiert
 + Der Detektor ist entlang der 0°-Axe empfindlicher als entlang der 90°-Axe
 + Der Quotient aus max/min beschreibt wie empfindlich der Detektor entlang der 0°-Axe im Vergleich zur 90°-Axe ist
++ Die Detekorempfindlichkeit schwankt zwischen 1.20:1 und 1.35:1 (I_0°:I_90° bzw. I_x:I_y)
 
 
 
 ## __Polarisaionsabhängige Ramanspektroskopie am WiTec__
-Aufbau/Durchführung
+
+
+![Aufbau Messung von Ramanspektren mit spezifischer Laserpolarisation](./img/aufbau_spektrenWiTec.png)
+
+Durchführung:
+
++ Für verschiedene Positionen der Wellenplatte wird ein Ramanspektrum einer Probe aufgenommen
++ Für jedes Spektrum wird die Leistung des Lasers am Mikroskop gemessen
 
 ### __Ramanspektren von Tetrachlormethan__
 Plot/Diskussion
