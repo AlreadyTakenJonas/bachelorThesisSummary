@@ -63,3 +63,16 @@ plot.intensity(data  = F2.data.stokes,
 plot.plane.rotation(F2.rotation.elab, 
                     title = expression(bold("The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation"))
 )
+
+
+# Thoughts on deriving a mueller matrix for the fiber
+plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$S1, col="red", type="l")
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S1, col="blue")
+
+plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$polarisation, col="red", type="l", ylim=c(-1,1.05))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$polarisation, col="blue")
+lines(x = F2.data.stokes$change$W, y = F2.data.stokes$change$change.in.polarisation, col="green")
+
+plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$S2, col="red", type="l")
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S2, col="blue")
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S2*(-2), col="green")
