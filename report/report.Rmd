@@ -1,7 +1,6 @@
 ---
 title: "__Zusammenfassung der Experimente und Auswertung__"
-output:
-  html_notebook
+output: html_notebook
 ---
 
 ```{r}
@@ -859,38 +858,64 @@ plot.detector.whitelamp <- function(data,
   
 }
 
-# Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
-plot.detector.allSpectra <- function(data, 
-                                     title = expression(bold("White Lamp Raman Spectra For Different Polarised Light")) 
+# Plot WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE (single picture)
+plot.detector.allSpectra <- function(data,
+                                     title = expression(bold("The White Lamp Raman Spectra For Different Polarised Light")),
+                                     color.resolution = 100,
+                                     color.ramp = c("blue", "red"),
+                                     theta = 270,
+                                     phi = 20,
+                                     grid.resolution.X = 20,
+                                     grid.resolution.Y = 2
+
 ) {
-  # PARAMETER
-  # data : plotable time series of spectra. Use the return value of RHotStuff::parseTimeSeries.elab() %>% makeSpectraPlotable()
-  # title : Some descriptive title
-  
-  # Extract data
-  wavenumber <- detector.spectra[[2]][,1]
-  polariser  <- colnames(detector.spectra[[2]][,-1]) %>% as.numeric
-  counts     <- detector.spectra[[2]][,-1] %>% as.matrix
-  # Create a color ramp
-  ncol = 100
-  color = rev(rainbow(ncol, start = 0/6, end = 4/6))
-  zcol  = cut(counts, ncol)
-  # Plot the spectra as 3d surface
-  rgl::persp3d( x = detector.spectra[[2]][,1],
-                y = colnames(detector.spectra[[2]][,-1]) %>% as.numeric,
-                z = detector.spectra[[2]][,-1] %>% as.matrix,
-                col = color[zcol],
-                xlab = expression(bold("wavenumber / cm"^"-1")),
-                ylab = expression(bold("wave plate position / °")),
-                zlab = expression(bold("detector signal / counts")),
-                main = title )
-  # Add grid to the axis
-  rgl::grid3d(c("x+", "y+", "z"))
+  # Seperate wavenumber axis, polariser position and spectra
+  PlotMat <- as.matrix(data[, -1])
+  wavenumber <- data$wavenumber
+  polariser <- as.numeric( colnames(PlotMat) )
+
+  # Create a grid for plotting
+  grid <- list(ordinate = wavenumber, abcissa = polariser)
+  grid.surface <- make.surface.grid(grid)
+
+  # Create a 3d plottable surface
+  surface <- as.surface(grid.surface, PlotMat)
+
+  # Create color palette
+  col.Palette <- colorRampPalette(color.ramp)(color.resolution)
+  # Calculate Color of the surface according to the z-value of the corresponding point
+  zfacet <- PlotMat[-1, -1] + PlotMat[-1, -ncol(PlotMat)] + PlotMat[-nrow(PlotMat), -1] + PlotMat[-nrow(PlotMat), -ncol(PlotMat)]
+  facetcol <- cut(zfacet, color.resolution)
+  plotCol <- persp(surface, theta=theta, phi=phi)
+
+  # Create the plor
+  plot.surface(surface, type="p", theta=theta, border=NA, phi=phi,
+               xlab = "wavenumber / cm^-1",
+               ylab = "wave plate position / °",
+               zlab = "detector signal / counts",
+               main = title)
+
+  # Add grid lines
+  # Get the position of the gridlines
+  select.X <- seq(1,length(grid[[1]]), by=grid.resolution.X)
+  select.Y <- seq(1,length(grid[[2]]), by=grid.resolution.Y)
+  xGrid <- grid[[1]][select.X]
+  yGrid <- grid[[2]][select.Y]
+
+  # Draw the gridlines
+  for(i in select.X) lines(trans3d(x=rep(grid[[1]][i],ncol(PlotMat)),
+                               y=grid[[2]],
+                               z=PlotMat[i,],pmat=plotCol))
+  for(i in select.Y) lines(trans3d(x=grid[[1]],
+                               y=rep(grid[[2]][i],nrow(PlotMat)),
+                               z=PlotMat[,i],pmat=plotCol))
 }
 ```
 
 + Spektren herunterladen
 + .txt-Dateien mit den Ramanspektren auslesen und alle Spektren in einem data.frame vereinigen
++ Die Spektren werden coloriert, wenn sie in einem Plot überlagert werden
++ Positionen des Linearpolarisators, die die selbe absolute Auslenkung aus der 90°/270°-Axe haben, werden gleich coloriert
 
 ```{r}
 # Fetch experimental data from elabFTW
@@ -913,26 +938,26 @@ plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[1]],
 
 
 # How does the sensitivity of the detector change with the wavenumber
-ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
-                          difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
-                          ),
-        mapping = aes(x=wavenumber, y=difference)) +
-  theme_hot() +
-  labs(title = "Difference between maximal and minimal detector response",
-       x = expression(bold("wavenumber / cm"^"-1")),
-       y = "count difference") +
-  geom_line()
+# ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
+#                           difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
+#                           ),
+#         mapping = aes(x=wavenumber, y=difference)) +
+#   theme_hot() +
+#   labs(title = "Difference between maximal and minimal detector response",
+#        x = expression(bold("wavenumber / cm"^"-1")),
+#        y = "count difference") +
+#   geom_line()
 
 # How does the sensitivity of the detector change with the wavenumber (difference method)
-ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
-                          difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
-                        ),
-        mapping = aes(x=wavenumber, y=difference) ) +
-  theme_hot() +
-  labs(title = "Difference between maximal and minimal detector response",
-       x = expression(bold("wavenumber / cm"^"-1")),
-       y = "count difference") +
-  geom_line()
+# ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
+#                           difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
+#                         ),
+#         mapping = aes(x=wavenumber, y=difference) ) +
+#   theme_hot() +
+#   labs(title = "Difference between maximal and minimal detector response",
+#        x = expression(bold("wavenumber / cm"^"-1")),
+#        y = "count difference") +
+#   geom_line()
 
 
 # How does the sensitivity of the detector change with the wavenumber (quotient method)
@@ -947,10 +972,19 @@ ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
   geom_line()
 
 # Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
-plot.detector.allSpectra(detector.spectra[[2]][,-c(21:24)])
+plot.detector.allSpectra(detector.spectra[[2]][,-c(21:24)], theta=240)
 ```
 
-TODO: Fazit, 3D-Sufrace Snapshot
+__Fazit:__
+
++ Die Messung mit dem Mirkoskop ist sehr verrauscht. Die Weißlichtlampe ist nicht hell genug dafür.
++ Weißlichtspektren zeigen Abhängigkeit von Lichtpolarisation
++ Nicht vergessen: Die Linearpolarisatorposition kann nicht vom Freespace auf die Fiberbenches übertragen werden!
++ Für größere Wellenlängen ist der Einfluss der Polarisation auf die Spektren größer
++ Für jede Wellenzahl gibt es je eine Polarisation, die das gemessene Signal maximiert bzw. minimiert
++ Der Detektor ist entlang der 0°-Axe empfindlicher als entlang der 90°-Axe
++ Der Quotient aus max/min beschreibt wie empfindlich der Detektor entlang der 0°-Axe im Vergleich zur 90°-Axe ist
+
 
 
 ## __Polarisaionsabhängige Ramanspektroskopie am WiTec__
