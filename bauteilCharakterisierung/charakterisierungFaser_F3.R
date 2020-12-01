@@ -66,3 +66,47 @@ plot.intensity(data  = F3.data.stokes,
 plot.plane.rotation(F3.rotation.elab, 
                     title = expression(bold("The Impact Of The Multi-Mode Fiber (F3) On The Orientation Of The Plane Of Polarisation"))
 )
+
+
+
+#
+# TODO: REFRACTURE CODE AND APPLY TO OTHER OPTICAL FIBERS
+#
+#
+# Calculate mueller matrix elements a bit more refined
+#
+# Recalculate stokes vectors
+F3.mueller.stokes <- getStokes.from.expData(F3.data.elab)
+# Normalise stokes vectors before and after the fiber with the first stokes parameter before the fiber
+# Ensures that mueller matrix also describes the absorption behaviour of the fiber
+F3.mueller.stokes$PRE[,c(2,3,4)] <- F3.mueller.stokes$PRE[,c(2,3,4)] / F3.mueller.stokes$PRE[,2]
+F3.mueller.stokes$POST[,c(2,3,4)] <- F3.mueller.stokes$POST[,c(2,3,4)] / F3.mueller.stokes$PRE[,2]  
+# Calculate mueller matrix by solving linear equations
+F3.muellermatrix <- matrix( c( limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S0), 0,
+                               limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S1), 0,
+                               limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S2), 0,
+                               0, 0, 0, 0 ), 
+                            ncol = 4, byrow = T )
+
+# Predict stokes vector after the fiber
+F3.predicted.POST <- apply(F3.mueller.stokes$PRE[,c(2,3,4)], 1, function(stokes) { 
+  F3.muellermatrix %*% ( stokes %>% unlist %>% c(., 0) ) 
+})
+# Plot and compare the predicted and measured stokes parameters
+# S0
+plot(x = F3.mueller.stokes$POST$W, y = F3.mueller.stokes$POST$S0, col="red", type="l")
+lines(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST[1,], col="blue")
+# S1
+plot(x = F3.mueller.stokes$POST$W, y = F3.mueller.stokes$POST$S1, col="red", type="l")
+lines(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST[2,], col="blue")
+# S2
+plot(x = F3.mueller.stokes$POST$W, y = F3.mueller.stokes$POST$S2, col="red", type="l")
+lines(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST[3,], col="blue")
+
+# Calculate difference between predicted and measured stokes parameters
+# Mean difference and standard deviation between measurement and prediction
+( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% abs %>% colMeans
+( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% abs %>% apply(., 2, sd)
+# Relative mean difference and standard deviation between measurement and prediction
+( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% `/`(., F3.mueller.stokes$POST[,c(2,3,4)]) %>% abs %>% colMeans
+( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% `/`(., F3.mueller.stokes$POST[,c(2,3,4)]) %>% abs %>% apply(., 2, sd)

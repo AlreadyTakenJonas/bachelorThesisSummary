@@ -66,12 +66,9 @@ plot.plane.rotation(F2.rotation.elab,
 
 
 # Thoughts on deriving a mueller matrix for the fiber
+# IDEA: FIT STOKES VECTORS AFTER FIBER WITH SINUS DEPENDING ON WAVE PLATE POSITION
 plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$S1, col="red", type="l")
 lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S1, col="blue")
-
-plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$polarisation, col="red", type="l", ylim=c(-1,1.05))
-lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$polarisation, col="blue")
-lines(x = F2.data.stokes$change$W, y = F2.data.stokes$change$change.in.polarisation, col="green")
 
 plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$S2, col="red", type="l")
 lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S2, col="blue")
