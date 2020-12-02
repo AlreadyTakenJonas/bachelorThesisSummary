@@ -79,8 +79,8 @@ plot.plane.rotation(F3.rotation.elab,
 F3.mueller.stokes <- getStokes.from.expData(F3.data.elab)
 # Normalise stokes vectors before and after the fiber with the first stokes parameter before the fiber
 # Ensures that mueller matrix also describes the absorption behaviour of the fiber
-F3.mueller.stokes$PRE[,c(2,3,4)] <- F3.mueller.stokes$PRE[,c(2,3,4)] / F3.mueller.stokes$PRE[,2]
-F3.mueller.stokes$POST[,c(2,3,4)] <- F3.mueller.stokes$POST[,c(2,3,4)] / F3.mueller.stokes$PRE[,2]  
+F3.mueller.stokes$PRE[,c(2,3,4)]  <- F3.mueller.stokes$PRE[,c(2,3,4)]  / F3.mueller.stokes$PRE[,2]
+F3.mueller.stokes$POST[,c(2,3,4)] <- F3.mueller.stokes$POST[,c(2,3,4)] / F3.mueller.stokes$PRE[,2]
 # Calculate mueller matrix by solving linear equations
 F3.muellermatrix <- matrix( c( limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S0), 0,
                                limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S1), 0,
