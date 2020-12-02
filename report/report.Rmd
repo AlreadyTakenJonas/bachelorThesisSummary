@@ -1,7 +1,8 @@
 ---
 title: "__Zusammenfassung der Experimente und Auswertung__"
 output:
-  html_notebook
+  html_document:
+    df_print: paged
 ---
 <!--- Change width options to apppropiate values for your desired page size-->
 <!--- Important for printing HTML as PDF-->
