@@ -27,7 +27,10 @@ library(magrittr)
 # Plotting
 library(fields)
 # Load library for background correction
-library("Peaks")
+# Library Peaks no longer available
+# library(Peaks)
+# library.dynam("Peaks","Peaks",lib.loc=NULL)
+library("baseline")
 ```
 
 
@@ -67,6 +70,10 @@ __Transmissionsverhalten von Linearpolarisatoren__ (Variante zwei Fiberbenches):
 
 ![Aufbau Transmissionsverhalten von Linearpolarisatoren (A: Egtl. Messung, B: Normierung)](./img/aufbau_transmissionPolarisator-2.png)
 
++ Depolarisator und depolarisierende Faser ersetzten die Wellenplatte im Aufbau mit einer Fiberbench
++ Wellenplatte kann nicht verwendet werden, weil Linearpolarisatoren P3 und P4 zu lang sind, um alle Polarisatoren und die Wellenplatte in eine Fiberbench zu stellen
++ Wellenplatte wichtig, um sicher zu stellen, dass die messbare Leistung so groß wie möglich ist
+
 Durchführung:
 
 + Für beliebige Positionen des zu charakterisierenden Linearpolarisators wird der Auxilliarpolarisator auf maximale Transmission gedreht
@@ -79,7 +86,7 @@ Durchführung:
 __Nullpunktbstimmung__
 
 + Herunterladen von Messdaten
-+ Normalisieren der Daten mit der Leistung gemessen ohne Linearpolarisator
++ Normalisieren der Daten $P_{measured}$ mit der Leistung gemessen ohne Linearpolarisator $P_0$: $P = \frac{P_{measured}}{P_0} \cdot 100\%$
 ```{r, auswertung-polarisator-nullpunkt}
 #
 # LINEARPOLARISATOR P1
@@ -105,8 +112,8 @@ P2.maxmin.data$Y1 <- P2.maxmin.data$Y1 / P2.maxmin.metadata[3,2] *100
 __Winkelabhängige Transmission__
 
 + Herunterladen der Messdaten
-+ Ggf. .csv Dateien auslesen und den Mittelwert (unter Vernachlässigung der ersten und letzten 10%-Quantille) der gemessenen Leistungen nehmen
-+ Normalisieren mit der Leistung hinter dem Polarisator mit der Leistung vor dem Polarisator
++ Ggf. .csv Dateien auslesen und den Mittelwert (unter Vernachlässigung der ersten und letzten 10%-Quantille) der gemessenen Leistungen nehmen (Funktionen qmean parseTable.elabftw erlediegen das)
++ Normalisieren der Leistung gemessen hinter dem Polarisator $P_{1}$ mit der Leistung gemessen vor dem Polarisator $P_{0}$ : $P=\frac{P_1]{P_0} \cdot 100\%$
 
 ```{r, auswertung-polarisator-transmission}
 #
@@ -162,12 +169,14 @@ ggplot(data = P1.transmission.data, mapping = aes(x = Y3, y = Y4)) +
        y = "Anteil der Strahlung, die den Polarisator passieren / %")
 
 ```
+
 __Fazit:__
 
 + Rotation parallel zu Laser: 6°, 192°
 + Rotation orthogonal zu Laser: 102°, 280°
 + Transmissionsverhalten schwankt wenig und scheint keinem Muster zu folgen (+/- 0.5%?)
 + Transmittiert ca. 85.6%
++ Winkelabhängigkeit der Transmission wie erwartet
 
 ##### __Linearpolarisator P2__
 
@@ -189,12 +198,14 @@ ggplot(data = P2.transmission.data, mapping = aes(x = Y3, y = Y4)) +
        y = "Anteil der Strahlung, die den Polarisator passieren / %")
 
 ```
+
 __Fazit:__
 
 + Rotation parallel zu Laser: 158°, 340°
 + Rotation orthogonal zu Laser: 72°, 250°
 + Transmissionsverhalten schwankt wenig und scheint keinem Muster zu folgen (+/- 0.5%?)
 + Transmittiert ca. 86.2%
++ Winkelabhängigkeit der Transmission wie erwartet
 
 ##### __Linearpolarisator P3__
 
@@ -217,10 +228,12 @@ ggplot(data = P3.absorbance,
        )
 
 ```
+
 __Fazit:__
 
-+ Transmission schwankt wenig (stärker als P1/P2) und scheint keinem Muster zu folgen (+/- 1% bis zu 2.5%)
++ Transmission schwankt wenig (+/- 1% bis zu 2.5%, stärker als P1/P2) und scheint unahbängig von der Laserpolarisation zu sein
 + Transmittiert ca. 60% (weniger als P1/P2)
++ Winkelabhängigkeit der Transmission wie erwartet
 
 
 
@@ -265,7 +278,7 @@ __Nullpunkt/Transmissionsverhalten:__
 
 + Herunterladen der Messdaten
 + Sich wiederholende Daten sind mit NA abgekürzt -> Ersetzen von NA duch die letzte Zahl in der Spalte
-+ Normalisieren der Messwerte mit der Leistung ohne der Wellenplatte
++ Normalisieren der Messwerte $P_{measured}$ mit der Leistung gemessen ohne Wellenplatte $P = \frac{P_{measured}}{P_{background}} \cdot 100\%$
 
 ```{r, auswertung-waveplate}
 #
@@ -334,6 +347,7 @@ __Fazit:__
 
 + Wellenplatte rotiert Polarisation um  0° bei:       358°,  90°, 180°, 268°
 + Wellenplatte rotiert Polarisation um 90° bei: ~[40°;50°], 134°, 224°, 314°
++ W1 steht orientiert zum Fiberport B1
 + Wellenplatte transmittiert gut (~98%)
 + Transmission schwankt ein wenig (bis zu 2.3%)
 + Transmission scheint bei großen Rotationswinkeln zu sinken; es gibt allerdings viele Ausreißer
@@ -362,7 +376,6 @@ ggplot(data = W2.data, mapping = aes(x=X, y=Y1)) +
 + Wellenplatte rotiert Polarisation um 90° bei:  42°, 128°, 216°, 206°
 + Wellenplatte transmittiert sehr gut (~96.5%)
 + Transmission schwankt ein wenig (bis zu 2.3%)
-+ Transmission verhält sich vielleicht periodisch? Es gibt allerdings viele Ausreißer.
 
 
 
@@ -382,7 +395,7 @@ __Messung der Stokesvektoren:__
 
 Duchführung:
 
-1. Zuerst wird je ein Koordinatensystem für jede Fiberbench definiert:
+1. Zuerst wird je ein Koordinatensystem für jede Fiberbench definiert (es wird der beschriebene Aufbau verwendet):
 + Die Wellenplatte wird für diesen Schritt aus dem Aufbau entfernt
 + Für beide Fiberbenchens wird der Linearpolarisator parallel zum Laser ausgerichtet. Die Polarisatorposition wird als 0° definiert.
 + Für beide Fiberbenchens wird der Linearpolarisator orhtogonal zum Laser ausgerichtet. Die Polarisatorposition wird als 90° definiert.
@@ -404,12 +417,12 @@ Duchführung:
 
 Definition von Funktionen, die die Messdaten auswerten:
 
-+ Berechnen der Stokesvektoren aus dem gemessenen Laserleistungen (Definiert in RHotStuff)
-+ Stokesvektoren auf den ersten Stokesparameter normieren
-+ Berechnen des Polarisationsgrades
-+ Berechnen der Änderung der Lasereigenschaften durch die Faser (Änderung der Polarisation, Lichtintensität, ...)
++ Stokesvektoren $\vec{S}$ auf den ersten Stokesparameter $S_0$ normieren: $\frac{\vec{S}}{S_0}$
++ Berechnen des Polarisationsgrades $\Pi = \frac{ \sqrt{S_1^2 + S_2^2 } }{S_0}$ (letzter Stokesparameter $S_3$ wird vernachlässigt)
++ Berechnen der Änderung des Polarisationsgrades durch die Faser $\Delta\Pi = \frac{\Pi_{post}}{\Pi_{pre}}-1$
++ Berechnen der Änderung der gesamten Laserleistung $P_{ges}$ (Leistung gemessen ohne Linearpolarisator) durch die Faser $\Delta P_{ges} = \frac{P_{ges,post}}{P_{ges,pre}}$): 
 + Berechnen von Mittelwert, Standardabweichung und Varianz für die wiederholte Messung der selben Laserpolarisation
-+ Erstellen von Funktionen, die Graphen produzieren. Die Änderung 
++ Erstellen von Funktionen, die Graphen produzieren
 
 ```{r, auswertung-fiber-stokes-def}
 #
@@ -426,14 +439,6 @@ process.stokesVec <- function(stokes) {
     # Polarisation ratio
     table$polarisation <- sqrt(table$S1^2 + table$S2^2) / table$S0
     
-    # Polar stokes angle
-    table$sigma <- better.acos( table$polarisation*table$S0, table$S1, table$S2)
-    
-    # Polar electrical field coordinate
-    # !!! Keep in mind: This may be bullshit, if the polarisation ratio is smaller than one!
-    # I'm to 90% sure that this conversion is also valid for partially polarised light
-    table$epsilon <- table$sigma / 2
-    
     # Return result
     return(table)
   })
@@ -441,11 +446,6 @@ process.stokesVec <- function(stokes) {
   # CALCULATE CHANGE OF THE STOKES VECTORS PROPERTIES
   # Change in epsilon, change in polarisation, change in laser intensity
   stokes[["change"]]   <- data.frame("W"                      = stokes$PRE$W,
-                                     # How much gets the plane of polarisation rotated?
-                                     # Calculate the difference as smallest signed distance between two modular numbers
-                                     # !!! Keep in mind: This is bullshit, if the polarisation ratio is smaller than one!
-                                     "mod.change.in.epsilon"  = better.subtraction(stokes$POST$epsilon - stokes$PRE$epsilon, base=  pi),
-                                     "mod.change.in.sigma"    = better.subtraction(stokes$POST$sigma   - stokes$PRE$sigma  , base=2*pi),
                                      # How much does the polarisation ratio change?
                                      "change.in.polarisation" = stokes$POST$polarisation / stokes$PRE$polarisation - 1,
                                      # How much does the intensity of the light change?
@@ -461,9 +461,6 @@ process.stokesVec <- function(stokes) {
 # error.stokes contains the data for several identical measurements
 # following function will therefore compute statistical properties 
 # like sd or mean for every column of the tables
-# !!! Keep in mind: The statistics for the angles sigma and epsilon are not done with modular functions
-#                   The modular numbers sigma and epsilon will therefore have the wrong mean, variance, sd, ...
-#                   In this case only the modular calculated difference can be trusted.
 do.statistics <- function(error.stokes) {
   lapply(error.stokes, function(table) {
     stats.table <- data.frame( var  = sapply(table, var ),
@@ -579,8 +576,8 @@ plot.intensity <- function(data,
           panel.grid.major.y = element_line("black", size = 0.1),
           panel.grid.minor.y = element_line("grey", size = 0.5) ) +
     labs(title = title,
-         x     = expression(bold("the have-waveplates angle of rotation "*omega*" / °")),
-         y     = expression(bold("the normalised laser power "*P*" / %")),
+         x     = expression(bold("have-waveplates angle of rotation "*omega*" / °")),
+         y     = expression(bold("normalised laser power "*P*" / %")),
          fill  = "" ) +
     scale_fill_discrete( labels=c( expression(bold("before")), expression(bold("after")) ) )  
 }
@@ -588,7 +585,7 @@ plot.intensity <- function(data,
 
 # How does the fiber influence the PLANE OF POLARISATIONS ORIENTATION?
 plot.plane.rotation <- function(data, 
-                                title = expression(bold("The Impact Of The <YOUR FIBER> On The Orientation Of The Plane Of Polarisation")) 
+                                title = expression(bold("Impact Of The <YOUR FIBER> On The Orientation Of The Plane Of Polarisation")) 
 ) {
   # EXPECTED PARAMETERS:
   # data : elabFTW table of angle dependent rotation behavior of optical fibers
@@ -614,10 +611,10 @@ plot.plane.rotation <- function(data,
 Nutzung der eben definierten Funktionen:
 
 + Herunterladen der Messdaten
-+ .csv-Dateien auslesen und den Mittelwert (unter Vernachlässigung der ersten und letzten 10%-Quantille) der gemessenen Leistungen nehmen
-+ Stokesvektoren berechnen (definiert in RHotStuff)
-+ Polarisationsgrad berechnen
-+ Messfehler berechnen (Mittelwert, Standardabweichung, Varianz für wiederholte Messung)
++ .csv-Dateien auslesen und den Mittelwert (unter Vernachlässigung der ersten und letzten 10%-Quantille) der gemessenen Leistungen nehmen (Funktionen parseTable.elabftw and qmean erledigen das)
++ Berechnen der Stokesvektoren $\vec{S}$ aus dem gemessenen Laserleistungen $P_{0°}; P_{45°}; P_{90°}; P_{135°}$ (Definiert in RHotStuff): $\vec{S} = (P_{0°}+P_{90°}; P_{0°}-P_{90°}; P_{45°}-P_{135°}; 0)$ (letzter Stokesparameter wird vernachlässigt)
++ Polarisationsgrad berechnen (vgl. process.stokesVec() im vorherigen code chunk)
++ Messfehler berechnen (Mittelwert, Standardabweichung, Varianz für wiederholte Messung -> do.statistics() definiert in vorherigen code chunk)
 
 ```{r, auswertung-fiber-stokes-process}
 # F1 : POLARISATION-MAINTAING-FIBER
@@ -691,21 +688,17 @@ F3.error.stats <- getStokes.from.expData(F3.error.elab) %>% process.stokesVec %>
 ```{r, plot-F1}
 # How does the polarisation ratio change relative to the initial polarisation ratio?
 plot.polarisation.change(data  = F1.data.stokes, 
-                         title = expression(bold("The Depolarising Behaviour Of An Optical PM-Fiber (F1)") )
+                         title = expression(bold("Depolarising Behaviour Of An Optical PM-Fiber (F1)") )
 )
 # COMPARING POLARISATION RATIOS before and after interacting with the fiber
 plot.polarisation(data       = F1.data.stokes, 
                   statistics = F1.error.stats,
-                  title      = expression(bold("The Effect Of An Optical PM-Fiber (F1) On The Polarisation Ratio "*Pi))
+                  title      = expression(bold("Effect Of An Optical PM-Fiber (F1) On The Polarisation Ratio "*Pi))
 )
 
 # CHANGE in LASER POWER due to optical fiber
 plot.intensity.change(data  = F1.data.stokes,
-                      title = expression(bold("The Transmittance Of An Optical PM-Fiber (F1)"))
-)
-# COMPARING LASER POWER before and after interacting with the fiber
-plot.intensity(data  = F1.data.stokes, 
-               title = expression(bold("The Effect Of An Optical PM-Fiber (F1) On The Lasers Power "*P))
+                      title = expression(bold("Transmittance Of An Optical PM-Fiber (F1)"))
 )
 ```
 
@@ -715,11 +708,10 @@ __Fazit:__
 + In der Nähe der polarisationserhaltenen Winkel wird der Polarisationsgrad vergrößert
 + In allen anderen Fällen wird der Polarisationsgrad verringert
 + Anhand der Änderungen im Polarisationsgrad wird deutlich: Die PM-Faser leitet nur zwei Moden. Die erste bei 0°, die zweite bei 90°
-+ Der Polarisationszustand des Laser nach der Faser ist eine Linearkombination aus zwei Wellen orientiert entlang 0° und 90°
 + Die PM-Faser kann nicht für beliebige Polarisationszustände verwendet werden
 + Die Faser lässt 15% bis 30% des Lasers durch
-+ Die Faser transmittiert entlang der optischen Achsen (0°, 90°) und der Winkelhabierenden gut
-+ Die Faser transmittiert entlang der Winkelviertelnden der optischen Achsen (0°, 90°) schlecht
++ Wie erwartet: Bei 0° und 90° resultierender Polarisationsgrad sehr gut ($\widehat{=}\; n \cdot 45°$ Wellenplattenrotation). Dazwischen depolarisiert die Faser, weil in andere Moden gepumpt wird
++ Bei 0° und 90° Transmission sehr gut ($\widehat{=}\; n \cdot 45°$ Wellenplattenrotation). Dazwischen gibt es Kopplungsverluste
 
 
 ##### __SM-Faser F2__
@@ -727,26 +719,22 @@ __Fazit:__
 ```{r, plot-F2}
 # How does the polarisation ratio change relative to the initial polarisation ratio?
 plot.polarisation.change(data  = F2.data.stokes, 
-                         title = expression(bold("The Depolarising Behaviour Of An Optical SM-Fiber (F2)") )
+                         title = expression(bold("Depolarising Behaviour Of An Optical SM-Fiber (F2)") )
 )
 # COMPARING POLARISATION RATIOS before and after interacting with the fiber
 plot.polarisation(data       = F2.data.stokes, 
                   statistics = F2.error.stats,
-                  title      = expression(bold("The Effect Of An Optical SM-Fiber (F2) On The Polarisation Ratio "*Pi))
+                  title      = expression(bold("Effect Of An Optical SM-Fiber (F2) On The Polarisation Ratio "*Pi))
 )
 
 # CHANGE in LASER POWER due to optical fiber
 plot.intensity.change(data  = F2.data.stokes,
-                      title = expression(bold("The Transmittance Of An Optical SM-Fiber (F2)"))
-)
-# COMPARING LASER POWER before and after interacting with the fiber
-plot.intensity(data  = F2.data.stokes, 
-               title = expression(bold("The Effect Of An Optical SM-Fiber (F2) On The Lasers Power "*P))
+                      title = expression(bold("Transmittance Of An Optical SM-Fiber (F2)"))
 )
 
 # How does the fiber influence the PLANE OF POLARISATIONS ORIENTATION
 plot.plane.rotation(F2.rotation.elab, 
-                    title = expression(bold("The Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation"))
+                    title = expression(bold("Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation"))
 )
 ```
 
@@ -756,11 +744,11 @@ __Fazit:__
 + Das Depolarisationsverhalten ist stark winkelabhänig
 + Das Transmissionsverhalten ist winkelunabhängig
 + Es werden ca. 27.5% des Lasers transmittiert
-+ Die SM-Faser beeinflusst die Polarisationsebene des Lasers stark
-+ Die Polarisationsebene wird entlang der 0°-Ebene gespiegelt
++ Die SM-Faser beeinflusst die Polarisationsebene des Lasers
++ Die Polarisationsebene wird entlang der 0°-Ebene gespiegelt (Warum?)
 + Der Zusammenhang zwischen dem Winkel der Polarisationsebene vor und nach der Faser ist, anders als ertwartet, nicht linear
-+ Der Zusammenhang hat vermutlich die Form -x+sin^2(x)
 + Der Einfluss der SM-Faser auf den Polarisationszustand ist nicht vernachlässigbar
++ Ähnlich wie PM-Faser: Bei 0° und 90° resultierender Polarisationsgrad sehr gut ($\widehat{=}\; n \cdot 45°$ Wellenplattenrotation). Dazwischen depolarisiert die Faser. Vielleicht verhält sich SM-Faser wie PM-Faser, weil die SM-Faser während des Experiments so gerade gestreckt war wie möglich
 
 
 ##### __MM-Faser F3__
@@ -793,11 +781,11 @@ plot.plane.rotation(F3.rotation.elab,
 __Fazit:__
 
 + MM-Faser reduzert Polarisationsgrad um ~22° bis ~37°
-+ Depolarisierungseigenschaften scheinen sich periodisch zu ändern. Maximum alle 50°. Komische Periode.
++ Depolarisierungseigenschaften periodisch. Maximum alle 50°. Komische Periode.
++ Charakterisierung der Depolarisationseigenschaften schwierig, weil zwischen MM-Faser und Probe das Mikroskop ist
 + Transmissionsverhalten sehr gut und winkelunabhängig
 + Transmission ~85%
 + Der Zusammenhang zwischen dem Winkel der Polarisationsebene vor und nach der Faser ist, anders als ertwartet, nicht linear
-+ Der Zusammenhang hat vermutlich die Form -sin^2(x)+x
 + Der Einfluss der MM-Faser auf den Polarisationszustand ist nicht vernachlässigbar
 
 
@@ -908,7 +896,7 @@ plot.detector.allSpectra <- function(data,
   zfacet <- PlotMat[-1, -1] + PlotMat[-1, -ncol(PlotMat)] + PlotMat[-nrow(PlotMat), -1] + PlotMat[-nrow(PlotMat), -ncol(PlotMat)]
   facetcol <- cut(zfacet, color.resolution)
   plotCol <- persp(surface, theta=theta, phi=phi)
-
+  
   # Create the plor
   plot.surface(surface, type="p", theta=theta, border=NA, phi=phi,
                xlab = "wavenumber / cm^-1",
@@ -926,17 +914,17 @@ plot.detector.allSpectra <- function(data,
   # Draw the gridlines
   for(i in select.X) lines(trans3d(x=rep(grid[[1]][i],ncol(PlotMat)),
                                y=grid[[2]],
-                               z=PlotMat[i,],pmat=plotCol))
+                               z=PlotMat[i,], pmat=plotCol))
   for(i in select.Y) lines(trans3d(x=grid[[1]],
                                y=rep(grid[[2]][i],nrow(PlotMat)),
-                               z=PlotMat[,i],pmat=plotCol))
+                               z=PlotMat[,i], pmat=plotCol))
 }
 ```
 
 + Spektren herunterladen
 + .txt-Dateien mit den Ramanspektren auslesen und alle Spektren in einem data.frame vereinigen
 + Die Spektren werden coloriert, wenn sie in einem Plot überlagert werden
-+ Positionen des Linearpolarisators, die die selbe absolute Auslenkung aus der 90°/270°-Axe haben, werden gleich coloriert
++ Positionen des Linearpolarisators $p$, die die selbe absolute Auslenkung aus der 90°/270°-Achse $\alpha$ haben, werden gleich coloriert: $\alpha = |(p \bmod \pi) - \frac{\pi}{2}|$
 
 ```{r, auswertung-detector-process-plot}
 # Fetch experimental data from elabFTW
@@ -957,30 +945,6 @@ plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[1]],
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
                         title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope")
 
-
-# How does the sensitivity of the detector change with the wavenumber
-# ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
-#                           difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
-#                           ),
-#         mapping = aes(x=wavenumber, y=difference)) +
-#   theme_hot() +
-#   labs(title = "Difference between maximal and minimal detector response",
-#        x = expression(bold("wavenumber / cm"^"-1")),
-#        y = "count difference") +
-#   geom_line()
-
-# How does the sensitivity of the detector change with the wavenumber (difference method)
-# ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
-#                           difference = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)-min(slice) }) 
-#                         ),
-#         mapping = aes(x=wavenumber, y=difference) ) +
-#   theme_hot() +
-#   labs(title = "Difference between maximal and minimal detector response",
-#        x = expression(bold("wavenumber / cm"^"-1")),
-#        y = "count difference") +
-#   geom_line()
-
-
 # How does the sensitivity of the detector change with the wavenumber (quotient method)
 ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
                           quotient   = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)/min(slice) }) 
@@ -998,13 +962,14 @@ plot.detector.allSpectra(detector.spectra[[2]][,-c(21:24)], theta=240)
 
 __Fazit:__
 
-+ Die Messung mit dem Mirkoskop ist sehr verrauscht. Die Weißlichtlampe ist nicht hell genug dafür.
++ Die Messung mit dem Mirkoskop ist sehr verrauscht. Die Weißlichtlampe ist nicht hell genug dafür. Mit langer Integrationszeit wiederholen.
 + Weißlichtspektren zeigen Abhängigkeit von Lichtpolarisation
 + Nicht vergessen: Die Linearpolarisatorposition kann nicht vom Freespace auf die Fiberbenches übertragen werden!
 + Für jede Wellenzahl gibt es je eine Polarisation, die das gemessene Signal maximiert bzw. minimiert
-+ Der Detektor ist entlang der 0°-Axe empfindlicher als entlang der 90°-Axe
-+ Der Quotient aus max/min beschreibt wie empfindlich der Detektor entlang der 0°-Axe im Vergleich zur 90°-Axe ist
-+ Die Detekorempfindlichkeit schwankt zwischen 1.20:1 und 1.35:1 (I_0°:I_90° bzw. I_x:I_y)
++ Der Detektor ist entlang der 0°-Achse empfindlicher als entlang der 90°-Achse
++ Der Quotient aus max/min beschreibt wie empfindlich der Detektor entlang der 0°-Achse im Vergleich zur 90°-Achse ist
++ Die Form des Graphen ist komisch. Komische Form könnte am russischen Aufbau liegen. Messung wiederholen, um Reproduzierbarkeit zu überprüfen
++ Die Detekorempfindlichkeit schwankt zwischen 1.20:1 und 1.35:1 ($I_{0°}:I_{90°}$ bzw. $I_x:I_y$)
 
 
 
@@ -1020,14 +985,27 @@ Durchführung:
 
 ### __Ramanspektren von Tetrachlormethan__
 
-```{r, auswertung-tetra-spektren}
+Auswertung:
+
++ Messdaten herunterladen (alle Spektren in einem data.frame, erste Spalte Wellenzahlachse, restliche Spalten Ramanspektren, Spaltennamen Positionen der Wellenplatte)
++ Preprocess: "Background Correction" mit fillPeaks-Methode des baseline-Pakets, Normalisieren der Spektren mit der Höhe des größten Peaks
++ Finden aller Peaks im Ramanspektrum
++ Änderung der Peakhöhen für verschiedene Wellenplattenpositionen in neue Matrix schreiben
++ Vergleichen der Empfindlichkeit des Detektors für Licht, dass entlang der optischen Achsen des Detektors polarisiert ist
++ Vergleich der Empfindlichkeit $Q$ als Quotient der maximalen Peakhöhe $h_{max}$ und minimalen Peakhöhe $h_{min}$: $Q = \frac{h_{max}}{h_{min}}$ 
+
+```{r, auswertung-tetra-spektren, warning=F}
 # FETCH DATA
 tetra.spectra <- GET.elabftw.bycaption(79, header=T, outputHTTP=T) %>%
                   parseTimeSeries.elab(., col.spectra=3, sep="") %>% .[[1]]
 
 # PREPROCESS
 # Statistical Background Correction
-tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec-SpectrumBackground(spec))
+# Peaks no longer available
+# tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec-Peaks::SpectrumBackground(spec))
+tetra.spectra[,-1] <- t( as.matrix(tetra.spectra[,-1]) ) %>% 
+                        baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>% 
+                        baseline::getCorrected(.) %>% t(.)
 # Normalise each spectra by its highest peak
 tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec/max(spec))
 
@@ -1052,7 +1030,7 @@ tetra.peakLocations <- sapply(tetra.peakMargins, function(margins) {
 
 # EXTRACT THE PEAK HEIGHTS FOR DIFFERENT LASER POLARISATIONS
 # Create empty matrix
-tetra.peakChange <- matrix( rep(NA, ncol(tetra.spectra[,-1])*(length(tetra.peakLocations)+1) ), nrow = ncol(tetra.spectra[,-1]) )
+tetra.peakChange <- matrix( NA, nrow = ncol(tetra.spectra[,-1]), ncol = length(tetra.peakLocations)+1 )
 # Add column with the wave plate position
 tetra.peakChange[,1] <- colnames(tetra.spectra[,-1]) %>% as.numeric
 # Loop over all peaks and and add their heights to the matrix
@@ -1074,30 +1052,33 @@ tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.num
                                 quotient   = tetra.sensibility %>% unname)
 
 
-# HWO ARE THE OPTICAL AXIS OF THE DETECTOR ALIGNED?
+# HOW ARE THE OPTICAL AXIS OF THE DETECTOR ALIGNED?
 # The wave plates position of the maximal detector response
 # Loop over all peaks and compare the height between the different spectra
-sapply(seq_along(tetra.peakChange[,-1]), function(index) {
-  # The maximal height of the current peak
-  peakHeight <- max(tetra.peakChange[,index+1])
-  # Get the index of the maximum
-  select <- which(peakHeight==tetra.peakChange[,index+1])
-  # If there are multiple maxima its propably the peak I normalised with
-  # Just return NA in this case
-  if (length(select)>1) return(NA)
-  # Return the wave plates position
-  return( tetra.peakChange[ select,1 ] )
-})
+# sapply(seq_along(tetra.peakChange[,-1]), function(index) {
+#   # The maximal height of the current peak
+#   peakHeight <- max(tetra.peakChange[,index+1])
+#   # Get the index of the maximum
+#   select <- which(peakHeight==tetra.peakChange[,index+1])
+#   # If there are multiple maxima its probably the peak I normalised with
+#   # Just return NA in this case
+#   if (length(select)>1) return(NA)
+#   # Return the wave plates position
+#   return( tetra.peakChange[ select,1 ] )
+# })
 ```
 
-```{r}
++ Die Spektren werden coloriert, wenn sie in einem Plot überlagert werden
++ Positionen der Wellenplatte $w$, die die selbe absolute Auslenkung der Polarisationsebene aus der 90°/270°-Achse $\alpha$ haben, werden gleich coloriert: $\alpha = |(2w \bmod \pi) - \frac{\pi}{2}|$
+
+```{r, plot-tetra-spektrum}
 # Plot ALL SPECTRA OVERLAYERD as 2d plot
 tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[tetra.spectra$wavenumber>100,-c(21:24)], 
                                                            colorFunc=function(waveplateRotation) 
-                                                           { mod(waveplateRotation, 90) %>% `-`(., 45) %>% abs } ),
+                                                           { mod(waveplateRotation*2, 180) %>% `-`(., 90) %>% abs } ),
                                 mapping = aes(x = wavenumber, ymax = signal, ymin=0, group = P, fill = color) ) +
    scale_fill_gradientn(colors = c("red", "orange", "green"),
-                        breaks = seq(from=0, to=45, length.out=4) ) +
+                        breaks = seq(from=0, to=90, length.out=4) ) +
   theme_hot() +
   labs(title = "Influence Of Light Polarisation On Raman Spectrum Of Tetrachloromethane",
        y = "normalised intensity",
@@ -1108,7 +1089,7 @@ tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[tetra.s
 # Plot all wavenumbers
 tetra.plot.allSpetra
 # Show just the interesting part
-tetra.plot.allSpetra + coord_cartesian(xlim = c(150, 850), ylim = c(0,0.55))
+tetra.plot.allSpetra + coord_cartesian(xlim = c(150, 850), ylim = c(0,0.525))
 
 
 # Plot the HEIGHT OF PEAKS against the wave plates position
@@ -1117,6 +1098,9 @@ plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n", ylim=c(0,1)
      xlab = "waveplate rotation / °",
      ylab = "normalised peak height")
 for (index in seq_along(tetra.peakChange[,-1])) lines(x=tetra.peakChange$waveplate, y=tetra.peakChange[,index+1], col=index)
+legend( x = 140, y = 0.98,
+        legend = paste0(colnames(tetra.peakChange[,-1]), "/cm"),
+        fill = 1:ncol(tetra.peakChange[,-1]) )
 
 # Plot the quotient of the DETECTOR RESPONSE along its optical axis
 plot(tetra.sensibility, type="h", lwd=2,
@@ -1126,4 +1110,10 @@ plot(tetra.sensibility, type="h", lwd=2,
 
 ```
 
-Plot/Diskussion
+__Fazit:__
+
++ Peakhöhe des Ramanspektrums hängt von der Polarisation des Lasers ab
++ Peakhöhenverhältnisse hängen von der Polarisation des Lasers ab
++ Detektorempfindlichkeit ~1.15:1
++ Detektorempfindlichkeit für alle Peaks unterschiedlich
++ Detektorempfindlichkeit nicht für höchsten Peak bestimmbar, weil auf den höchsten Peak normiert wird. Andere Normierungsmethode wählen?

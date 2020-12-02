@@ -10,15 +10,22 @@ source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 #check.version("1.6.0")
 
 # Load library for background correction
-library.dynam("Peaks","Peaks",lib.loc=NULL)
+# Peaks no longer available
+# library.dynam("Peaks","Peaks",lib.loc=NULL)
+library("baseline")
 
 # FETCH DATA
 tetra.spectra <- GET.elabftw.bycaption(79, header=T, outputHTTP=T) %>%
                   parseTimeSeries.elab(., col.spectra=3, sep="") %>% .[[1]]
 
+
 # PREPROCESS
 # Statistical Background Correction
-tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec-SpectrumBackground(spec))
+# Peaks no longer available
+# tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec-Peaks::SpectrumBackground(spec))
+tetra.spectra[,-1] <- t( as.matrix(tetra.spectra[,-1]) ) %>% 
+                        baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>% 
+                        baseline::getCorrected(.) %>% t(.)
 # Normalise each spectra by its highest peak
 tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec/max(spec))
 
@@ -46,7 +53,7 @@ tetra.peakLocations <- sapply(tetra.peakMargins, function(margins) {
 
 # EXTRACT THE PEAK HEIGHTS FOR DIFFERENT LASER POLARISATIONS
 # Create empty matrix
-tetra.peakChange <- matrix( rep(NA, ncol(tetra.spectra[,-1])*(length(tetra.peakLocations)+1) ), nrow = ncol(tetra.spectra[,-1]) )
+tetra.peakChange <- matrix( NA, nrow = ncol(tetra.spectra[,-1]), ncol = length(tetra.peakLocations)+1 )
 # Add column with the wave plate position
 tetra.peakChange[,1] <- colnames(tetra.spectra[,-1]) %>% as.numeric
 # Loop over all peaks and and add their heights to the matrix
