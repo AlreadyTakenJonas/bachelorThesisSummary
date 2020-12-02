@@ -1115,5 +1115,8 @@ __Fazit:__
 + Peakhöhe des Ramanspektrums hängt von der Polarisation des Lasers ab
 + Peakhöhenverhältnisse hängen von der Polarisation des Lasers ab
 + Detektorempfindlichkeit ~1.15:1
++ Empfindlichkeit geringer als bei der Charakterisierung des Detektors ermittelt
++ Empfindlichkeit hängt viel weniger von der Wellenzahl ab als bei der Charakterisierung des Detektors ermittelt
++ Andere Detektorempfindlichkeit liegt wahrscheinlich daran, dass bei der Charakterisierung das Mikroskop nicht berücksichtigt wurde
 + Detektorempfindlichkeit für alle Peaks unterschiedlich
 + Detektorempfindlichkeit nicht für höchsten Peak bestimmbar, weil auf den höchsten Peak normiert wird. Andere Normierungsmethode wählen?
