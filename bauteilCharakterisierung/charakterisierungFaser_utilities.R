@@ -14,19 +14,11 @@ check.version("1.4.0")
 process.stokesVec <- function(stokes) {
   # Compute properties of stokes vectors and normalise -> polarisation ratio, ...
   stokes <- lapply(stokes, function(table) { 
-    # Normalise stokes vectors
-    table[,c("S0", "S1", "S2")] <- table[,c("S0", "S1", "S2")] / table$S0
+    # Normalise stokes vectors with initial first stokes parameter
+    table[,c("S0", "S1", "S2")] <- table[,c("S0", "S1", "S2")] / stokes$PRE$S0
     
     # Polarisation ratio
     table$polarisation <- sqrt(table$S1^2 + table$S2^2) / table$S0
-    
-    # Polar stokes angle
-    table$sigma <- better.acos( table$polarisation*table$S0, table$S1, table$S2)
-    
-    # Polar electrical field coordinate
-    # !!! Keep in mind: This may be bullshit, if the polarisation ratio is smaller than one!
-    # I'm to 90% sure that this conversion is also valid for partially polarised light
-    table$epsilon <- table$sigma / 2
     
     # Return result
     return(table)
@@ -35,11 +27,6 @@ process.stokesVec <- function(stokes) {
   # CALCULATE CHANGE OF THE STOKES VECTORS PROPERTIES
   # Change in epsilon, change in polarisation, change in laser intensity
   stokes[["change"]]   <- data.frame("W"                      = stokes$PRE$W,
-                                     # How much gets the plane of polarisation rotated?
-                                     # Calculate the difference as smallest signed distance between two modular numbers
-                                     # !!! Keep in mind: This is bullshit, if the polarisation ratio is smaller than one!
-                                     "mod.change.in.epsilon"  = better.subtraction(stokes$POST$epsilon - stokes$PRE$epsilon, base=  pi),
-                                     "mod.change.in.sigma"    = better.subtraction(stokes$POST$sigma   - stokes$PRE$sigma  , base=2*pi),
                                      # How much does the polarisation ratio change?
                                      "change.in.polarisation" = stokes$POST$polarisation / stokes$PRE$polarisation - 1,
                                      # How much does the intensity of the light change?
@@ -55,9 +42,6 @@ process.stokesVec <- function(stokes) {
 # error.stokes contains the data for several identical measurements
 # following function will therefore compute statistical properties 
 # like sd or mean for every column of the tables
-# !!! Keep in mind: The statistics for the angles sigma and epsilon are not done with modular functions
-#                   The modular numbers sigma and epsilon will therefore have the wrong mean, variance, sd, ...
-#                   In this case only the modular calculated difference can be trusted.
 do.statistics <- function(error.stokes) {
   lapply(error.stokes, function(table) {
     stats.table <- data.frame( var  = sapply(table, var ),
@@ -70,6 +54,64 @@ do.statistics <- function(error.stokes) {
   
   # TODO: t-Test, Kruskal-Wallis-Test
 }
+
+
+#
+# COMPUTE THE MUELLER MATRIX OF THE OPTICAL FIBER
+#
+# This function takes at least three pairs stokes vectors describing the polarisation of a laser before (S^PRE) and after (S^POST) interacting
+# with an optical fiber (input is the output of process.stokesVec())
+muellermatrix <- function(stokes) {
+  # Fit following system of linear equation of three unknown variables (a, b, c) with many known stokes vector pairs
+  # Ignore last stokes parameter
+  # (I)   S_0^POST = a_0 * S_0^PRE + b_0 * S_1^PRE + c_0 * S_2^PRE + d_0 * S_3^PRE (S_3^PRE=0)
+  # (II)  S_1^POST = a_1 * S_0^PRE + b_1 * S_1^PRE + c_1 * S_2^PRE + d_1 * S_3^PRE (S_3^PRE=0)
+  # (III) S_2^POST = a_2 * S_0^PRE + b_2 * S_1^PRE + c_2 * S_2^PRE + d_2 * S_3^PRE (S_3^PRE=0)
+  # (IV)  S_3^POST = a_3 * S_0^PRE + b_3 * S_1^PRE + c_3 * S_2^PRE + d_3 * S_3^PRE (S_3^PRE=0, S_3^POST=0)
+  # Build mueller matrix as following:
+  # | a_0 b_0 c_0 d_0 |   | a_0 b_0 c_0  0 |
+  # | a_1 b_1 c_1 d_1 | = | a_1 b_1 c_1  0 | 
+  # | a_2 b_2 c_2 d_2 |   | a_2 b_2 c_2  0 |
+  # | a_3 b_3 c_3 d_3 |   |  0   0   0   0 |
+  matrix( c( limSolve::Solve(as.matrix(stokes$PRE[,c(2,3,4)]), stokes$POST$S0), 0,
+             limSolve::Solve(as.matrix(stokes$PRE[,c(2,3,4)]), stokes$POST$S1), 0,
+             limSolve::Solve(as.matrix(stokes$PRE[,c(2,3,4)]), stokes$POST$S2), 0,
+             0, 0, 0                                                          , 0 ), 
+          ncol = 4, byrow = T )
+}
+# Predict the polarisation state after interacting with an optical fiber by using the initial 
+# measured stokes vector and the muller matrix of the fiber
+predict.stokesVec <- function(stokes, mueller) {
+  # Calculate stokes vectors describing polarisation after the fiber by matrix multiplication in the mueller formalism
+  # Ignore the last stokes parameter
+  stokes.post <- apply(stokes$PRE[,c(2,3,4)], 1, function(stokes) { 
+    mueller[1:3,1:3] %*% ( stokes %>% unlist ) 
+  })
+  # Calculate the grade of polarisation
+  polarisation <- apply(stokes.post, 2, function(stokes) { 
+    sqrt(sum(stokes[c(2,3)]^2)) / stokes[1] 
+  } )
+  
+  # Put the result into the inital list of stokes parameters
+  stokes$POST.PREDICT <- data.frame(W  = stokes$PRE$W,
+                                    S0 = stokes.post[1,],
+                                    S1 = stokes.post[2,],
+                                    S2 = stokes.post[3,],
+                                    I  = NA,
+                                    polarisation = polarisation)
+  
+  # Calculate the difference between measured and predicted stokes vector
+  stokes$PREDICT.ERROR <- data.frame(W = stokes$POST.PREDICT$W,
+                                     diff.S0 = stokes$POST$S0 - stokes$POST.PREDICT$S0,
+                                     diff.S1 = stokes$POST$S1 - stokes$POST.PREDICT$S1,
+                                     diff.S2 = stokes$POST$S2 - stokes$POST.PREDICT$S2,
+                                     diff.polarisation = stokes$POST$polarisation - stokes$POST.PREDICT$polarisation )
+  
+  return(stokes)
+}
+
+
+
 
 #
 #   PLOT THAT SHIT

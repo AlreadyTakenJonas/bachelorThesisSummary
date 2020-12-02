@@ -38,7 +38,10 @@ F3.data.stokes <- getStokes.from.expData(F3.data.elab)  %>% process.stokesVec
 F3.meta.stokes <- getStokes.from.metaData(F3.meta.elab) %>% process.stokesVec
 F3.error.stats <- getStokes.from.expData(F3.error.elab) %>% process.stokesVec %>% do.statistics
 
-
+# Compute the mueller matrix of the fiber, using the stokes vectors measured before and after the fiber
+F3.muellermatrix <- muellermatrix(F3.data.stokes)
+# Predict the stokes vectors after the fiber from the mueller matrix and the stokes vectors measured before the fiber
+F3.data.stokes   <- predict.stokesVec(F3.data.stokes, F3.muellermatrix)
 
 #
 # PLOT THAT SHIT
@@ -68,66 +71,28 @@ plot.plane.rotation(F3.rotation.elab,
 )
 
 
-
-#
-# TODO: REFRACTURE CODE AND APPLY TO OTHER OPTICAL FIBERS
-#
-#
-# Calculate mueller matrix elements a bit more refined
-#
-# Recalculate stokes vectors
-F3.mueller.stokes <- getStokes.from.expData(F3.data.elab)
-# Normalise stokes vectors before and after the fiber with the first stokes parameter before the fiber
-# Ensures that mueller matrix also describes the absorption behaviour of the fiber
-F3.mueller.stokes$PRE[,c(2,3,4)]  <- F3.mueller.stokes$PRE[,c(2,3,4)]  / F3.mueller.stokes$PRE[,2]
-F3.mueller.stokes$POST[,c(2,3,4)] <- F3.mueller.stokes$POST[,c(2,3,4)] / F3.mueller.stokes$PRE[,2]
-# Calculate mueller matrix by solving linear equations
-F3.muellermatrix <- matrix( c( limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S0), 0,
-                               limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S1), 0,
-                               limSolve::Solve(as.matrix(F3.mueller.stokes$PRE[,c(2,3,4)]), F3.mueller.stokes$POST$S2), 0,
-                               0, 0, 0, 0 ), 
-                            ncol = 4, byrow = T )
-
-# Predict stokes vector after the fiber
-F3.predicted.POST <- apply(F3.mueller.stokes$PRE[,c(2,3,4)], 1, function(stokes) { 
-  F3.muellermatrix %*% ( stokes %>% unlist %>% c(., 0) ) 
-})
-# Calculate polarisation ratio of predicted stokes vectors
-F3.predicted.POST.polarisation <- data.frame( "predicted" = apply(F3.predicted.POST, 2, function(stokes) { 
-                                                                  sqrt(sum(stokes[c(2,3,4)]^2)) / stokes[1] } ),
-                                              "measured"  = apply(F3.mueller.stokes$POST, 1, function(stokes) { 
-                                                                  sqrt(sum(stokes[c(3,4)]^2))   / stokes[2] } ) )
-# Plot and compare the predicted and measured stokes parameters
+# Plot and compare the PREDICTED and MEASURED STOKES parameters
 # S0
-plot(x = F3.mueller.stokes$POST$W, y = F3.mueller.stokes$POST$S0, col="red", type="l",
-     main=expression("Predicted/Measured S"[0]))
-lines(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST[1,], col="blue")
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$S0, col="red", type="l",
+     main = expression("F3: Predicted/Measured S"[0]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[0]))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$S0, col="blue")
 # S1
-plot(x = F3.mueller.stokes$POST$W, y = F3.mueller.stokes$POST$S1, col="red", type="l",
-     main=expression("Predicted/Measured S"[1]))
-lines(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST[2,], col="blue")
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$S1, col="red", type="l",
+     main = expression("F3: Predicted/Measured S"[1]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[1]))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$S1, col="blue")
 # S2
-plot(x = F3.mueller.stokes$POST$W, y = F3.mueller.stokes$POST$S2, col="red", type="l",
-     main=expression("Predicted/Measured S"[2]))
-lines(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST[3,], col="blue")
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$S2, col="red", type="l",
+     main = expression("F3: Predicted/Measured S"[2]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[2]))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$S2, col="blue")
 # Polarisation ratio
-plot(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST.polarisation$predicted, col="blue", type="l",
-     main=expression("Predicted/Measured "*Pi))
-lines(x = F3.mueller.stokes$POST$W, y = F3.predicted.POST.polarisation$measured, col="red")
-
-
-# Calculate difference between predicted and measured stokes parameters
-# Mean difference and standard deviation between measurement and prediction
-( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% abs %>% colMeans
-( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% abs %>% apply(., 2, sd)
-# Relative mean difference and standard deviation between measurement and prediction
-( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% `/`(., F3.mueller.stokes$POST[,c(2,3,4)]) %>% abs %>% colMeans
-( t(F3.predicted.POST[-4,]) - F3.mueller.stokes$POST[,c(2,3,4)] ) %>% `/`(., F3.mueller.stokes$POST[,c(2,3,4)]) %>% abs %>% apply(., 2, sd)
-
-# Calculate difference between predicted and measured polarisation ratio
-# Mean difference and standard deviation between measurement and prediction
-(F3.predicted.POST.polarisation$predicted - F3.predicted.POST.polarisation$measured) %>% abs %>% mean
-(F3.predicted.POST.polarisation$predicted - F3.predicted.POST.polarisation$measured) %>% abs %>% sd
-# Relative mean difference and standard deviation between measurement and prediction
-(F3.predicted.POST.polarisation$predicted - F3.predicted.POST.polarisation$measured) %>% `/`(., F3.predicted.POST.polarisation$measured) %>% abs %>% mean
-(F3.predicted.POST.polarisation$predicted - F3.predicted.POST.polarisation$measured) %>% `/`(., F3.predicted.POST.polarisation$measured) %>% abs %>% sd
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$polarisation, col="blue", type="l",
+     main = expression("F3: Predicted/Measured "*Pi*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("grade of polarisation "*Pi))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$polarisation, col="red")
