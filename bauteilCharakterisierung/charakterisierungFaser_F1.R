@@ -34,6 +34,10 @@ F1.data.stokes <- getStokes.from.expData(F1.data.elab)  %>% process.stokesVec
 F1.meta.stokes <- getStokes.from.metaData(F1.meta.elab) %>% process.stokesVec
 F1.error.stats <- getStokes.from.expData(F1.error.elab) %>% process.stokesVec %>% do.statistics
 
+# COMPUTE the mueller matrix of the fiber, using the stokes vectors measured before and after the fiber
+F1.muellermatrix <- muellermatrix(F1.data.stokes)
+# PREDICT the stokes vectors after the fiber from the mueller matrix and the stokes vectors measured before the fiber
+F1.data.stokes   <- predict.stokesVec(F1.data.stokes, F1.muellermatrix)
 
 #
 # PLOT THAT SHIT
@@ -56,3 +60,31 @@ plot.intensity.change(data  = F1.data.stokes,
 plot.intensity(data  = F1.data.stokes, 
                title = expression(bold("The Effect Of An Optical PM-Fiber (F1) On The Lasers Power "*P))
 )
+
+
+# Plot and compare the PREDICTED and MEASURED STOKES parameters
+# S0
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$S0, col="red", type="l",
+     main = expression("F1: Predicted/Measured S"[0]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[0]))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$S0, col="blue")
+# S1
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$S1, col="red", type="l",
+     main = expression("F1: Predicted/Measured S"[1]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[1]))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$S1, col="blue")
+# S2
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$S2, col="red", type="l",
+     main = expression("F1: Predicted/Measured S"[2]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[2]))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$S2, col="blue")
+# Polarisation ratio
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$polarisation, col="blue", type="l",
+     main = expression("F1: Predicted/Measured "*Pi*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("grade of polarisation "*Pi),
+     ylim = c(0.3, 1.1))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$polarisation, col="red")

@@ -36,6 +36,10 @@ F2.data.stokes <- getStokes.from.expData(F2.data.elab)  %>% process.stokesVec
 F2.meta.stokes <- getStokes.from.metaData(F2.meta.elab) %>% process.stokesVec
 F2.error.stats <- getStokes.from.expData(F2.error.elab) %>% process.stokesVec %>% do.statistics
 
+# COMPUTE the mueller matrix of the fiber, using the stokes vectors measured before and after the fiber
+F2.muellermatrix <- muellermatrix(F2.data.stokes)
+# PREDICT the stokes vectors after the fiber from the mueller matrix and the stokes vectors measured before the fiber
+F2.data.stokes   <- predict.stokesVec(F2.data.stokes, F2.muellermatrix)
 
 #
 # PLOT THAT SHIT
@@ -65,11 +69,28 @@ plot.plane.rotation(F2.rotation.elab,
 )
 
 
-# Thoughts on deriving a mueller matrix for the fiber
-# IDEA: FIT STOKES VECTORS AFTER FIBER WITH SINUS DEPENDING ON WAVE PLATE POSITION
-plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$S1, col="red", type="l")
-lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S1, col="blue")
-
-plot(x = F2.data.stokes$PRE$W, y = F2.data.stokes$PRE$S2, col="red", type="l")
-lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S2, col="blue")
-lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S2*(-2), col="green")
+# Plot and compare the PREDICTED and MEASURED STOKES parameters
+# S0
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S0, col="red", type="l",
+     main = expression("F2: Predicted/Measured S"[0]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[0]))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$S0, col="blue")
+# S1
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S1, col="red", type="l",
+     main = expression("F2: Predicted/Measured S"[1]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[1]))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$S1, col="blue")
+# S2
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S2, col="red", type="l",
+     main = expression("F2: Predicted/Measured S"[2]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[2]))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$S2, col="blue")
+# Polarisation ratio
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$polarisation, col="red", type="l",
+     main = expression("F2: Predicted/Measured "*Pi*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("grade of polarisation "*Pi))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$polarisation, col="blue")

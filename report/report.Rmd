@@ -1,8 +1,7 @@
 ---
 title: "__Zusammenfassung der Experimente und Auswertung__"
 output:
-  html_document:
-    df_print: paged
+  html_notebook
 ---
 <!--- Change width options to apppropiate values for your desired page size-->
 <!--- Important for printing HTML as PDF-->
@@ -417,11 +416,34 @@ Duchführung:
 
 Definition von Funktionen, die die Messdaten auswerten:
 
-+ Stokesvektoren $\vec{S}$ auf den ersten Stokesparameter $S_0$ normieren: $\frac{\vec{S}}{S_0}$
++ Stokesvektoren vor der Faser $\vec{S}$ und hinter der Faser $\vec{T}$ auf den ersten Stokesparameter $S_0$ normieren: $\frac{\vec{S}}{S_0}$; $\frac{\vec{T}}{S_0}$
 + Berechnen des Polarisationsgrades $\Pi = \frac{ \sqrt{S_1^2 + S_2^2 } }{S_0}$ (letzter Stokesparameter $S_3$ wird vernachlässigt)
 + Berechnen der Änderung des Polarisationsgrades durch die Faser $\Delta\Pi = \frac{\Pi_{post}}{\Pi_{pre}}-1$
 + Berechnen der Änderung der gesamten Laserleistung $P_{ges}$ (Leistung gemessen ohne Linearpolarisator) durch die Faser $\Delta P_{ges} = \frac{P_{ges,post}}{P_{ges,pre}}$): 
 + Berechnen von Mittelwert, Standardabweichung und Varianz für die wiederholte Messung der selben Laserpolarisation
++ Berechnen der Mueller Matrix $M$ für die Fasern. Verwendet werden die Stokesvektoren gemessen vor der Faser $\vec{S^W}$ und gemessen hinter der Faser $\vec{T^W}$ ($W$ ist die Position der Wellenplatte, bei der die Stokesvektoren gemessen wurden):
+ $$ M = \pmatrix{m_{00} & m_{01} & m_{02} & 0 \\
+                 m_{10} & m_{11} & m_{12} & 0 \\
+                 m_{20} & m_{21} & m_{22} & 0 \\
+                 0      & 0      & 0      & 0 } $$
++ Berechnen der ersten Reihe der Matrix $M$:
+  $$ \matrix{ T^{0°}_0  &=& m_{00} S^{0°}_0  &+&  m_{01} S^{0°}_1  &+& m_{02} S^{0°}_2 \\
+              T^{10°}_0 &=& m_{00} S^{10°}_0 &+&  m_{01} S^{10°}_1 &+& m_{02} S^{10°}_2 \\
+              T^{20°}_0 &=& m_{00} S^{20°}_0 &+&  m_{01} S^{20°}_1 &+& m_{02} S^{20°}_2 \\
+              T^{30°}_0 &=& m_{00} S^{30°}_0 &+&  m_{01} S^{30°}_1 &+& m_{02} S^{30°}_2 \\
+              \vdots&&&&\vdots} $$
++ Berechnen der zweiten Reihe der Matrix $M$:
+  $$ \matrix{ T^{0°}_1  &=& m_{10} S^{0°}_0  &+&  m_{11} S^{0°}_1  &+& m_{12} S^{0°}_2 \\
+              T^{10°}_1 &=& m_{10} S^{10°}_0 &+&  m_{11} S^{10°}_1 &+& m_{12} S^{10°}_2 \\
+              T^{20°}_1 &=& m_{10} S^{20°}_0 &+&  m_{11} S^{20°}_1 &+& m_{12} S^{20°}_2 \\
+              T^{30°}_1 &=& m_{10} S^{30°}_0 &+&  m_{11} S^{30°}_1 &+& m_{12} S^{30°}_2 \\
+              \vdots&&&&\vdots} $$
++ Berechnen der dritten Reihe der Matrix $M$:
+  $$ \matrix{ T^{0°}_2  &=& m_{20} S^{0°}_0  &+&  m_{21} S^{0°}_1  &+& m_{22} S^{0°}_2 \\
+              T^{10°}_2 &=& m_{20} S^{10°}_0 &+&  m_{21} S^{10°}_1 &+& m_{22} S^{10°}_2 \\
+              T^{20°}_2 &=& m_{20} S^{20°}_0 &+&  m_{21} S^{20°}_1 &+& m_{22} S^{20°}_2 \\
+              T^{30°}_2 &=& m_{20} S^{30°}_0 &+&  m_{21} S^{30°}_1 &+& m_{22} S^{30°}_2 \\
+              \vdots&&&&\vdots} $$
 + Erstellen von Funktionen, die Graphen produzieren
 
 ```{r, auswertung-fiber-stokes-def}
@@ -434,7 +456,7 @@ process.stokesVec <- function(stokes) {
   # Compute properties of stokes vectors and normalise -> polarisation ratio, ...
   stokes <- lapply(stokes, function(table) { 
     # Normalise stokes vectors
-    table[,c("S0", "S1", "S2")] <- table[,c("S0", "S1", "S2")] / table$S0
+    table[,c("S0", "S1", "S2")] <- table[,c("S0", "S1", "S2")] / stokes$PRE$S0
     
     # Polarisation ratio
     table$polarisation <- sqrt(table$S1^2 + table$S2^2) / table$S0
@@ -473,6 +495,62 @@ do.statistics <- function(error.stokes) {
   
   # TODO: t-Test, Kruskal-Wallis-Test
 }
+
+
+#
+# COMPUTE THE MUELLER MATRIX OF THE OPTICAL FIBER
+#
+# This function takes at least three pairs stokes vectors describing the polarisation of a laser before (S^PRE) and after (S^POST) interacting
+# with an optical fiber (input is the output of process.stokesVec())
+muellermatrix <- function(stokes) {
+  # Fit following system of linear equation of three unknown variables (a, b, c) with many known stokes vector pairs
+  # Ignore last stokes parameter
+  # (I)   S_0^POST = a_0 * S_0^PRE + b_0 * S_1^PRE + c_0 * S_2^PRE + d_0 * S_3^PRE (S_3^PRE=0)
+  # (II)  S_1^POST = a_1 * S_0^PRE + b_1 * S_1^PRE + c_1 * S_2^PRE + d_1 * S_3^PRE (S_3^PRE=0)
+  # (III) S_2^POST = a_2 * S_0^PRE + b_2 * S_1^PRE + c_2 * S_2^PRE + d_2 * S_3^PRE (S_3^PRE=0)
+  # (IV)  S_3^POST = a_3 * S_0^PRE + b_3 * S_1^PRE + c_3 * S_2^PRE + d_3 * S_3^PRE (S_3^PRE=0, S_3^POST=0)
+  # Build mueller matrix as following:
+  # | a_0 b_0 c_0 d_0 |   | a_0 b_0 c_0  0 |
+  # | a_1 b_1 c_1 d_1 | = | a_1 b_1 c_1  0 | 
+  # | a_2 b_2 c_2 d_2 |   | a_2 b_2 c_2  0 |
+  # | a_3 b_3 c_3 d_3 |   |  0   0   0   0 |
+  matrix( c( limSolve::Solve(as.matrix(stokes$PRE[,c(2,3,4)]), stokes$POST$S0), 0,
+             limSolve::Solve(as.matrix(stokes$PRE[,c(2,3,4)]), stokes$POST$S1), 0,
+             limSolve::Solve(as.matrix(stokes$PRE[,c(2,3,4)]), stokes$POST$S2), 0,
+             0, 0, 0                                                          , 0 ), 
+          ncol = 4, byrow = T )
+}
+# Predict the polarisation state after interacting with an optical fiber by using the initial 
+# measured stokes vector and the muller matrix of the fiber
+predict.stokesVec <- function(stokes, mueller) {
+  # Calculate stokes vectors describing polarisation after the fiber by matrix multiplication in the mueller formalism
+  # Ignore the last stokes parameter
+  stokes.post <- apply(stokes$PRE[,c(2,3,4)], 1, function(stokes) { 
+    mueller[1:3,1:3] %*% ( stokes %>% unlist ) 
+  })
+  # Calculate the grade of polarisation
+  polarisation <- apply(stokes.post, 2, function(stokes) { 
+    sqrt(sum(stokes[c(2,3)]^2)) / stokes[1] 
+  } )
+  
+  # Put the result into the inital list of stokes parameters
+  stokes$POST.PREDICT <- data.frame(W  = stokes$PRE$W,
+                                    S0 = stokes.post[1,],
+                                    S1 = stokes.post[2,],
+                                    S2 = stokes.post[3,],
+                                    I  = NA,
+                                    polarisation = polarisation)
+  
+  # Calculate the difference between measured and predicted stokes vector
+  stokes$PREDICT.ERROR <- data.frame(W = stokes$POST.PREDICT$W,
+                                     diff.S0 = stokes$POST$S0 - stokes$POST.PREDICT$S0,
+                                     diff.S1 = stokes$POST$S1 - stokes$POST.PREDICT$S1,
+                                     diff.S2 = stokes$POST$S2 - stokes$POST.PREDICT$S2,
+                                     diff.polarisation = stokes$POST$polarisation - stokes$POST.PREDICT$polarisation )
+  
+  return(stokes)
+}
+
 
 #
 #   PLOT THAT SHIT
@@ -636,6 +714,11 @@ F1.error.elab <- GET.elabftw.bycaption(66, header=T, outputHTTP=T) %>%
 F1.data.stokes <- getStokes.from.expData(F1.data.elab)  %>% process.stokesVec
 F1.error.stats <- getStokes.from.expData(F1.error.elab) %>% process.stokesVec %>% do.statistics
 
+# COMPUTE the mueller matrix of the fiber, using the stokes vectors measured before and after the fiber
+F1.muellermatrix <- muellermatrix(F1.data.stokes)
+# PREDICT the stokes vectors after the fiber from the mueller matrix and the stokes vectors measured before the fiber
+F1.data.stokes   <- predict.stokesVec(F1.data.stokes, F1.muellermatrix)
+
 
 # F2 : SINGLE-MODE-FIBER
 
@@ -659,6 +742,11 @@ F2.error.elab <- GET.elabftw.bycaption(71, header=T, outputHTTP=T) %>%
 F2.data.stokes <- getStokes.from.expData(F2.data.elab)  %>% process.stokesVec
 F2.error.stats <- getStokes.from.expData(F2.error.elab) %>% process.stokesVec %>% do.statistics
 
+# COMPUTE the mueller matrix of the fiber, using the stokes vectors measured before and after the fiber
+F2.muellermatrix <- muellermatrix(F2.data.stokes)
+# PREDICT the stokes vectors after the fiber from the mueller matrix and the stokes vectors measured before the fiber
+F2.data.stokes   <- predict.stokesVec(F2.data.stokes, F2.muellermatrix)
+
 
 # FIBER F3 : MULTI-MODE-FIBER
 
@@ -680,6 +768,10 @@ F3.error.elab <- GET.elabftw.bycaption(75, header=T, outputHTTP=T) %>%
 F3.data.stokes <- getStokes.from.expData(F3.data.elab)  %>% process.stokesVec
 F3.error.stats <- getStokes.from.expData(F3.error.elab) %>% process.stokesVec %>% do.statistics
 
+# COMPUTE the mueller matrix of the fiber, using the stokes vectors measured before and after the fiber
+F3.muellermatrix <- muellermatrix(F3.data.stokes)
+# PREDICT the stokes vectors after the fiber from the mueller matrix and the stokes vectors measured before the fiber
+F3.data.stokes   <- predict.stokesVec(F3.data.stokes, F3.muellermatrix)
 ```
 
 
@@ -700,6 +792,36 @@ plot.polarisation(data       = F1.data.stokes,
 plot.intensity.change(data  = F1.data.stokes,
                       title = expression(bold("Transmittance Of An Optical PM-Fiber (F1)"))
 )
+
+# Print calculated mueller matrix
+print(F1.muellermatrix)
+
+# Plot and compare the PREDICTED and MEASURED STOKES parameters
+# S0
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$S0, col="red", type="l",
+     main = expression("F1: Predicted/Measured S"[0]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[0]))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$S0, col="blue")
+# S1
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$S1, col="red", type="l",
+     main = expression("F1: Predicted/Measured S"[1]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[1]))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$S1, col="blue")
+# S2
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$S2, col="red", type="l",
+     main = expression("F1: Predicted/Measured S"[2]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[2]))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$S2, col="blue")
+# Polarisation ratio
+plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST.PREDICT$polarisation, col="blue", type="l",
+     main = expression("F1: Predicted/Measured "*Pi*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("grade of polarisation "*Pi),
+     ylim = c(0.3, 1.1))
+lines(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$polarisation, col="red")
 ```
 
 __Fazit:__
@@ -712,6 +834,8 @@ __Fazit:__
 + Die Faser lässt 15% bis 30% des Lasers durch
 + Wie erwartet: Bei 0° und 90° resultierender Polarisationsgrad sehr gut ($\widehat{=}\; n \cdot 45°$ Wellenplattenrotation). Dazwischen depolarisiert die Faser, weil in andere Moden gepumpt wird
 + Bei 0° und 90° Transmission sehr gut ($\widehat{=}\; n \cdot 45°$ Wellenplattenrotation). Dazwischen gibt es Kopplungsverluste
++ Müllermatrix sagt nur den zweiten Stokesparameter korrekt voraus; Polarisationsgrad und andere zwei Stokesparameter sind falsch
++ Warum ist die Müllermatrix falsch? Für F3 hat es funktioniert. Muss das Experiment wiederholt werden? Muss der geschätzte Messfehler berücksichtigt werden?
 
 
 ##### __SM-Faser F2__
@@ -736,6 +860,35 @@ plot.intensity.change(data  = F2.data.stokes,
 plot.plane.rotation(F2.rotation.elab, 
                     title = expression(bold("Impact Of The Single-Mode Fiber (F2) On The Orientation Of The Plane Of Polarisation"))
 )
+
+# Print calculated mueller matrix
+print(F2.muellermatrix)
+
+# Plot and compare the PREDICTED and MEASURED STOKES parameters
+# S0
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S0, col="red", type="l",
+     main = expression("F2: Predicted/Measured S"[0]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[0]))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$S0, col="blue")
+# S1
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S1, col="red", type="l",
+     main = expression("F2: Predicted/Measured S"[1]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[1]))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$S1, col="blue")
+# S2
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$S2, col="red", type="l",
+     main = expression("F2: Predicted/Measured S"[2]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[2]))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$S2, col="blue")
+# Polarisation ratio
+plot(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST$polarisation, col="red", type="l",
+     main = expression("F2: Predicted/Measured "*Pi*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("grade of polarisation "*Pi))
+lines(x = F2.data.stokes$POST$W, y = F2.data.stokes$POST.PREDICT$polarisation, col="blue")
 ```
 
 __Fazit:__
@@ -749,6 +902,8 @@ __Fazit:__
 + Der Zusammenhang zwischen dem Winkel der Polarisationsebene vor und nach der Faser ist, anders als ertwartet, nicht linear
 + Der Einfluss der SM-Faser auf den Polarisationszustand ist nicht vernachlässigbar
 + Ähnlich wie PM-Faser: Bei 0° und 90° resultierender Polarisationsgrad sehr gut ($\widehat{=}\; n \cdot 45°$ Wellenplattenrotation). Dazwischen depolarisiert die Faser. Vielleicht verhält sich SM-Faser wie PM-Faser, weil die SM-Faser während des Experiments so gerade gestreckt war wie möglich
++ Müllermatrix sagt nur den dritten Stokesparameter korrekt voraus; Polarisationsgrad und ersten zwei Stokesparameter sind falsch
++ Warum ist die Müllermatrix falsch? Für F3 hat es funktioniert. Muss das Experiment wiederholt werden? Muss der geschätzte Messfehler berücksichtigt werden?
 
 
 ##### __MM-Faser F3__
@@ -776,6 +931,36 @@ plot.intensity(data  = F3.data.stokes,
 plot.plane.rotation(F3.rotation.elab, 
                     title = expression(bold("The Impact Of The Multi-Mode Fiber (F3) On The Orientation Of The Plane Of Polarisation"))
 )
+
+# Print calculated mueller matrix
+print(F3.muellermatrix)
+
+# Plot and compare the PREDICTED and MEASURED STOKES parameters
+# S0
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$S0, col="red", type="l",
+     main = expression("F3: Predicted/Measured S"[0]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[0]))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$S0, col="blue")
+# S1
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$S1, col="red", type="l",
+     main = expression("F3: Predicted/Measured S"[1]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[1]))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$S1, col="blue")
+# S2
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$S2, col="red", type="l",
+     main = expression("F3: Predicted/Measured S"[2]*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("stokes parameter S"[2]))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$S2, col="blue")
+# Polarisation ratio
+plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$polarisation, col="blue", type="l",
+     main = expression("F3: Predicted/Measured "*Pi*" (blue/red)"),
+     xlab = "wave plate position / °",
+     ylab = expression("grade of polarisation "*Pi))
+lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$polarisation, col="red")
+
 ```
 
 __Fazit:__
@@ -787,6 +972,7 @@ __Fazit:__
 + Transmission ~85%
 + Der Zusammenhang zwischen dem Winkel der Polarisationsebene vor und nach der Faser ist, anders als ertwartet, nicht linear
 + Der Einfluss der MM-Faser auf den Polarisationszustand ist nicht vernachlässigbar
++ Müllermatrix sagt den Stokesvektor und den Polarisationsgrad gut voraus. Ist es genau genug, um die Matrix in PolaRam zu benutzen?
 
 
 ### __WiTec-Detektor__
