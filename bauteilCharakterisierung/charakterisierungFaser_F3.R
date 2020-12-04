@@ -96,3 +96,42 @@ plot(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST.PREDICT$polarisation, co
      xlab = "wave plate position / °",
      ylab = expression("grade of polarisation "*Pi))
 lines(x = F3.data.stokes$POST$W, y = F3.data.stokes$POST$polarisation, col="red")
+
+
+#
+# Lässt sich die Rotation der Polarisationsebene anhand unvollständig polarisierter Stokesvektoren berechnen?
+# Berechnung der Polarisationsebene für Stokesparameter: 
+# S_0,neu = sqrt( S_1^2 + S_2^2 ) / S_0 (= Polarisationsgrad)
+# S_1,neu = S_1
+# S_2,neu = S_2
+#
+# Vor der Faser
+plot(  x = F3.rotation.elab$X %>% .[which(. %in% F3.data.stokes$PRE$W)],
+       y = F3.rotation.elab$Y2[which(F3.rotation.elab$X %in% F3.data.stokes$PRE$W)] %>% mod(., 180),
+       col = "red",
+       type = "o",
+       main = "Die Rotation der Polarisationsebene vor F3",
+       sub  = "Vergleich gemessene Polarisationsebene (rot) und mit Stokesvektor berechnete Polarisationsebene (blau)",
+       xlab = "Position Wellenplatte / °",
+       ylab = "Rotation der Polarisationsebene / °", 
+       yaxp = c(0, 180, 4), xaxp = c(-90, 270, 4), ylim = c(0, 180), xlim = c(-22, 270) )
+lines( x = F3.data.stokes$PRE$W,
+       y = better.acos(F3.data.stokes$PRE$polarisation, F3.data.stokes$PRE$S1, F3.data.stokes$PRE$S2) %>% `/`(., pi)*180 %>% `/`(., 2),
+       type = "o",
+       col = "blue")
+abline(h = c(0, 180) ) 
+# Nach der Faser
+plot(  x = F3.rotation.elab$X %>% .[which(. %in% F3.data.stokes$POST$W)],
+       y = F3.rotation.elab$Y1[which(F3.rotation.elab$X %in% F3.data.stokes$POST$W)] %>% mod(., 180),
+       col = "red",
+       type = "o",
+       main = "Die Rotation der Polarisationsebene nach F3",
+       sub  = "Vergleich gemessene Polarisationsebene (rot) und mit Stokesvektor berechnete Polarisationsebene (blau)",
+       xlab = "Position Wellenplatte / °",
+       ylab = "Rotation der Polarisationsebene / °", 
+       yaxp = c(0, 180, 4), xaxp = c(-90, 270, 4), ylim = c(0, 180), xlim = c(-22, 270) )
+lines( x = F3.data.stokes$POST$W,
+       y = better.acos(F3.data.stokes$POST$polarisation, F3.data.stokes$POST$S1, F3.data.stokes$POST$S2) %>% `/`(., pi)*180 %>% `/`(., 2),
+       type = "o",
+       col = "blue")
+abline(h = c(0, 180) ) 
