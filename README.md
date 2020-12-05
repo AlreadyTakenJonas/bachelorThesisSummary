@@ -28,7 +28,7 @@ Table of Contents
 
 # simulate: Simulation Of Raman Scattering Of Linear Polarised Light
 
-The simulation works by describing the state of the polarisation as a four dimensional stokes vector *S* and every optical element and the sample as 4x4 mueller matrices *M*. Applying *M* to *S* will give the new state of the system when the light interacts with the optical element. Every command in the input file descibes a mueller matrix that will be applied to the system one after another. The `LSR` command is special, because it describes the initial stokes vector.
+The simulation works by describing the state of the polarisation as a four dimensional stokes vector *S* and every optical element and the sample as 4x4 mueller matrices *M*. Applying *M* to *S* will give the new state of the system when the light interacts with the optical element. Every command in the input file descibes a mueller matrix that will be applied to the system one after another.
 
 The simulation takes the raman mueller matrix describing the sample as 4x4 matrix. However, this matrix is unknown, but the raman tensor can be calculated or measured. The raman tensor is a 3x3 matrix and therefore not compatible with the mueller formalism. To solve this problem the raman tensor will be transformed into a mueller matrix. The `convert` subprogram will handle this transformation. Due to the mathematics behind the transformation the program is not able to describe the raman scattering process for light that is circular polarised or with a polarisation grade below one. The transformation and its assumptions will be explained in a seperate [pdf-file](./ramanMuellerMatrix.pdf).
 It is possible to pass multiple raman mueller matrices to the simulation at once. There is a raman tensor for every vibrational mode of the sample and all of them can be simulated in parallel. Make sure to give each raman mueller matrix a describtive title in the raman mueller matrix file. More details about the input files are given below.
@@ -106,13 +106,12 @@ instruction | optical element             | number of arguments | describtion
 `FLR t`     | attenuating filter          | 1                   | The attenuating filter accepts the transmission t as argument. t must be a value between zero and one (including both) and describes the percentage of light that can pass the filter.
 `NOP`       | no operation                | 0                   | Returns unity matrix.
 `DPL p`     | ideal depolariser           | 1                   | The depolariser accepts one argument p. It is the percentage of light that stays polarised after interacting with the depolariser. The argument p may take values between 0 and 1; including both.
+`ÒF3`       | optical multi-mode fiber    | 0                   | This element was experimentally characterised and its mueller matrix was derived numerically from the experimental data. Therefore this matrix describes only one unique fiber used with the used lab equipment. The fiber was labelled 'F3' in the labbook.
 `#`         | comment                     | ∞                   | This instruction ignores all its arguments and will cause the simulation to perform a `NOP`.
 
 The following example might help to make the syntax clearer.
 ```
 # This is a comment
-# Initialise polarisation horazontally
-LSR 1 1 0 0
 # Measure the sample
 SMP
 # Observe only the vertical polarised part

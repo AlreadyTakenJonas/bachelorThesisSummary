@@ -205,6 +205,22 @@ class SetupDecoder:
         matrix = np.diag([1, polarisedPart, polarisedPart, polarisedPart])
         return matrix
 
+    def opticalMultiModeFiber(self):
+        """
+        Mueller matrix of the optical multi-mode fiber labeled as F3. This mueller matrix was calculated from real experiments and describes
+        only one specific fiber
+        User command: OF3
+        Attributes:
+            NONE
+        Returns:
+            mueller matrix
+        """
+
+        return np.array([ [ 0.98734319,  0.004664235, -0.03808659,    0],
+                          [ 0.02519393,  0.520569010,  0.27315076,    0],
+                          [-0.04387837, -0.004022648,  0.60062411,    0],
+                          [ 0         ,  0          ,  0         ,    0] ])
+
     def rotateMatrix(self, angle: float, matrix: np.ndarray):
         """
         Returns the rotated matrix of any given mueller matrix. The rotation works like the rotation of hypersphears in 4d space and quaternions.
@@ -248,7 +264,8 @@ class SetupDecoder:
         "HWP": halfWavePlate,
         "QWP": quarterWavePlate,
         "NOP": unitMatrix,
-        "DPL": depolariser
+        "DPL": depolariser,
+        "OF3": opticalMultiModeFiber
     }
 
     def decode(self, commandString: str):
