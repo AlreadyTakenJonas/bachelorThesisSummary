@@ -51,6 +51,11 @@ def main(cliArgs):
     # This file describes the optical elements in the light beams path
     log.info("Instruction File: " + str(cliArgs.inputfile) )
     labratory_setup = util.readFileAsText(cliArgs.inputfile).splitlines()
+    # Remove coments from the instruction list (comments start with '#')
+    labratory_setup = [ instruction.split("#")[0].strip() for instruction in labratory_setup ]
+    # Remove empty lines from the instruction list
+    labratory_setup = [ instruction for instruction in labratory_setup if instruction != "" ]
+
 
     # Read matrices from file. The matrices are the mueller matrices that describe
     # the raman scattering behaviour of the vibrational modes

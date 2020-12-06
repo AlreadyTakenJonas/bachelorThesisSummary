@@ -288,13 +288,8 @@ class SetupDecoder:
         args = commandString.split()[1:]
         # Call function
         try:
-            if command[0] == "#":
-                # If the command starts with '#' the line will be ignored and the unit matrix is returned
-                result = self.unitMatrix()
-                log.info("Comment found in input file ('" + commandString + "'). Unit matrix will be returned.")
-            else:
-                # Execute instruction
-                result = self.commandDictionary[command](self, *args)
+            # Execute instruction
+            result = self.commandDictionary[command](self, *args)
 
         except TypeError as e:
             # Handle wrong argument list
