@@ -1,0 +1,14 @@
+# polaram simulate /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/SMP.txt --output /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/result_compareGaussian_tetra.txt --log /home/jonas/code/python/PolaRam/log/muellersimulation.log --matrix /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/labratoryMatrixTetrachlormethan.txt
+# Execution time: 2020-12-06 17:14:00.298741
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+v_1_=_216.2523/cm  1. 0. 0. 0.       7.22807468e-02  4.89784935e-05 -2.14416080e-05  0.00000000e+00
+v_2_=_216.2523/cm  1. 0. 0. 0.       7.20776014e-02 -7.23773014e-05  1.39439500e-05  0.00000000e+00
+v_3_=_315.1430/cm  1. 0. 0. 0.       1.21889073e-01  2.99072900e-05 -7.59912391e-05  0.00000000e+00
+v_4_=_315.1430/cm  1. 0. 0. 0.       1.21840563e-01  5.22223576e-07 -2.60092826e-05  0.00000000e+00
+v_5_=_315.1430/cm  1. 0. 0. 0.      1.21739276e-01 9.05754125e-06 1.14653641e-04 0.00000000e+00
+v_6_=_450.2798/cm  1. 0. 0. 0.       4.72628750e-01 -1.76775261e-19  1.42652470e-19  0.00000000e+00
+v_7_=_743.3157/cm  1. 0. 0. 0.       1.05154015e-01  2.34699317e-05 -5.67680662e-05  0.00000000e+00
+v_8_=_743.3157/cm  1. 0. 0. 0.       1.05129140e-01  8.18354232e-06 -2.16258978e-05  0.00000000e+00
+v_9_=_743.3157/cm  1. 0. 0. 0.      1.05020970e-01 2.41343034e-06 8.93102231e-05 0.00000000e+00
+
