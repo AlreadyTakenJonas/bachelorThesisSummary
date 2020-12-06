@@ -44,7 +44,13 @@ polaram.as.spectrum <- function( x, stokes.S0, stokes.S1, peaks.wavenumber,
     # Compute the lorentz curve for every peak                                                                                                                                                                                                                                                                                                                                             
     # The width is gamma, the maximum is at wavenumber and the detector.response scales the peak
     # The Full width at half height is correlated with gamma
-    peaks <- detector.response / ( ( x^2 - peaks.wavenumber^2 )^2 + gamma^2 * peaks.wavenumber^2 )                                                                                                                                                                                                                                                                                                         
+    peaks <- data.frame( peaks = detector.response / ( ( x^2 - peaks.wavenumber^2 )^2 + gamma^2 * peaks.wavenumber^2 ),
+                         wavenumber = peaks.wavenumber )
+    
+    # Build the mean over all peaks at the same wavenumber
+    peaks <- sapply(unique(peaks$wavenumber), function(peakLocation) {
+      peaks$peaks[which(peaks$wavenumber == peakLocation)] %>% mean
+    })
     
     # Return the sum of all peaks                                                                                                                                                                                                                                                                                                                                                          
     return( sum(peaks) )                                                                                                                                                                                                                                                                                                                                                                   
