@@ -79,6 +79,11 @@ def main(cliArgs):
     else:
         initialStokesVectorsList = cliArgs.laser
 
+    # Get instruction decoder
+    # Used to decode the instructions given in the input file
+    # The SetupDecoder returns for every instruction a mueller matrix or a stokes vector
+    decoder = SetDec.SetupDecoder()
+
     # DO LOOP over every initial stokes vector
     for initialStokesVector in initialStokesVectorsList:
         # INITIALISE SIMULATION
@@ -88,11 +93,6 @@ def main(cliArgs):
             # Include the header information of sampleMatrix in state values
             # The header contains a unique description
             currentState = [ { "head": matrix["head"], "state": initialStokesVector } for matrix in sampleMatrix ]
-
-            # Get instruction decoder
-            # Used to decode the instructions given in the input file
-            # The SetupDecoder returns for every instruction a mueller matrix or a stokes vector
-            decoder = SetDec.SetupDecoder()
 
             # RUN SIMULATION
 
