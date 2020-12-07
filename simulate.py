@@ -38,7 +38,7 @@ import utilities as util
 #
 def main(cliArgs):
     """
-    Function will be called by the subcommand 'run' and runs the main program: the mueller simulation
+    Function will be called by the subcommand 'simulate' and runs the main program: the mueller simulation
     There will be a series of calculations for every vibrational mode of a molecule. All computations are matrix
     multiplications in the mueller formalism, to simulate a laser beam travelling through an optical setup and a
     sample which scatters the light (raman scattering).
