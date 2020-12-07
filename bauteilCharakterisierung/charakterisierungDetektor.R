@@ -23,10 +23,12 @@ plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[2]],
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
                         title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector")
 
+
 # Plot the white lamp spectra for the detector with the microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[1]], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope")
+                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope") +
+  scale_x_continuous(limits=c(150, 250)) + scale_y_continuous(limits=c(200,400))
 
 
 # How does the sensitivity of the detector change with the wavenumber

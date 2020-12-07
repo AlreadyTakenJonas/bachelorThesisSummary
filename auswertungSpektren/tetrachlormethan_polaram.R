@@ -31,8 +31,8 @@ tetra.stokes.postF2 <- data.frame( W  = F2.data.stokes$POST$W  %>% .[.          
 #
 # RUN POLARAM to simulate the raman scattering sample and the fiber F3
 #
-# CLI command to run PolaRam (on linux)
-polaram              <- "python3 ~/code/python/PolaRam/main.py"
+# CLI command to run PolaRam (env variable POLARAM contains the command specific for the running operating system)
+polaram              <- Sys.getenv("POLARAM")
 # File contaning mueller matrices for tetrachloromethane
 tetra.mueller.matrix <- "./auswertungSpektren/polaram/labratoryMatrixTetrachlormethan.txt"
 # File containing simulation program for polaram
@@ -108,6 +108,10 @@ tetra.polaram.fittingData <- data.frame( sensitivity = tetra.test.sensitivity,
                                                           })
                                                         }) %>% t(.) )
 
+
+plot( x = tetra.spectra$wavenumber, y = polaram.as.spectrum(tetra.spectra$wavenumber, tetra.stokes.polaram$S0.post, tetra.stokes.polaram$S1.post, tetra.stokes.polaram$v) / 6e-9, type = "l", col="blue" )
+lines(tetra.spectra[,1],tetra.spectra[,2]/max(tetra.spectra[,2]), col="red")
+
 # Plot that shit for eyeballing the interval that shall be used for fitting
 plot(tetra.polaram.fittingData[,c(1,2)], type="l")
 lines(tetra.polaram.fittingData[,c(1,3)], type="l")
@@ -142,6 +146,7 @@ polaram.tetra.unpolarised.output <- "./auswertungSpektren/polaram/result_compare
 
 polaram.args <- c("simulate", polaram.SMP, 
                   paste("--output", polaram.tetra.unpolarised.output),
+                  #paste("--matrix", "C:/Users/no83wec/Documents/bachelorarbeit/scripts/simulationSpektren/muellersim/input/labratoryMatrixMaltose.txt"),
                   paste("--matrix", tetra.mueller.matrix),
                   "--unpolarised-scattering", "--verbose",
                   "--raw-output", "--silent", "--laser 1 0 0 0")
@@ -154,9 +159,35 @@ tetra.unpolarised.polaram <- read.table(file = polaram.tetra.unpolarised.output,
 colnames(tetra.unpolarised.polaram) <- c("v", "S0.pre", "S1.pre", "S2.pre", "S3.pre", "S0.post", "S1.post", "S2.post", "S3.post")
 # Extract the wavenumber of the spectras peaks from the polaram output
 tetra.unpolarised.polaram$v <- stringr::str_extract(tetra.unpolarised.polaram$v, "\\d+\\.\\d+") %>% as.numeric
+# polram <- polaram.as.spectrum( x         = unique(tetra.unpolarised.polaram$v),
+#                      stokes.S0 = tetra.unpolarised.polaram$S0.post,
+#                      stokes.S1 = tetra.unpolarised.polaram$S1.post,
+#                      peaks.wavenumber = tetra.unpolarised.polaram$v,
+#                      scaleX = 1, scaleY = 1, normalise = T, gamma = 1)
+# Gauss <- readLines("C:/Users/no83wec/code/PolaRam/gaussian/GLYKOGENFRAGMENT.LOG")
+# WN <- Gauss[grepl("Frequencies --",Gauss)]
+# Gauss <- Gauss[grepl("Raman Activ",Gauss)]
+# Gauss <- read.table(text=Gauss)
+# Gauss <- unlist(Gauss[,4:6])
+# WN <- read.table(text=WN)
+# WN <- unlist(WN[,3:5])
+# 
+# res <- data.frame(wavenumber=WN,gaussian=Gauss/max(Gauss),pol=polram/max(polram))
+# res$gaussInt <- Act.To.Int(res$gaussian,res$wavenumber)
+# res$gaussInt <- res$gaussInt / max(res$gaussInt)
+# res$pol / res$gaussInt
+
+
+# mspec <- rowMeans(tetra.spectra[,-1])
+# plot(tetra.spectra[,1],mspec,type="l")
+# meas <- data.frame(meas=c(max(mspec[tetra.spectra > 200 & tetra.spectra < 250]),
+# max(mspec[tetra.spectra > 310 & tetra.spectra < 330]),
+# max(mspec[tetra.spectra > 450 & tetra.spectra < 480]),
+# max(mspec[tetra.spectra > 750 & tetra.spectra < 780])*2))
+# meas <- meas / max(meas)
 
 # Compare results from gaussian to polaram
-data.frame( wavenumber = unique(tetra.unpolarised.polaram$v),
+res <- cbind(data.frame( wavenumber = unique(tetra.unpolarised.polaram$v),
             # The raman activities computed by Gaussian
             gaussian   = c(3.2483, 5.4818, 21.2683, 4.7293) / 21.2683,
             # Compute the normalised peak height of the unpolarised raman spectrum of tetra
@@ -164,4 +195,20 @@ data.frame( wavenumber = unique(tetra.unpolarised.polaram$v),
                                               stokes.S0 = tetra.unpolarised.polaram$S0.post,
                                               stokes.S1 = tetra.unpolarised.polaram$S1.post,
                                               peaks.wavenumber = tetra.unpolarised.polaram$v,
-                                              scaleX = 1, scaleY = 1, normalise = T, gamma = 1) )
+                                              scaleX = 1, scaleY = 1, normalise = T, gamma = 1)) ,meas )
+
+
+Act.To.Int <- function(Act, WN.Mode, WL.Laser=514, Temp=298)
+{
+  kB <- 1.38e-23
+  h <- 6.626e-34
+  c0 <- 2.998e8
+  WN.Laser <- 1 / WL.Laser * 1e7
+  WN.Mode <- WN.Mode
+  
+  (2*pi)^4 / 45 * (WN.Laser - WN.Mode)^4 * h / (8 * pi^2 * c0 * WN.Mode * ( 1 - exp( - (h * WN.Mode * c0) / (kB * Temp) )) ) * Act
+}
+
+res$gaussInt <- Act.To.Int(res$gaussian,res$wavenumber)
+res$gaussInt <- res$gaussInt / max(res$gaussInt)
+res
