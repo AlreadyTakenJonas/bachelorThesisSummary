@@ -21,7 +21,7 @@ __version__ =  Repo( str(pathlib.Path(__file__).parents[0]) ).git.execute(["git"
 #
 #   INTERNAL MODULES
 #
-import simulate, convert, extract
+import simulate, list, convert, extract
 import utilities as util
 
 #
@@ -113,7 +113,12 @@ if __name__ == "__main__":
                               default = False,
                               required = False,
                               help = "if enabled unpolarised stokes vectors won't cause an exception when simulating the raman scattering. Use this option with care! Enabling this flag makes only sense in some specific cases. See the README for details.")
-
+						  
+	# Create list command
+    sap_simulate = sap.add_parser("list",
+                                  help = "Lists all instruction polaram simulate can decode",
+                                  description = "This program lists all instructions that can be used to describe a simulation. For details see the documentation on the simulate subprogramm.")
+    
     # Create convert command
     sap_convert = sap.add_parser("convert",
                                  help = "Convert a raman tensor in the molecular coodinate system into a mueller matrix in the labratory coordinate system",
@@ -253,6 +258,10 @@ if __name__ == "__main__":
     if cliArgs.command == "simulate":
         # Run simulate.py
         simulate.main(cliArgs)
+	
+	#elif cliArgs.command == "list":
+	#	# Run list.py
+	#	list.main()
 
     elif cliArgs.command == "convert":
         # Run convert.py
