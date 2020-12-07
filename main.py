@@ -113,12 +113,30 @@ if __name__ == "__main__":
                               default = False,
                               required = False,
                               help = "if enabled unpolarised stokes vectors won't cause an exception when simulating the raman scattering. Use this option with care! Enabling this flag makes only sense in some specific cases. See the README for details.")
-						  
+
 	# Create list command
-    sap_simulate = sap.add_parser("list",
+    sap_list = sap.add_parser("list",
                                   help = "Lists all instruction polaram simulate can decode",
                                   description = "This program lists all instructions that can be used to describe a simulation. For details see the documentation on the simulate subprogramm.")
-    
+    # The subcommand list does not need any arguments, but the logging setup expects default values
+    # for the logfile path and the verbose flag.
+    # Add logfile (copied from sap_simulate)
+    sap_list.add_argument("-l", "--log",
+                              required = False,
+                              default = str(pathlib.Path(__file__).parent) + "/log/muellersimulation.log",
+                              # argparse.SUPPRESS hides this argument in the help text
+                              help = argparse.SUPPRESS,
+                              dest = "logfile",
+                              type = util.filepath)
+    # Add verbose (copied from sap_simulate)
+    sap_list.add_argument("-v", "--verbose",
+                              required = False,
+                              # argparse.SUPPRESS hides this argument in the help text
+                              help = argparse.SUPPRESS,
+                              action = "store_true")
+
+
+
     # Create convert command
     sap_convert = sap.add_parser("convert",
                                  help = "Convert a raman tensor in the molecular coodinate system into a mueller matrix in the labratory coordinate system",
@@ -258,10 +276,10 @@ if __name__ == "__main__":
     if cliArgs.command == "simulate":
         # Run simulate.py
         simulate.main(cliArgs)
-	
-	#elif cliArgs.command == "list":
-	#	# Run list.py
-	#	list.main()
+
+    elif cliArgs.command == "list":
+        # Run list.py
+        list.main()
 
     elif cliArgs.command == "convert":
         # Run convert.py

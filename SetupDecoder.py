@@ -256,16 +256,17 @@ class SetupDecoder:
     #   Dictionary for correlating user commands to corresponding function
     #
     commandDictionary = {
-        "GLR": generalLinearRetarder,
-        "LHP": linearHorizontalPolariser,
-        "LVP": linearVerticalPolariser,
-        "SMP": ramanMatrixOfSample,
-        "FLR": attenuatingFilter,
-        "HWP": halfWavePlate,
-        "QWP": quarterWavePlate,
-        "NOP": unitMatrix,
-        "DPL": depolariser,
-        "OF3": opticalMultiModeFiber
+        # Encoded Instruction: [callback function, short help text]
+        "GLR": [generalLinearRetarder       , "general linear retarder"],
+        "LHP": [linearHorizontalPolariser   , "horizontal linear polariser (aligned along X-axis)"],
+        "LVP": [linearVerticalPolariser     , "vertical linear polariser (aligned aling Y-axis)"],
+        "SMP": [ramanMatrixOfSample         , "Raman scattering sample"],
+        "FLR": [attenuatingFilter           , "attenuating filter"],
+        "HWP": [halfWavePlate               , "half wave plate (special case of general linear retarder)"],
+        "QWP": [quarterWavePlate            , "quarter wave plate (special case of general linear retarder)"],
+        "NOP": [unitMatrix                  , "no operation / identity operation"],
+        "DPL": [depolariser                 , "depolariser"],
+        "OF3": [opticalMultiModeFiber       , "real optical multi-mode fiber F3 (computed from experimental data)"]
     }
 
     def decode(self, commandString: str):
@@ -289,7 +290,7 @@ class SetupDecoder:
         # Call function
         try:
             # Execute instruction
-            result = self.commandDictionary[command](self, *args)
+            result = self.commandDictionary[command][0](self, *args)
 
         except TypeError as e:
             # Handle wrong argument list
