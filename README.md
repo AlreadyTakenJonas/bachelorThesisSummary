@@ -106,7 +106,7 @@ There are two input file the simulation needs: the input file and the raman tens
 
 ### Instruction File
 
-The instruction file is structured like assembly code. It describes the labratory setup with all optical elements, initial light polarisation and sample. Every instruction needs to be written in its own line and the instruction and its arguments are seperated by a space. The following instructions are implemented.
+The instruction file is structured in lines. Every command occupies one line and contains the encoded instruction and its parameters. It describes the labratory setup with all optical elements and the sample. Every instruction needs to be written in its own line and the instruction and its arguments are seperated by a spaces. Comments start with `#` and can be placed anywhere in the instruction file. Every character between `#` and the next line will be ignored. The following instructions are implemented. A list of all implemented instructions can be obtained by running `polaram list`.
 
 instruction | optical element             | number of arguments | describtion
 :----------:|:---------------------------:|:-------------------:|:----------:
@@ -120,7 +120,6 @@ instruction | optical element             | number of arguments | describtion
 `NOP`       | no operation                | 0                   | Returns unity matrix.
 `DPL p`     | ideal depolariser           | 1                   | The depolariser accepts one argument p. It is the percentage of light that stays polarised after interacting with the depolariser. The argument p may take values between 0 and 1; including both.
 `ÒF3`       | optical multi-mode fiber    | 0                   | This element was experimentally characterised and its mueller matrix was derived numerically from the experimental data. Therefore this matrix describes only one unique fiber used with the used lab equipment. The fiber was labelled 'F3' in the labbook.
-`#`         | comment                     | ∞                   | This instruction ignores all its arguments and will cause the simulation to perform a `NOP`.
 
 The following example might help to make the syntax clearer.
 ```
