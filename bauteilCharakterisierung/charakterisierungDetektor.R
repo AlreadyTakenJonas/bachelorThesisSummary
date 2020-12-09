@@ -12,7 +12,7 @@ source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 
 # Fetch experimental data from elabFTW
 detector.spectra <- GET.elabftw.bycaption(76, header=T, outputHTTP=T) %>% parseTimeSeries.elab(., header=F, sep="")
-
+detector.spectra2 <- GET.elabftw.bycaption(81, header=T, outputHTTP=T) %>% parseTimeSeries.elab(., header=F, sep="")
 
 #
 # PLOT THAT SHIT
@@ -27,8 +27,8 @@ plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[2]],
 # Plot the white lamp spectra for the detector with the microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[1]], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope") +
-  scale_x_continuous(limits=c(150, 250)) + scale_y_continuous(limits=c(200,400))
+                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope") #+
+#  scale_x_continuous(limits=c(150, 250)) + scale_y_continuous(limits=c(200,400))
 
 
 # How does the sensitivity of the detector change with the wavenumber
@@ -56,13 +56,13 @@ ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
 
 # How does the sensitivity of the detector change with the wavenumber (quotient method)
 ggplot( data = data.frame(wavenumber = detector.spectra[[2]]$wavenumber,
-                          quotient   = apply(detector.spectra[[2]][,-1], 1, function(slice) { min(slice)/max(slice) }) 
+                          quotient   = apply(detector.spectra[[2]][,-1], 1, function(slice) { max(slice)/min(slice) }) 
                           ),
         mapping = aes(x=wavenumber, y=quotient) ) +
   theme_hot() +
   labs(title = "Quotient of maximal and minimal detector response",
        x = expression(bold("wavenumber / cm"^"-1")),
-       y = "min/max") +
+       y = "max/min") +
   geom_line()
 
 # Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
