@@ -195,7 +195,9 @@ res <- cbind(data.frame( wavenumber = unique(tetra.unpolarised.polaram$v),
                                               stokes.S0 = tetra.unpolarised.polaram$S0.post,
                                               stokes.S1 = tetra.unpolarised.polaram$S1.post,
                                               peaks.wavenumber = tetra.unpolarised.polaram$v,
-                                              scaleX = 1, scaleY = 1, normalise = T, gamma = 1)) ,meas )
+                                              scaleX = 1, scaleY = 1, normalise = T, gamma = 1))  %>%
+              .[ c(1:nrow(.), nrow(.)), ],
+            tetra.0 = tetra.spectra$`0`[tetra.spectra$wavenumber %in% tetra.peakLocations])
 
 
 Act.To.Int <- function(Act, WN.Mode, WL.Laser=514, Temp=298)

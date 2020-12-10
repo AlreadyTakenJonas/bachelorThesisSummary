@@ -155,7 +155,7 @@ whitelamp.minimal.polariser <- sapply(whitelamp.measured, function(spectra) {
 shiftBetweenRamanAndWhiteLamp <- whitelamp.minimal.polariser - tetra.minimal.waveplate*2
 # Shift the polariser positions so that the minimal detector response of the white lamp spectra
 # matches the minimal detector response of the raman spectra
-whitelamp.measured <- lapply(seq_along(whitelamp.measured), function(index) {
+whitelamp.ordered <- lapply(seq_along(whitelamp.measured), function(index) {
   # Convert the column names if the white lamp spectra into numbers (column names contain polariser position)
   newOrderOfColumns <- colnames(whitelamp.measured[[index]][,-1]) %>% as.numeric %>% 
   # Shift the polariser position to match the orientation of the wave plate used to measure the raman spectra
@@ -167,7 +167,7 @@ whitelamp.measured <- lapply(seq_along(whitelamp.measured), function(index) {
 })
 
 # Compare measured and ideal white lamp spectra
-generate.whitelamp.scaleingFactors <- function(measuredSpectrum  = whitelamp.measured[[1]], 
+generate.whitelamp.scaleingFactors <- function(measuredSpectrum  = whitelamp.ordered[[1]], 
                                               idealSpectrum.path = "./auswertungSpektren/Weisslichtspektrum_Julian.txt",
                                               laser.wavelength   = 514.624) {
   # Read 'ideal' white lamp spectrum (given by Julian Hniopek)
@@ -181,7 +181,11 @@ generate.whitelamp.scaleingFactors <- function(measuredSpectrum  = whitelamp.mea
                                  wavenumber = measuredSpectrum$wavenumber,
                                  P          = measuredSpectrum[,-1])
   
-  # # Calculate the ideal white lamp spectrum for data points measured with the WiTec
+  plot(whitelamp.ideal, type="l", col = "red", main="White Lamp Spectra")
+  lines(x=measuredSpectrum$wavelength, y = measuredSpectrum[,3], type="l")
+  
+  
+  # Calculate the ideal white lamp spectrum for data points measured with the WiTec
   whitelamp.ideal.approx <- approx(x = whitelamp.ideal$Wavelength,
                                    y = whitelamp.ideal$Intensity,
                                    xout = measuredSpectrum$wavelength) %>% as.data.frame
@@ -197,6 +201,7 @@ generate.whitelamp.scaleingFactors <- function(measuredSpectrum  = whitelamp.mea
   return(whitelamp.scaleingFactors)
 }
 whitelamp.scaleingFactors <- generate.whitelamp.scaleingFactors()
+
 # Correct tetra spectra with white lamp scaling factors
 tetra.spectra[,-1] <- sapply(2:ncol(tetra.spectra), function(index) {
   # For some fucking reason are the tetra spectra one data point shorter than the white lamp spectra
@@ -220,6 +225,10 @@ tetra.peakChange.final <- get.tetra.peakChange()
 tetra.sensibility <- sapply(tetra.peakChange.final[,-1], function(peakheight) max(peakheight)/min(peakheight))
 tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.numeric,
                                 quotient   = tetra.sensibility %>% unname)
+# Does the white lamp spectrum correction influence the results?
+tetra.sensibility.noWhiteLampCorrection <- sapply(tetra.peakChange[,-1], function(peakheight) max(peakheight)/min(peakheight))
+tetra.sensibility.noWhiteLampCorrection <- data.frame(wavenumber = names(tetra.sensibility.noWhiteLampCorrectrion) %>% as.numeric,
+                                                      quotient   = tetra.sensibility.noWhiteLampCorrectrion %>% unname)
 
 
 
@@ -261,8 +270,10 @@ for (index in seq_along(tetra.peakChange.final[,-1])) lines(x=tetra.peakChange.f
 for (index in seq_along(tetra.peakChange[,-1])) lines(x=tetra.peakChange$waveplate, y=tetra.peakChange[,index+1], col=index+5, type="o")
 
 # Plot the quotient of the DETECTOR RESPONSE along its optical axis
-plot(tetra.sensibility, type="h", lwd=2,
+plot(tetra.sensibility, type="o", lwd=2, col="blue",
      main = "Quotient of maximal and minimal detector response",
      xlab = "max/min",
      ylab = expression("wavenumber / cm"^"-1") )
+lines(tetra.sensibility.noWhiteLampCorrection, type = "o", col="red")
+legend(x=400, y = 1.15, legend = c("white lamp corrected", "no white lamp correction"), fill = c("blue", "red") ) 
 
