@@ -21,11 +21,7 @@ tetra.spectra.unprocessed <- GET.elabftw.bycaption(79, header=T, outputHTTP=T) %
 
 # PREPROCESS
 tetra.spectra <- tetra.spectra.unprocessed
-# Remove every spectra measured for waveplate positions grater than 90°
-# This makes sure that all used waveplate positions are uniformly spaced. Important 
-# for comparing with white lamp spectra
-tetra.spectra <- tetra.spectra[,c(T, colnames(tetra.spectra[,-1]) %>% as.numeric %>% `<=`(.,90))]
-#
+
 # Statistical Background Correction
 #
 # Peaks no longer available
