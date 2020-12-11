@@ -1162,12 +1162,22 @@ __Fazit:__
 
 ## __Polarisaionsabhängige Ramanspektroskopie am WiTec__
 
+### __Messen von polarisationsabhängigen Weißlichtspektren__
+
+![Aufbau Messung Weißlichtspektren ohne Mikroskop](./img/aufbau_weißlicht_freespace.png)
+![Aufbau Messung Weißlichtspektren mit Mikroskop](./img/aufbau_weißlicht_microscope.png)
+
+Durchführung:
++ Für verschiedene Positionen des Linearpolarisators werden die Spektren einer kalibrierten Weißlichtlampe aufgenommen
++ Spektren werden für Positionen [0°,180°] in 10° Schritten gemessen
+
+### __Messen von polarisationsabhängigen Ramanspektren__
 
 ![Aufbau Messung von Ramanspektren mit spezifischer Laserpolarisation](./img/aufbau_spektrenWiTec.png)
 
 Durchführung:
 
-+ Für verschiedene Positionen der Wellenplatte wird ein Ramanspektrum einer Probe aufgenommen
++ Für verschiedene Positionen der Wellenplatte wird ein Ramanspektrum einer Probe aufgenommen ([0°, 90°] in 5°-Schritten)
 + Für jedes Spektrum wird die Leistung des Lasers am Mikroskop gemessen
 
 ### __Ramanspektren von Tetrachlormethan__
@@ -1178,22 +1188,44 @@ Auswertung:
 + Preprocess: "Background Correction" mit fillPeaks-Methode des baseline-Pakets, Normalisieren der Spektren mit der Höhe des größten Peaks
 + Finden aller Peaks im Ramanspektrum
 + Änderung der Peakhöhen für verschiedene Wellenplattenpositionen in neue Matrix schreiben
++ Herunterladen von am WiTec gemessenen polarisierten Weißlichtspektren
++ Vergleich der polarisierten WiTec-Weißlichtspektren mit einem idealen Weißlichtspektrum -> Skalierungsfaktor zum korrigieren der Tetraspektren
++ Die Position der Wellenplatte von der Ramanmessung muss mit der Position des Linearpolarisators von der Weißlichtmessung übereinstimmen -> die Positionen mit der Minimalen Detektorantwort werden gleich gesetzt
++ Korrigieren der Tetraspektren mit den Skalierungsfaktoren, die aus den Weißlichtspektren hergeleitet werden
 + Vergleichen der Empfindlichkeit des Detektors für Licht, dass entlang der optischen Achsen des Detektors polarisiert ist
 + Vergleich der Empfindlichkeit $Q$ als Quotient der maximalen Peakhöhe $h_{max}$ und minimalen Peakhöhe $h_{min}$: $Q = \frac{h_{max}}{h_{min}}$ 
 
 ```{r, auswertung-tetra-spektren, warning=F}
-# FETCH DATA
-tetra.spectra <- GET.elabftw.bycaption(79, header=T, outputHTTP=T) %>%
-                  parseTimeSeries.elab(., col.spectra=3, sep="") %>% .[[1]]
+# Fetch DATA
+# Tetracholomethane Spectra
+tetra.spectra.unprocessed <- GET.elabftw.bycaption(79, header=T, outputHTTP=T) %>%
+                              parseTimeSeries.elab(., col.spectra=3, sep="") %>% .[[1]]
+# Get white lamp spectra measured with WiTec at ZAF
+whitelamp.measured <- GET.elabftw.bycaption(81, header=T, outputHTTP=T) %>% 
+                              parseTimeSeries.elab(., header=F, sep="")
 
 # PREPROCESS
+tetra.spectra <- tetra.spectra.unprocessed
+# Remove every spectra measured for waveplate positions grater than 90°
+# This makes sure that all used waveplate positions are uniformly spaced. Important 
+# for comparing with white lamp spectra
+tetra.spectra <- tetra.spectra[,c(T, colnames(tetra.spectra[,-1]) %>% as.numeric %>% `<=`(.,90))]
+#
 # Statistical Background Correction
-# Peaks no longer available
-# tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec-Peaks::SpectrumBackground(spec))
-tetra.spectra[,-1] <- t( as.matrix(tetra.spectra[,-1]) ) %>% 
-                        baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>% 
+#
+# baseline gives more consistent correction than Peaks
+#tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec-Peaks::SpectrumBackground(spec))
+tetra.spectra[,-1] <- t( as.matrix(tetra.spectra[,-1]) ) %>%
+                        baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>%
                         baseline::getCorrected(.) %>% t(.)
+
+#
+# Remove the laser peak from the spectrum
+#
+tetra.spectra <- tetra.spectra[tetra.spectra$wavenumber>100,]
+#
 # Normalise each spectra by its highest peak
+#
 tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec/max(spec))
 
 
@@ -1214,45 +1246,36 @@ tetra.peakLocations <- sapply(tetra.peakMargins, function(margins) {
   return(peak.location)
 })
 
-
 # EXTRACT THE PEAK HEIGHTS FOR DIFFERENT LASER POLARISATIONS
-# Create empty matrix
-tetra.peakChange <- matrix( NA, nrow = ncol(tetra.spectra[,-1]), ncol = length(tetra.peakLocations)+1 )
-# Add column with the wave plate position
-tetra.peakChange[,1] <- colnames(tetra.spectra[,-1]) %>% as.numeric
-# Loop over all peaks and and add their heights to the matrix
-for (index in seq_along(tetra.peakLocations)) {
-  # Get the wavenumber of the peak
-  peak <- tetra.peakLocations[index]
-  # Add the corresponding row of the spectra table to the matrix
-  tetra.peakChange[,index+1] <- tetra.spectra[ which(tetra.spectra$wavenumber==peak),-1 ] %>% unlist
+get.tetra.peakChange <- function() {
+  # Create empty matrix
+  tetra.peakChange <- matrix( NA, nrow = ncol(tetra.spectra[,-1]), ncol = length(tetra.peakLocations)+1 )
+  # Add column with the wave plate position
+  tetra.peakChange[,1] <- colnames(tetra.spectra[,-1]) %>% as.numeric
+  # Loop over all peaks and and add their heights to the matrix
+  for (index in seq_along(tetra.peakLocations)) {
+    # Get the wavenumber of the peak
+    peak <- tetra.peakLocations[index]
+    # Add the corresponding row of the spectra table to the matrix
+    tetra.peakChange[,index+1] <- tetra.spectra[ which(tetra.spectra$wavenumber==peak),-1 ] %>% unlist
+  }
+  # Add describtive column names
+  colnames(tetra.peakChange) <- c("waveplate", tetra.peakLocations)
+  # Translate matrix to data.frame
+  tetra.peakChange <- as.data.frame(tetra.peakChange)
+  
+  return(tetra.peakChange)
 }
-# Add describtive column names
-colnames(tetra.peakChange) <- c("waveplate", tetra.peakLocations)
-# Translate matrix to data.frame
-tetra.peakChange <- as.data.frame(tetra.peakChange)
+tetra.peakChange <- get.tetra.peakChange()
 
 
 # COMPUTE DETECTORS SENSITIBLITY FOR LIGHT POLARISED ALONG DIFFERENT OPTICAL AXIS
+# Important: Recompute the peak Height changes of the spectra (get.tetra.peakChange), because they were
+#             calculated before the spectra were scaled with the white lamp spectra
 tetra.sensibility <- sapply(tetra.peakChange[,-1], function(peakheight) max(peakheight)/min(peakheight))
 tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.numeric,
                                 quotient   = tetra.sensibility %>% unname)
 
-
-# HOW ARE THE OPTICAL AXIS OF THE DETECTOR ALIGNED?
-# The wave plates position of the maximal detector response
-# Loop over all peaks and compare the height between the different spectra
-# sapply(seq_along(tetra.peakChange[,-1]), function(index) {
-#   # The maximal height of the current peak
-#   peakHeight <- max(tetra.peakChange[,index+1])
-#   # Get the index of the maximum
-#   select <- which(peakHeight==tetra.peakChange[,index+1])
-#   # If there are multiple maxima its probably the peak I normalised with
-#   # Just return NA in this case
-#   if (length(select)>1) return(NA)
-#   # Return the wave plates position
-#   return( tetra.peakChange[ select,1 ] )
-# })
 ```
 
 + Die Spektren werden coloriert, wenn sie in einem Plot überlagert werden
@@ -1262,9 +1285,10 @@ tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.num
 # Plot ALL SPECTRA OVERLAYERD as 2d plot
 tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[tetra.spectra$wavenumber>100,-c(21:24)], 
                                                            colorFunc=function(waveplateRotation) 
-                                                           { mod(waveplateRotation*2, 180) %>% `-`(., 90) %>% abs } ),
+                                                           { mod(waveplateRotation-(tetra.minimal.waveplate-45), 90) %>% 
+                                                               `-`(., 45) %>% abs } ),
                                 mapping = aes(x = wavenumber, ymax = signal, ymin=0, group = P, fill = color) ) +
-   scale_fill_gradientn(colors = c("red", "orange", "green"),
+   scale_fill_gradientn(colors = c("green", "orange", "red"),
                         breaks = seq(from=0, to=90, length.out=4) ) +
   theme_hot() +
   labs(title = "Influence Of Light Polarisation On Raman Spectrum Of Tetrachloromethane",
@@ -1294,7 +1318,6 @@ plot(tetra.sensibility, type="h", lwd=2,
      main = "Quotient of maximal and minimal detector response",
      xlab = "max/min",
      ylab = expression("wavenumber / cm"^"-1") )
-
 ```
 
 __Fazit:__
