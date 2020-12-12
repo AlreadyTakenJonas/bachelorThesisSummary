@@ -230,7 +230,7 @@ def main(cliArgs):
         # Print mean of mueller matrices
         output_text += "\n\n! " + dict["head"] + "\n" + np.array2string(dict["muellerMatrix"], sign = None).replace("[[", "").replace(" [", "").replace("]", "")
         # Print mean of raman tensors as comments
-        output_text += "\n\n#! " + dict["head"] + " (Raman Tensor)\n" + np.array2string(dict["ramanTensor"], sign = None).replace("[[", "#").replace(" [", "#").replace("]", "")
+        output_text += "\n\n#! " + dict["head"] + " (Mean Of Rotated Raman Tensors)\n" + np.array2string(dict["ramanTensor"], sign = None).replace("[[", "#").replace(" [", "#").replace("]", "")
 
     # Log and write text to file
     log.debug("Writing results to '" + str(cliArgs.outputfile.resolve()) + "':\n\n" + output_text + "\n")
