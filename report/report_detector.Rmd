@@ -1,3 +1,24 @@
+---
+title: "Weißlichtspektren"
+output:
+  html_document:
+    df_print: paged
+---
+<!--- Change width options to apppropiate values for your desired page size-->
+<!--- Important for printing HTML as PDF-->
+<style type="text/css">
+.main-container {
+  width: 20cm;
+  max-width: 20cm;
+  min-width: 20cm;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
++ Weißlichspektren herunterladen
+
+```{r, library-and-downloads, waring=F, message=F, results='hide'}
 #
 # CHARACTERISING THE WITEC DETECTOR
 #
@@ -6,7 +27,7 @@
 #
 # Get some libraries and functions used for characterising the detector and plotting stuff
 #
-source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
+source("../bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 
 
 
@@ -15,11 +36,13 @@ source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 detector.spectra1 <- GET.elabftw.bycaption(76, header=T, outputHTTP=T) %>% parseTimeSeries.elab(., header=F, sep="")
 # Second try
 detector.spectra2 <- GET.elabftw.bycaption(81, header=T, outputHTTP=T) %>% parseTimeSeries.elab(., header=F, sep="")
+```
++ Berechnen des gemittelten Spektrums
++ Berechnen von absoluter und relativer Differenz zwischen Spektren und ihrem Mittel
+
+```{r, processing}
 # Select one data set for evaluation
 detector.spectra <- detector.spectra2
-
-# Get the ideal white lamp spectrum
-# detector.whitelamp <- read.table(file = "./Weisslichtspektrum_Julian.txt", header = T)
 
 #
 # PREPROCESS SPECTRA
@@ -35,7 +58,7 @@ detector.spectra <- lapply(detector.spectra, function(spec) {
   spec$wavelength <- 1/( 1/laser.wavelength - spec$wavenumber*1e-7 )
   
   # Vector normalisation of the spectra
-  spec[, data.selector] <- apply(spec[, data.selector], 2, function(spec) { spec / sum(spec^2) }) 
+  # spec[, data.selector] <- apply(spec[, data.selector], 2, function(spec) { spec / sum(spec^2) }) 
   
   # Compute mean spectrum and add it to the data.frame
   spec$mean <- rowMeans(spec[, data.selector])
@@ -68,73 +91,88 @@ detector.relDifference <- lapply(detector.spectra, function(spectra) {
   # Return result
   return(diffSpectra)
 })
+```
 
-# Which spectra have the largest and smallest values
-lapply(detector.absDifference, function(spectra) {
-  specMean <- colMeans(spectra[, -(1:3)])
-  list("max" = (which(max(specMean) == specMean)+3) %>% unname,
-       "min" = (which(min(specMean) == specMean)+3) %>% unname)
-})
++ Alle gemessenen Spektren übereinander legen
++ Das Spektrum der Kalibrationslampe plotten 
 
+```{r, plotting-all-2d}
 #
-# PLOT THAT SHIT
+# PLOT
 #
+
+# Get the ideal white lamp spectrum
+detector.whitelamp <- read.table(file = "../Weisslichtspektrum_Julian.txt", header = T)
+# Plot ideal white lamp spectrum
+detector.range <- detector.spectra[[1]]$wavelength[c(1, nrow(detector.spectra[[1]]))]
+plot(detector.whitelamp, type = "l", 
+     main = "Spektrum Kalibrationslampe",
+     xlab = expression(bold("wavelength / nm")),
+     ylab = expression(bold("intensity")))
+abline(v = detector.range)
+text( mean(detector.range),
+      y = mean(detector.whitelamp$Intensity), expression("Messbereich \n      WiTec") )
 
 # Plot the white lamp spectra for the detector without the microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[1]][, -c(2:3)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector")
+                        title="Detector Response for polarised white light (with microscope)",
+                        ylab="counts")
 
 
 # Plot the white lamp spectra for the detector with the microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.spectra[[2]][, -c(2:3)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="The Changing Detector Response For Different Linear Polarised White Light Of The WiTecs Detector And Microscope") #+
-#  scale_x_continuous(limits=c(150, 250)) + scale_y_continuous(limits=c(200,400))
+                        title="Detector Response for polarised white light (without microscope",
+                        ylab="counts")
+```
 
++ Alle gemessenen Spektren als 3D-Plot
+
+```{r, plotting-all-3d}
 # Plot the WHITE LAMP SPECTRA in one 3d plot as 3D SURFACE
-plot.detector.allSpectra.interactable(detector.spectra[[1]][, -c(2:3)])
-plot.detector.allSpectra.interactable(detector.spectra[[2]][, -c(2:3)])
 plot.detector.allSpectra(detector.spectra[[1]][,-c(2:3,21:24)], theta=240)
 plot.detector.allSpectra(detector.spectra[[2]][,-c(2:3,21:24)], theta=240)
+```
 
++ Auftragen der Differenzspektren
++ Von den Spektren, die mit dem Mikroskop gemessen wurden, werden die Spektren mit dem größten Unterschied gezeigt
 
+```{r, plotting-diff}
 # Plot the ABSOLUTE DIFFERENCE between the white lamp spectra and their mean
 # with microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[1]][, -c(2:3)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="Absolute Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
-                        ylab="abs. count difference") +
-  coord_cartesian(ylim = c(-1.25e-7, 1.25e-7))
+                        title="Absolute Difference (with detector)",
+                        ylab="abs. difference") 
 # with microscope, only the extrema
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[1]][, c(1, 7, 16)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="Relative Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
-                        ylab="rel. count difference")
+                        title="Absolute Difference (with detector)",
+                        ylab="abs. difference")
 # without microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[2]][, -c(2:3)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="Absolute Difference between Polarised White Lamp Spectra and Their Mean (without detector)",
-                        ylab="abs. count difference")
+                        title="Absolute Difference (without detector)",
+                        ylab="abs. difference")
 
 # Plot the RELATIVE DIFFERENCE between the white lamp spectra and their mean
 # with microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[1]][, -c(2:3)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="Relative Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
-                        ylab="rel. count difference")  +
-  coord_cartesian(ylim = c(-0.15, 0.15))
+                        title="Relative Difference (with detector)",
+                        ylab="rel. difference") +
+  coord_cartesian(ylim = c(-0.22, 0.22))
 # with microscope, only the extrema
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[1]][, c(1, 7, 16)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="Relative Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
-                        ylab="rel. count difference")
+                        title="Relative Difference (with detector)",
+                        ylab="rel. difference")
 # without microscope
 plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[2]][, -c(2:3)], 
                                                  colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="Relative Difference between Polarised White Lamp Spectra and Their Mean (without detector)",
-                        ylab="rel. count difference")
+                        title="Relative Difference (without detector)",
+                        ylab="rel. difference")
 
-
-
+```
 

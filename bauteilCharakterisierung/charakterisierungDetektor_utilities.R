@@ -39,11 +39,14 @@ makeSpectraPlotable <- function(spectra, colorFunc=function(x) return(x)) {
 # Plot all measured WHITE LIGHT SPECTRA in one plot and color code them according to the rotation of the linear polariser
 # The color should show the absolute DEVIATION of the lasers plane of polarisation FROM THE DETECTORS MOST SENSITIVE AXIS 
 plot.detector.whitelamp <- function(data,
-                                    title = "The Changing Detector Response For Different Linear Polarised White Light <Of Your Equipment>"
-                                   ) {
+                                    title = "The Changing Detector Response For Different Linear Polarised White Light <Of Your Equipment>",
+                                    ylab  = "counts",
+                                    xlab = expression(bold("wavenumber / cm"^"-1"))
+                                    ) {
   # PARAMETERS
   # data : plotable time series of spectra. Use the return value of RHotStuff::parseTimeSeries.elab() %>% makeSpectraPlotable()
   # title : Some descriptive title
+  # xlab, ylab : labels for the axis
   
   ggplot( data = data,
           mapping = aes(x = wavenumber, y = signal, group = P, color = color)
@@ -54,8 +57,8 @@ plot.detector.whitelamp <- function(data,
                         ) +
     theme_hot() +
     labs(title = title,
-         y = "counts",
-         x = expression(bold("wavenumber / cm"^"-1")),
+         y = ylab,
+         x = xlab,
          subtitle = "the color gradient encodes the absolute deviation D of the linear polarisers position \nfrom the detectors most sensitive axis",
          color = "D / °") +
     geom_line()

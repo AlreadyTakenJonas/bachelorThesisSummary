@@ -1,0 +1,93 @@
+# polaram simulate /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/test_polaram/test_instruction.txt --output /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/test_polaram/test_simulationResult.txt --log /home/jonas/code/python/PolaRam/log/muellersimulation.log --matrix /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/test_polaram/test_muellerMatrix_monteCarloTest.txt
+# Execution time: 2020-12-12 21:52:21.123183
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1. 0. 0. 0.       8.37649813e-01  1.91965168e-04 -1.03391981e-04  0.00000000e+00
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.         0.02824662 0.0197785  0.              0.83765319 0.00814019 0.00545745 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.         0.05649324 0.039557   0.              0.83765657 0.01608841 0.0110183  0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.         0.08473987 0.05933549 0.              0.83765995 0.02403664 0.01657914 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.         0.11298649 0.07911399 0.              0.83766332 0.03198486 0.02213998 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.         0.14123311 0.09889249 0.              0.8376667  0.03993308 0.02770083 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.1694797 0.118671  0.             0.83767008 0.04788129 0.03326167 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.1977264 0.1384495 0.             0.83767346 0.05582954 0.03882252 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.       0.225973 0.158228 0.            0.83767683 0.06377776 0.04438336 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.2542196 0.1780065 0.             0.83768021 0.07172597 0.04994421 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.2824662 0.197785  0.             0.83768359 0.07967419 0.05550505 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.3107128 0.2175635 0.             0.83768696 0.08762241 0.06106589 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.3389595 0.237342  0.             0.83769034 0.09557065 0.06662674 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.3672061 0.2571205 0.             0.83769372 0.10351887 0.07218758 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.3954527 0.276899  0.             0.8376971  0.11146708 0.07774843 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.4236993 0.2966775 0.             0.83770047 0.1194153  0.08330927 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.       0.451946 0.316456 0.            0.83770385 0.12736355 0.08887012 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.4801926 0.3362345 0.             0.83770723 0.13531176 0.09443096 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.5084392 0.356013  0.             0.83771061 0.14325998 0.0999918  0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.5366858 0.3757915 0.             0.83771398 0.1512082  0.10555265 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.5649324 0.39557   0.             0.83771736 0.15915641 0.11111349 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.5931791 0.4153485 0.             0.83772074 0.16710466 0.11667434 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.6214257 0.435127  0.             0.83772412 0.17505288 0.12223518 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.6496723 0.4549054 0.             0.83772749 0.18300109 0.127796   0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.6779189 0.4746839 0.             0.83773087 0.19094931 0.13335684 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.7061656 0.4944624 0.             0.83773425 0.19889755 0.13891769 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.7344122 0.5142409 0.             0.83773763 0.20684577 0.14447853 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.7626588 0.5340194 0.             0.837741   0.21479399 0.15003938 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.7909054 0.5537979 0.             0.83774438 0.2227422  0.15560022 0.        
+
+# State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
+test  1.        0.819152  0.5735764 0.             0.83774776 0.23069042 0.16116106 0.        
+
