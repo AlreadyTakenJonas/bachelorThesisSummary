@@ -35,9 +35,13 @@ tetra.spectra[,-1] <- t( as.matrix(tetra.spectra[,-1]) ) %>%
 #
 tetra.spectra <- tetra.spectra[tetra.spectra$wavenumber>100,]
 #
-# Normalise each spectra by its highest peak
+# Normalise each spectrum
 #
-tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec/max(spec))
+# Normalisation with hghest point
+# tetra.spectra[,-1] <- sapply(tetra.spectra[,-1], function(spec) spec/max(spec))
+# Vector normalisation
+tetra.spectra[,-1] <- apply(tetra.spectra[,-1], 2, function(spec) spec / sqrt(sum(spec^2)))
+
 
 
 # FIND THE LOCATION OF THE PEAKS
@@ -83,6 +87,9 @@ get.tetra.peakChange <- function() {
   return(tetra.peakChange)
 }
 tetra.peakChange <- get.tetra.peakChange()
+# Normalise the peakChange with the maximum
+# tetra.peakChange[,-1] <- apply(tetra.peakChange[,-1], 2, function(vec) vec / max(vec))
+
 
 # HOW ARE THE OPTICAL AXIS OF THE DETECTOR ALIGNED?
 # This is important for comparing raman spectra and white lamp spectra
@@ -104,17 +111,21 @@ tetra.peakChange <- get.tetra.peakChange()
 # The wave plates position of the minimal detector response
 # Loop over all peaks and compare the height between the different spectra
 # sapply(seq_along(tetra.peakChange[,-1]), function(index) {
-#   # The minimal height of the current peak
-#   peakHeight <- min(tetra.peakChange[,index+1])
-#   # Get the index of the minimal
-#   select <- which(peakHeight==tetra.peakChange[,index+1])
-#   # If there are multiple minima its propably the peak I normalised with
-#   # Just return NA in this case
-#   if (length(select)>1) return(NA)
-#   # Return the wave plates position
-#   return( tetra.peakChange[ select,1 ] )
+#    # The minimal height of the current peak
+#    peakHeight <- min(tetra.peakChange[,index+1])
+#    # Get the index of the minimal
+#    select <- which(peakHeight==tetra.peakChange[,index+1])
+#    # If there are multiple minima its propably the peak I normalised with
+#    # Just return NA in this case
+#    if (length(select)>1) return(NA)
+#    # Return the wave plates position
+#    return( tetra.peakChange[ select,1 ] )
 # })
-
+# Find the minimal value of all spectra and return the wave number position
+# of the spectrum containing the value
+tetra.minimal.waveplate <- sapply(tetra.spectra[,-1], function(spec) { 
+    min(tetra.spectra[,-1]) %in% spec 
+  }) %>% which %>% names %>% as.numeric
 
 
 
@@ -122,8 +133,6 @@ tetra.peakChange <- get.tetra.peakChange()
 
 
 # COMPUTE DETECTORS SENSITIBLITY FOR LIGHT POLARISED ALONG DIFFERENT OPTICAL AXIS
-# Important: Recompute the peak Height changes of the spectra (get.tetra.peakChange), because they were
-#             calculated before the spectra were scaled with the white lamp spectra
 tetra.sensibility <- sapply(tetra.peakChange[,-1], function(peakheight) max(peakheight)/min(peakheight))
 tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.numeric,
                                 quotient   = tetra.sensibility %>% unname)
@@ -136,10 +145,13 @@ tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.num
 # Plot ALL SPECTRA OVERLAYERD as 2d plot
 tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[tetra.spectra$wavenumber>100,-c(21:24)], 
                                                            colorFunc=function(waveplateRotation) 
-                                                           { mod(waveplateRotation-(tetra.minimal.waveplate-45), 90) %>% 
+                                                           { mod(waveplateRotation-(tetra.minimal.waveplate), 90) %>% 
                                                                `-`(., 45) %>% abs } ),
-                                mapping = aes(x = wavenumber, ymax = signal, ymin=0, group = P, fill = color) ) +
-   scale_fill_gradientn(colors = c("green", "orange", "red"),
+                                # mapping = aes(x = wavenumber, ymax = signal, ymin=0, group = P, fill = color) ) +
+                                mapping = aes(x = wavenumber, y = signal, group = P, color = color) ) +
+  scale_fill_gradientn(colors = c("green", "orange", "red"),
+                       breaks = seq(from=0, to=45, length.out=4) ) +
+  scale_color_gradientn(colors = c("green", "orange", "red"),
                         breaks = seq(from=0, to=45, length.out=4) ) +
   theme_hot() +
   labs(title = "Influence Of Light Polarisation On Raman Spectrum Of Tetrachloromethane",
@@ -147,21 +159,23 @@ tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[tetra.s
        x = expression(bold("wavenumber / cm"^"-1")),
        subtitle = "the color gradient encodes the absolute deviation D of the wave plates position \nfrom the detectors least sensitive axis",
        fill = "D / °") +
-   geom_ribbon()
+   geom_line(size=0.4)
 # Plot all wavenumbers
 tetra.plot.allSpetra
 # Show just the interesting part
-tetra.plot.allSpetra + coord_cartesian(xlim = c(150, 850), ylim = c(0,0.55))
+tetra.plot.allSpetra + coord_cartesian(xlim = c(150, 850))
 
 # Plot ALL SPECTRA as 3d SURFACE
 plot.detector.allSpectra.interactable(tetra.spectra[ which(tetra.spectra$wavenumber>100 & tetra.spectra$wavenumber<1000), ], 
                                       title=expression(bold("Normalised Raman Spectra Of Tetrachloromethane For Different Polarised Light")))
 
 # Plot the HEIGHT OF PEAKS against the wave plates position
-plot(x=tetra.peakChange.final$waveplate, y=tetra.peakChange.final[,2], type="n", ylim=c(0,1),
+plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n",
      main = "Peakheight Change Due To Polarisation Change",
      xlab = "waveplate rotation / °",
-     ylab = "normalised peak height")
+     ylab = "normalised peak height", 
+     ylim = c(min(tetra.peakChange[,-1]),
+              max(tetra.peakChange[,-1])) )
 # Plot peak change
 for (index in seq_along(tetra.peakChange[,-1])) lines(x=tetra.peakChange$waveplate, y=tetra.peakChange[,index+1], col=index+5, type="o")
 
