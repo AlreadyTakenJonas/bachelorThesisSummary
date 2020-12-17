@@ -25,7 +25,7 @@ P3.transmittance <- sapply(P3.polariserPosition, function(position) {
 P3.absorbance <- data.frame( P3 = as.numeric(P3.polariserPosition),
                              transmittance = P3.transmittance )
 # Write formatted data to folder for uploading it to overleaf later
-write.table(P3.absorbance, file="../overleaf/externalFilesForUpload/data/transmissionP3.csv", row.names=F)
+write.table(P3.absorbance, file="../overleaf/externalFilesForUpload/data/P3_transmission.csv", row.names=F)
 
 
 #
