@@ -2,6 +2,31 @@ library("RHotStuff")
 library("magrittr")
 library("ggplot2")
 
+#
+# Fetch AND NORMALISE DATA FROM LOCAL STORAGE
+#
+P3.localPath <- list.files("../data/", pattern="expID-78") %>% paste0("../data/", .)
+P3.localFiles <- list.files(P3.localPath, pattern="^P")
+P3.polariserPosition <- sub("P", "", P3.localFiles) %>% sub("deg.*", "", .) %>% unique
+P3.transmittance <- sapply(P3.polariserPosition, function(position) {
+  # Read for every polariser position the background and the actual measurement
+  # Get file name
+  background <- P3.localFiles[grep(position, P3.localFiles)] %>% .[grep("background", .)] %>% paste(P3.localPath, ., sep="/")
+  # Read file
+  background <- read.table(file=background, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+  # Get file name
+  measurement <- P3.localFiles[grep(position, P3.localFiles)] %>% .[grep("withPolariser", .)] %>% paste(P3.localPath, ., sep="/")
+  # Read file
+  measurement <- read.table(file=measurement, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+  
+  # Normalise data
+  measurement / background
+})
+P3.absorbance <- data.frame( P3 = as.numeric(P3.polariserPosition),
+                             transmittance = P3.transmittance )
+# Write formatted data to folder for uploading it to overleaf later
+write.table(P3.absorbance, file="../overleaf/externalFilesForUpload/data/transmissionP3.csv", row.names=F)
+
 
 #
 # FETCH DATA FROM ELABFTW
@@ -9,6 +34,7 @@ library("ggplot2")
 P3.absorbance <- GET.elabftw.bycaption(78, header=T, outputHTTP=T) %>% parseTable.elabftw(., 
                                                                           func=function(x) qmean(x[,4], 0.8, na.rm=T, inf.rm=T),
                                                                           header=T, skip=14, sep=";") %>% .[[1]]
+
 colnames(P3.absorbance) <- c("P3", "P4", "background", "measured")
 
 #
@@ -16,6 +42,8 @@ colnames(P3.absorbance) <- c("P3", "P4", "background", "measured")
 #
 # Normalise data
 P3.absorbance$transmittance <- P3.absorbance$measured / P3.absorbance$background
+
+
 
 #
 # PLOT THAT SHIT
