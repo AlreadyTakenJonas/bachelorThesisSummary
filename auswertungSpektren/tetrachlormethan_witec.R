@@ -25,7 +25,7 @@ tetra.spectra <- tetra.spectra.unprocessed
 #
 # Remove the laser peak from the spectrum
 #
-tetra.spectra <- tetra.spectra[tetra.spectra$wavenumber>100,]
+tetra.spectra <- tetra.spectra[tetra.spectra$wavenumber>200 & tetra.spectra$wavenumber<1000,]
 
 
 # Statistical Background Correction
