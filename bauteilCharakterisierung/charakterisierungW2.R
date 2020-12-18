@@ -1,5 +1,6 @@
 require(RHotStuff)
 require(ggplot2)
+library(magrittr)
 
 # Extract data from eLabFTW
 W2.data <- GET.elabftw.byselector(28, header = T)[[1]]
@@ -17,6 +18,10 @@ W2.data$Y4 <- fillVector(W2.data$Y4)
 # Normalise
 W2.data$Y1 <- (W2.data$Y1/W2.data$Y2) %>% `/`(., max(.)) *100
 W2.data$Y3 <- W2.data$Y3/W2.data$Y4 *100
+
+# Write formatted data to folder for uploading it to overleaf later
+write.table(W2.data, file="../overleaf/externalFilesForUpload/data/W2_transmission-rotation.csv", row.names=F)
+
 
 # Plot
 ggplot(data = W2.data, mapping = aes(x = X, y=Y3)) +

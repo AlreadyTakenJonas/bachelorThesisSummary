@@ -43,6 +43,23 @@ F3.muellermatrix <- muellermatrix(F3.data.stokes)
 # Predict the stokes vectors after the fiber from the mueller matrix and the stokes vectors measured before the fiber
 F3.data.stokes   <- predict.stokesVec(F3.data.stokes, F3.muellermatrix)
 
+
+#
+# Write formatted and processed data to folder for uploading it to overleaf later
+#
+write.table(F3.data.stokes$PRE, file="../overleaf/externalFilesForUpload/data/F3_stokes_pre.csv", row.names=F)
+write.table(F3.data.stokes$POST, file="../overleaf/externalFilesForUpload/data/F3_stokes_post.csv", row.names=F)
+write.table(F3.data.stokes$change, file="../overleaf/externalFilesForUpload/data/F3_stokes_change.csv", row.names=F)
+write.table(F3.data.stokes$POST.PREDICT, file="../overleaf/externalFilesForUpload/data/F3_stokes_predict.csv", row.names=F)
+write.table(F3.data.stokes$PREDICT.ERROR, file="../overleaf/externalFilesForUpload/data/F3_stokes_errorPredict.csv", row.names=F)
+
+write.table(F3.error.stats$PRE, file="../overleaf/externalFilesForUpload/data/F3_error_pre.csv", row.names=T)
+write.table(F3.error.stats$POST, file="../overleaf/externalFilesForUpload/data/F3_error_post.csv", row.names=T)
+write.table(F3.error.stats$change, file="../overleaf/externalFilesForUpload/data/F3_error_change.csv", row.names=T)
+
+write.table(F3.rotation.elab, file="../overleaf/externalFilesForUpload/data/F3_rotation.csv", row.names=F)
+
+
 #
 # PLOT THAT SHIT
 #

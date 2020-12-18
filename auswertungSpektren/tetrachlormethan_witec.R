@@ -22,6 +22,12 @@ tetra.spectra.unprocessed <- GET.elabftw.bycaption(79, header=T, outputHTTP=T) %
 # PREPROCESS
 tetra.spectra <- tetra.spectra.unprocessed
 
+#
+# Remove the laser peak from the spectrum
+#
+tetra.spectra <- tetra.spectra[tetra.spectra$wavenumber>100,]
+
+
 # Statistical Background Correction
 #
 # Peaks no longer available
@@ -30,10 +36,6 @@ tetra.spectra[,-1] <- t( as.matrix(tetra.spectra[,-1]) ) %>%
                         baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>%
                         baseline::getCorrected(.) %>% t(.)
 
-#
-# Remove the laser peak from the spectrum
-#
-tetra.spectra <- tetra.spectra[tetra.spectra$wavenumber>100,]
 #
 # Normalise each spectrum
 #

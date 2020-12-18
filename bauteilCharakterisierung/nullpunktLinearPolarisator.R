@@ -11,6 +11,9 @@ P1.maxmin.data <- GET.elabftw.byselector(25, header = T)[[1]]
 # Normalise data
 P1.maxmin.data$Y1 <- P1.maxmin.data$Y1 / P1.maxmin.metadata[3,2] *100
 
+# Write formatted data to folder for uploading it to overleaf later
+write.table(P1.maxmin.data, file="../overleaf/externalFilesForUpload/data/P1_nullpunkt.csv", row.names=F)
+
 # Plot
 ggplot(data = P1.maxmin.data, mapping = aes(x = X, y = Y1)) +
   geom_point(size = 0.5) +
@@ -30,6 +33,9 @@ P2.maxmin.data <- GET.elabftw.byselector(26, header = T)[[1]]
 
 # Normalise data
 P2.maxmin.data$Y1 <- P2.maxmin.data$Y1 / P2.maxmin.metadata[3,2] *100
+
+# Write formatted data to folder for uploading it to overleaf later
+write.table(P2.maxmin.data, file="../overleaf/externalFilesForUpload/data/P2_nullpunkt.csv", row.names=F)
 
 # Plot
 ggplot(data = P2.maxmin.data, mapping = aes(x = X, y = Y1)) +

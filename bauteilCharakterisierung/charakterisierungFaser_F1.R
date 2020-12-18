@@ -8,75 +8,75 @@ source("bauteilCharakterisierung/charakterisierungFaser_utilities.R")
 
 #
 # FETCH data from local files
-# 
-F1.data.elab <- lapply(c(58, 67, 68), function(id) {
-  # Read all three experiments
-  pattern <- paste0("expID-", id)
-  F1.localPath <- list.files("../data/", pattern=pattern) %>% paste0("../data/", .)
-  F1.localFiles <- list.files(F1.localPath, pattern="^W")
-  F1.waveplatePosition <- sub("W", "", F1.localFiles) %>% sub("deg.*", "", .) %>% unique
-  # Process files
-  lapply(c("000", "090", "045", "135"), function(polariser) {
-    # Create a table for every polariser position used to measure the stokes vectors
-    lapply(F1.waveplatePosition, function(waveplate) {
-      # Read background and actual measurements from local files
-      # Get file name
-      background.PRE <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_noFiber", .)] %>% 
-        paste(F1.localPath, ., sep="/")
-      background.POST <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_fiber", .)] %>% 
-        paste(F1.localPath, ., sep="/")
-      measurement.PRE <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
-        .[grep(paste0(polariser, "deg_noFiber"), .)] %>% paste(F1.localPath, ., sep="/")
-      measurement.POST <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
-        .[grep(paste0(polariser, "deg_fiber"), .)] %>% paste(F1.localPath, ., sep="/")
-      
-      # Read file
-      background.PRE <- read.table(file=background.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      background.POST <- read.table(file=background.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      measurement.PRE <- read.table(file=measurement.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      measurement.POST <- read.table(file=measurement.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      data.frame(X = as.numeric(waveplate),
-                 Y1 = background.PRE,
-                 Y2 = measurement.PRE,
-                 Y3 = background.POST,
-                 Y4 = measurement.POST)
-    }) %>% rbind
-  })
-}) %>% better.rbind
+#
+# F1.data.elab <- lapply(c(58, 67, 68), function(id) {
+#   # Read all three experiments
+#   pattern <- paste0("expID-", id)
+#   F1.localPath <- list.files("../data/", pattern=pattern) %>% paste0("../data/", .)
+#   F1.localFiles <- list.files(F1.localPath, pattern="^W")
+#   F1.waveplatePosition <- sub("W", "", F1.localFiles) %>% sub("deg.*", "", .) %>% unique
+#   # Process files
+#   lapply(c("000", "090", "045", "135"), function(polariser) {
+#     # Create a table for every polariser position used to measure the stokes vectors
+#     lapply(F1.waveplatePosition, function(waveplate) {
+#       # Read background and actual measurements from local files
+#       # Get file name
+#       background.PRE <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_noFiber", .)] %>% 
+#         paste(F1.localPath, ., sep="/")
+#       background.POST <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_fiber", .)] %>% 
+#         paste(F1.localPath, ., sep="/")
+#       measurement.PRE <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
+#         .[grep(paste0(polariser, "deg_noFiber"), .)] %>% paste(F1.localPath, ., sep="/")
+#       measurement.POST <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
+#         .[grep(paste0(polariser, "deg_fiber"), .)] %>% paste(F1.localPath, ., sep="/")
+#       
+#       # Read file
+#       background.PRE <- read.table(file=background.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       background.POST <- read.table(file=background.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       measurement.PRE <- read.table(file=measurement.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       measurement.POST <- read.table(file=measurement.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       data.frame(X = as.numeric(waveplate),
+#                  Y1 = background.PRE,
+#                  Y2 = measurement.PRE,
+#                  Y3 = background.POST,
+#                  Y4 = measurement.POST)
+#     }) %>% rbind
+#   })
+# }) %>% better.rbind
 
-F1.error.elab <- lapply(c(66), function(id) {
-  # Read all three experiments
-  pattern <- paste0("expID-", id)
-  F1.localPath <- list.files("../data/", pattern=pattern) %>% paste0("../data/", .)
-  F1.localFiles <- list.files(F1.localPath, pattern="^W")
-  # Process files
-  lapply(c("000", "090", "045", "135"), function(polariser) {
-    # Create a table for every polariser position used to measure the stokes vectors
-    lapply(c("000deg-a", "000deg-b", "000deg-c", "000deg-d", "000deg-e"), function(waveplate) {
-      # Read background and actual measurements from local files
-      # Get file name
-      background.PRE <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_noFiber", .)] %>% 
-        paste(F1.localPath, ., sep="/")
-      background.POST <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_fiber", .)] %>% 
-        paste(F1.localPath, ., sep="/")
-      measurement.PRE <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
-        .[grep(paste0(polariser, "deg_noFiber"), .)] %>% paste(F1.localPath, ., sep="/")
-      measurement.POST <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
-        .[grep(paste0(polariser, "deg_fiber"), .)] %>% paste(F1.localPath, ., sep="/")
-      
-      # Read file
-      background.PRE <- read.table(file=background.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      background.POST <- read.table(file=background.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      measurement.PRE <- read.table(file=measurement.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      measurement.POST <- read.table(file=measurement.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
-      data.frame(X = 0,
-                 Y1 = background.PRE,
-                 Y2 = measurement.PRE,
-                 Y3 = background.POST,
-                 Y4 = measurement.POST)
-    }) %>% rbind
-  })
-}) %>% better.rbind
+# F1.error.elab <- lapply(c(66), function(id) {
+#   # Read all three experiments
+#   pattern <- paste0("expID-", id)
+#   F1.localPath <- list.files("../data/", pattern=pattern) %>% paste0("../data/", .)
+#   F1.localFiles <- list.files(F1.localPath, pattern="^W")
+#   # Process files
+#   lapply(c("000", "090", "045", "135"), function(polariser) {
+#     # Create a table for every polariser position used to measure the stokes vectors
+#     lapply(c("000deg-a", "000deg-b", "000deg-c", "000deg-d", "000deg-e"), function(waveplate) {
+#       # Read background and actual measurements from local files
+#       # Get file name
+#       background.PRE <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_noFiber", .)] %>% 
+#         paste(F1.localPath, ., sep="/")
+#       background.POST <- F1.localFiles[grep(waveplate, F1.localFiles)] %>% .[grep("background_fiber", .)] %>% 
+#         paste(F1.localPath, ., sep="/")
+#       measurement.PRE <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
+#         .[grep(paste0(polariser, "deg_noFiber"), .)] %>% paste(F1.localPath, ., sep="/")
+#       measurement.POST <- F1.localFiles[grep(paste0("W", waveplate), F1.localFiles)] %>% 
+#         .[grep(paste0(polariser, "deg_fiber"), .)] %>% paste(F1.localPath, ., sep="/")
+#       
+#       # Read file
+#       background.PRE <- read.table(file=background.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       background.POST <- read.table(file=background.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       measurement.PRE <- read.table(file=measurement.PRE, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       measurement.POST <- read.table(file=measurement.POST, skip=15, sep=";") %>% .[,4] %>% qmean(., 0.8, na.rm=T, inf.rm=T)
+#       data.frame(X = 0,
+#                  Y1 = background.PRE,
+#                  Y2 = measurement.PRE,
+#                  Y3 = background.POST,
+#                  Y4 = measurement.POST)
+#     }) %>% rbind
+#   })
+# }) %>% better.rbind
 
 
 #

@@ -23,3 +23,9 @@ trilaurin.spectra.unprocessed <- GET.elabftw.bycaption(79, header=T, outputHTTP=
 
 # PREPROCESS
 trilaurin.spectra <- trilaurin.spectra.unprocessed
+
+
+# FIND THE LOCATION OF THE PEAKS
+# Plot single spectrum
+plot(x = tetra.spectra$wavenumber, y = tetra.spectra$`0`, type="l")
+locator()
