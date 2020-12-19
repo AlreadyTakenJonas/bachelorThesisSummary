@@ -20,6 +20,9 @@ library("baseline")
 # AAP Spectra
 AAP.spectra.unprocessed <- GET.elabftw.bycaption(85, header=T, outputHTTP=T) %>%
   parseTimeSeries.elab(., col.spectra=3, sep="") %>% .[[1]]
+# Save unprocessed spectra locally
+write.table(AAP.spectra.unprocessed, file="../tmp/4-AAP_unprocessed.csv", row.names = F)
+
 
 # PREPROCESS
 AAP.spectra <- AAP.spectra.unprocessed
@@ -54,7 +57,13 @@ AAP.spectra[,-1] <- apply(AAP.spectra[,-1], 2, function(spec) spec / sqrt(sum(sp
 plot(x = AAP.spectra$wavenumber, y = AAP.spectra$`0`, type="l")
 locator()
 
+which(max(AAP.spectra[,2]) == AAP.spectra[,2])
+AAP.spectra$wavenumber[246]
 
+plot(x=colnames(AAP.spectra[246,-1]), y=AAP.spectra[246,-1], type="o")
+
+plot(x = AAP.spectra$wavenumber[AAP.spectra$wavenumber<1700], y = AAP.spectra$`30`[AAP.spectra$wavenumber<1700], typ="l", col="red")
+lines(x = AAP.spectra$wavenumber[AAP.spectra$wavenumber<1700], y = AAP.spectra$`80`[AAP.spectra$wavenumber<1700], type="l", col="blue")
 
 # Plot ALL SPECTRA as 3d SURFACE
 plot.detector.allSpectra.interactable(AAP.spectra, 

@@ -18,6 +18,8 @@ library("baseline")
 # Tetracholomethane Spectra
 tetra.spectra.unprocessed <- GET.elabftw.bycaption(79, header=T, outputHTTP=T) %>%
                               parseTimeSeries.elab(., col.spectra=3, sep="") %>% .[[1]]
+# Save unprocessed spectra locally
+write.table(tetra.spectra.unprocessed, file="../tmp/tetra_unprocessed.csv", row.names = F)
 
 # PREPROCESS
 tetra.spectra <- tetra.spectra.unprocessed

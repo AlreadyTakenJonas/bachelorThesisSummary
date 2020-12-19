@@ -21,6 +21,10 @@ library("baseline")
 trilaurin.spectra.unprocessed <- GET.elabftw.bycaption(84, header=T, outputHTTP=T) %>%
   parseTimeSeries.elab(., col.spectra=3, sep="") %>% .[[1]]
 
+# Save unprocessed spectra locally
+write.table(trilaurin.spectra.unprocessed, file="../tmp/trilaurin_unprocessed.csv", row.names = F)
+
+
 # PREPROCESS
 trilaurin.spectra <- trilaurin.spectra.unprocessed
 
@@ -62,3 +66,4 @@ locator()
 plot.detector.allSpectra.interactable(trilaurin.spectra, 
                                       title=expression(bold("Normalised Raman Spectra Of Trilaurin For Different Polarised Light")))
 
+plot(trilaurin.spectra[,c(1,2)], type="l", col=1)
