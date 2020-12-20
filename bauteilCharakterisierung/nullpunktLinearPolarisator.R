@@ -22,7 +22,8 @@ ggplot(data = P1.maxmin.data, mapping = aes(x = X, y = Y1)) +
        x = "Winkel / °",
        y = "Anteil der Strahlung, die den Polarisator passiert / %")
 
-
+# Compare maximal and minimal transmission
+max(P1.maxmin.data$Y1)/min(P1.maxmin.data$Y1)
 
 #
 # LINEARPOLARISATOR P2
@@ -44,3 +45,6 @@ ggplot(data = P2.maxmin.data, mapping = aes(x = X, y = Y1)) +
   labs(title = "Die Durchlässigkeit des Linearpolarisators P2 in Abhänigkeit des Rotationswinkels",
        x = "Winkel / °",
        y = "Anteil der Strahlung, die den Polarisator passiert / %")
+
+# Compare maximal and minimal transmission
+max(P2.maxmin.data$Y1)/min(P2.maxmin.data$Y1)
