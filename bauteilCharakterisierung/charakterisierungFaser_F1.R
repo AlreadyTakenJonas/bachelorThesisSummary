@@ -148,6 +148,10 @@ plot.intensity(data  = F1.data.stokes,
 )
 
 
+# COMPARE PREDICTED and MEASURED STOKES parameters and polarisation ratio
+plot.stokesPredict(data = F1.data.stokes,
+                   title = "Näherung der Stokesparamter für Faser F1")
+# UGLY VERSION
 # Plot and compare the PREDICTED and MEASURED STOKES parameters
 # S0
 plot(x = F1.data.stokes$POST$W, y = F1.data.stokes$POST$S0, col="red", type="l",

@@ -245,3 +245,58 @@ plot.plane.rotation <- function(data,
          y = expression(bold("rotation linear polariser / °")),
          color = "" )
 }
+
+
+# COMPARE PREDICTED and MEASURED STOKES parameters and polarisation ratio
+plot.stokesPredict <- function(data,
+                               title = "Näherung von ??") {
+  
+  # EXPECTED PARAMETERS:
+  # data : predicted and processed stokes parameters (output of predict.stokesVec)
+  # title : Descriptive title
+  
+  # Reorganise data into three columns: X, Y, Group, Color
+  # X: wave plate position
+  # Y: Stokes parameters / polarisation
+  # Group: group to distinguish wich X-Y-pair belongs to which subplot
+  # Color: is it the measured or predicted data?
+  grouped.data <- data.frame(
+    W     = rep(data$POST$W, 8),
+    Y     = c( data$POST$S0, data$POST.PREDICT$S0,
+               data$POST$S1, data$POST.PREDICT$S1,
+               data$POST$S2, data$POST.PREDICT$S2,
+               data$POST$polarisation, data$POST.PREDICT$polarisation ),
+    Group = c( rep("S0", length.out=length(data$POST$S0)*2),
+               rep("S1", length.out=length(data$POST$S1)*2),
+               rep("S2", length.out=length(data$POST$S2)*2),
+               rep("polarisation", length.out=length(data$POST$polarisation)*2) ),
+    Color = c( rep("Messung", length.out=length(data$POST$S0)), rep("Prognose", length.out=length(data$POST.PREDICT$S0)),
+               rep("Messung", length.out=length(data$POST$S1)), rep("Prognose", length.out=length(data$POST.PREDICT$S1)),
+               rep("Messung", length.out=length(data$POST$S2)), rep("Prognose", length.out=length(data$POST.PREDICT$S2)),
+               rep("Messung", length.out=length(data$POST$polarisation)), rep("Prognose", length.out=length(data$POST.PREDICT$polarisation)) )
+  )
+  
+  # Generate titles for the subplots
+  facet.labels <- list( "S0" = "Erster Stokesparameter",
+                        "S1" = "Zweiter Stokesparameter",
+                        "S2" = "Dritter Stokesparameter",
+                        "polarisation" = "Polarisationsgrad" )
+  
+  # Plot data as four different plots
+  ggplot(data = grouped.data, 
+         mapping = aes(x = W, y = Y, color = Color) ) +
+    geom_point() +
+    geom_line() +
+    theme_hot() +
+    scale_x_continuous(breaks = seq(from=0, to=360, by=90)) +
+    theme(legend.position = "bottom",
+          strip.text.x = element_text(face="bold") ) +
+    labs(title = title,
+         y = element_blank(),
+         x = expression(bold("Rotation der Halbwellenplatte "*omega*" / °")),
+         color = element_blank()) +
+    facet_wrap(facets = vars(Group),
+               scales = "free_y",
+               labeller = as_labeller( function(x) {facet.labels[x]} )
+    )
+}
