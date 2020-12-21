@@ -22,6 +22,9 @@ W1.data$Y3 <- W1.data$Y3/W1.data$Y4 *100
 # Write formatted data to folder for uploading it to overleaf later
 write.table(W1.data, file="../overleaf/externalFilesForUpload/data/W1_transmission-rotation.csv", row.names=F)
 
+# Mean transmission value
+mean(W1.data$Y3)
+
 
 # Plot
 ggplot(data = W1.data, mapping = aes(x = X, y=Y3)) +

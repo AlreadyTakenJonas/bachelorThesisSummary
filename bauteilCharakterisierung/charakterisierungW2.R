@@ -23,6 +23,10 @@ W2.data$Y3 <- W2.data$Y3/W2.data$Y4 *100
 write.table(W2.data, file="../overleaf/externalFilesForUpload/data/W2_transmission-rotation.csv", row.names=F)
 
 
+# Mean transmission value
+mean(W2.data$Y3)
+
+
 # Plot
 ggplot(data = W2.data, mapping = aes(x = X, y=Y3)) +
   geom_point() +
