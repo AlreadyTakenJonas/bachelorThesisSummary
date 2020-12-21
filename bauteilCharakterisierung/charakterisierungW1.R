@@ -16,7 +16,7 @@ W1.data$Y2 <- fillVector(W1.data$Y2)
 W1.data$Y4 <- fillVector(W1.data$Y4)
 
 # Normalise
-W1.data$Y1 <- (W1.data$Y1/W1.data$Y2) %>% `/`(., max(.)) *100
+W1.data$Y1 <- W1.data$Y1 %>% `/`(., max(.)) *100
 W1.data$Y3 <- W1.data$Y3/W1.data$Y4 *100
 
 # Write formatted data to folder for uploading it to overleaf later
