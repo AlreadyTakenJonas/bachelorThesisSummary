@@ -223,29 +223,40 @@ plot.intensity <- function(data,
 
 
 # How does the fiber influence the PLANE OF POLARISATIONS ORIENTATION?
-plot.plane.rotation <- function(data, 
+plot.plane.rotation <- function(data.F2, data.F3 ,
                                 title = expression(bold("The Impact Of The <YOUR FIBER> On The Orientation Of The Plane Of Polarisation")) 
 ) {
   # EXPECTED PARAMETERS:
-  # data : elabFTW table of angle dependent rotation behavior of optical fibers
+  # data.F2/F3 : elabFTW table of angle dependent rotation behavior of optical fibers F2 and F3
   # title : expression(bold("The Impact Of The <YOUR FIBER> On The Orientation Of The Plane Of Polarisation"))
   
-  ggplot( data = data[!is.na(data$X),] ) +
+  # Add group column for facets
+  data.F2$fiber <- "single-mode"
+  data.F3$fiber <- "multi-mode"
+  
+  # Shift the data by the initial angle of rotation -> data aligns nicely with line through origin
+  # Combine table for F2 and F3 into single table
+  data <- lapply(list(data.F2, data.F3), function(table) {
+    table <- table[!is.na(table$X),]
+    table$before <- table$Y2 - table$Y2[table$X==0]
+    table$after  <- table$Y1 - table$Y1[table$X==0]
+    return(table)
+  }) %>% dplyr::bind_rows(.)
+  
+  ggplot( data = data[0 <= data$X & data$X <= 180,] ) +
     geom_abline( mapping = aes(intercept = 0, slope = 2, color="ideal waveplate") ) +
     geom_abline( mapping = aes(intercept = 0, slope = -2, color="ideal waveplate") ) +
-    geom_point( mapping = aes(x = X, y = Y1-Y1[X==0], color = "after") ) +
-    geom_point( mapping = aes(x = X, y = Y2-Y2[X==0], color = "before") ) +
-    theme_classic() +
-    theme(panel.grid.major = element_line("black", size=0.1),
-          panel.grid.minor = element_line("grey", size=0.1) ) +
+    geom_point( mapping = aes(x = X, y = after, color = "after") ) +
+    geom_point( mapping = aes(x = X, y = before, color = "before") ) +
+    theme_hot() +
     scale_x_continuous(breaks = seq(from=-20, to=300, by=20) ) +
     scale_y_continuous(breaks = seq(from=-360, to=360, by=90) ) +
     labs(title = title,
          x = expression(bold("rotation waveplate / °")),
          y = expression(bold("rotation linear polariser / °")),
-         color = "" )
+         color = "" ) +
+    facet_wrap(facets = vars(fiber), scales = "free_y")
 }
-
 
 # COMPARE PREDICTED and MEASURED STOKES parameters and polarisation ratio
 plot.stokesPredict <- function(data,

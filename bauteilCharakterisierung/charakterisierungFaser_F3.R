@@ -83,8 +83,8 @@ plot.intensity(data  = F3.data.stokes,
 )
 
 # How does the fiber influence the PLANE OF POLARISATIONS ORIENTATION
-plot.plane.rotation(F3.rotation.elab, 
-                    title = expression(bold("The Impact Of The Multi-Mode Fiber (F3) On The Orientation Of The Plane Of Polarisation"))
+plot.plane.rotation(F2.rotation.elab, F3.rotation.elab, 
+                    title = expression(bold("The Impact Of Fibers On The Orientation Of The Plane Of Polarisation"))
 )
 
 
