@@ -59,6 +59,7 @@ write.table(F3.error.stats$change, file="../overleaf/externalFilesForUpload/data
 
 write.table(F3.rotation.elab, file="../overleaf/externalFilesForUpload/data/F3_rotation.csv", row.names=F)
 
+write.table(F3.muellermatrix, file="../overleaf/externalFilesForUpload/data/F3_muellermatrix.csv", row.names=F, col.names=F)
 
 #
 # PLOT THAT SHIT
