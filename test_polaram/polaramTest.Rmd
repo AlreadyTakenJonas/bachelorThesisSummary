@@ -148,6 +148,12 @@ polaramTest.rotationSim$fairResponse <- polaramTest.detectorResponse(polaramTest
 polaramTest.rotationSim$biasResponse <- polaramTest.detectorResponse(polaramTest.rotationSim, bias=2)
 
 #
+# Write plotable data to file -> upload to overleaf
+#
+write.table(polaramTest.rotationSim[,c("sigma", "fairResponse", "biasResponse")], 
+            file = "../../overleaf/externalFilesForUpload/data/polaram_rotation.csv", row.names = F, col.names = T)
+
+#
 # PLOTS
 #
 # Plot fair and biased detector response in two plots
@@ -238,6 +244,12 @@ colnames(polaramTest.polarisationSim) <- c("Pi", "S0", "S1", "S2", "S3")
 #
 polaramTest.polarisationSim$fairResponse <- polaramTest.detectorResponse(polaramTest.polarisationSim, bias=1)
 polaramTest.polarisationSim$biasResponse <- polaramTest.detectorResponse(polaramTest.polarisationSim, bias=2)
+
+#
+# Write plotable data to file -> upload to overleaf
+#
+write.table(polaramTest.polarisationSim[,c("Pi", "fairResponse", "biasResponse")], 
+            file = "../../overleaf/externalFilesForUpload/data/polaram_polarisation.csv", row.names = F, col.names = T)
 
 #
 # PLOTS
@@ -423,6 +435,18 @@ colnames(polaramTest.polarisationBiasDeviation) <- c("Pi",
                                              sapply(1:polaramTest.repetition, function(i) { 
                                                paste0("biasResponse", i)
                                              }))
+
+#
+# Write plotable data to file -> upload to overleaf
+#
+write.table(polaramTest.rotationFairDeviation, 
+            file = "../../overleaf/externalFilesForUpload/data/monteCarlo_rotation_fair.csv", row.names = F, col.names = T)
+write.table(polaramTest.rotationBiasDeviation, 
+            file = "../../overleaf/externalFilesForUpload/data/monteCarlo_rotation_bias.csv", row.names = F, col.names = T)
+write.table(polaramTest.polarisationFairDeviation, 
+            file = "../../overleaf/externalFilesForUpload/data/monteCarlo_polarisation_fair.csv", row.names = F, col.names = T)
+write.table(polaramTest.polarisationBiasDeviation, 
+            file = "../../overleaf/externalFilesForUpload/data/monteCarlo_polarisation_bias.csv", row.names = F, col.names = T)
 
 
 #
