@@ -122,93 +122,143 @@ def main(cliArgs):
     # Build a generator that returns the tensorlist that will be passed to every iteration of the monte-carlo-simulation
     processArgs = ( tensorlist for i in range(cliArgs.iterationLimit) )
 
+    # Set a flag to signal the while loop below wether or not to rerun the simulation if validation fails
+    runMonteCarlo = True
+
+    # Total number of iterations
+    # This number will increase if the simulation is not validated and run again
+    totalIterations = cliArgs.iterationLimit
+
 # RUN MONTE-CARLO SIMULATION
 # The steps 1. and 2. will be performed by the function __monteCarlo(). Step 3. will be performed by this function.
 # Calculation:  1. Rotate all raman tensors randomly via matrix multiplication
 #                  Uniformly distributed random rotations are generated with James Arvo's Algorithm "Fast Random Rotation Matrices". See pdf file jamesArvoAlgorithm.pdf for the math.
 #               2. Compute the mueller matrix of the rotated raman tensor. For the math, see pdf file ramanMuellerMatrix.pdf.
 #               3. Compute the mean of all rotated mueller matrices and raman tensors. The mean will be computed by the main function.
-    log.info("START MONTE CARLO SIMULATION")
+# The while loop gives the opportunity to run the simulatio again, if the validation of the simulation fails.
+    while( runMonteCarlo == True ):
+        log.info("START MONTE CARLO SIMULATION")
 
-    # !!!!! LOGGING IS OMITTED DURING THE SIMULATION DUE TO SEVERE PERFORMANCE ISSUES !!!!!!
+        # !!!!! LOGGING IS OMITTED DURING THE SIMULATION DUE TO SEVERE PERFORMANCE ISSUES !!!!!!
 
-    # Create a pool of workers sharing the computation task
-    with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
+        # Create a pool of workers sharing the computation task
+        with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
 
-        # Start child processes which run __monteCarlo()
-        # Each subprocess will be given a list of size chunksize. Each element of the list contains the list of all raman tensor.
-        # Each subprocess will therefore run the function __monteCarlo() cunksize times and passes the tensorlist to every function call.
-        # The computation will be slow if the chunksize is to big or to small
-        process = pool.imap_unordered(__monteCarlo, processArgs, chunksize = cliArgs.chunksize)
+            # Start child processes which run __monteCarlo()
+            # Each subprocess will be given a list of size chunksize. Each element of the list contains the list of all raman tensor.
+            # Each subprocess will therefore run the function __monteCarlo() cunksize times and passes the tensorlist to every function call.
+            # The computation will be slow if the chunksize is to big or to small
+            process = pool.imap_unordered(__monteCarlo, processArgs, chunksize = cliArgs.chunksize)
 
-        # Loop over all ready results, while the processes are still running
-        # process contains all rotated matrices
-        # tqdm prints a lovely progress bar
-        for result in tqdm( process, total = cliArgs.iterationLimit,
-                                     desc = "Processes " + str(cliArgs.processCount) ):
-            # Tally the results of all processes up and divide by the iteration limit to get the mean of all computations
-            convertedTensorlist = [ {"head"         : tensor["head"],
-                                     "muellerMatrix": np.add(convertedTensorlist[index]["muellerMatrix"], tensor["muellerMatrix"]/cliArgs.iterationLimit),
-                                     "ramanTensor"  : np.add(convertedTensorlist[index]["ramanTensor"]  , tensor["ramanTensor"]  /cliArgs.iterationLimit)
-                                    } for (index, tensor) in enumerate(result) ]
+            # Loop over all ready results, while the processes are still running
+            # process contains all rotated matrices
+            # tqdm prints a lovely progress bar
+            for result in tqdm( process, total = cliArgs.iterationLimit,
+                                         desc = "Processes " + str(cliArgs.processCount) ):
+                # Tally the results of all processes up and divide by the iteration limit to get the mean of all computations
+                convertedTensorlist = [ {"head"         : tensor["head"],
+                                         "muellerMatrix": np.add(convertedTensorlist[index]["muellerMatrix"], tensor["muellerMatrix"]/cliArgs.iterationLimit),
+                                         "ramanTensor"  : np.add(convertedTensorlist[index]["ramanTensor"]  , tensor["ramanTensor"]  /cliArgs.iterationLimit)
+                                        } for (index, tensor) in enumerate(result) ]
 
-    log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
+        log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
 
-#
-#   VALIDATE THE SIMULATION
-#   by comparing the depolarisation ratio of the molecular tensor and the labratory matrix
-#   Source: Richard N. Zare: Angular Momentum, p.129
-#
+    #
+    #   VALIDATE THE SIMULATION
+    #   by comparing the depolarisation ratio of the molecular tensor and the labratory matrix
+    #   Source: Richard N. Zare: Angular Momentum, p.129
+    #
 
-    log.info("Validating monte-carlo-simulation via the depolarisation ratio.")
+        log.info("Validating monte-carlo-simulation via the depolarisation ratio.")
 
-    # Check every matrix
-    for input, output in zip(tensorlist, convertedTensorlist):
+        # Check every matrix
+        for initial, final in zip(tensorlist, convertedTensorlist):
 
-        log.debug("Check matrix '" + input["head"] + "'.")
+            log.debug("Check matrix '" + initial["head"] + "'.")
 
-        # Check if loop is comparing the right matrices
-        if input["head"] != output["head"]:
-            log.critical("INTERNAL ERROR: The header of input and output matrices don't match! Error in input tensor '" + input["head"] + "' and output matrix '" + output["head"] + "'." )
-            log.critical("TERMINATE EXECUTION.")
-            sys.exit(-1)
+            # Check if loop is comparing the right matrices
+            if initial["head"] != final["head"]:
+                log.critical("INTERNAL ERROR: The header of input and output matrices don't match! Error in input tensor '" + initial["head"] + "' and output matrix '" + final["head"] + "'." )
+                log.critical("TERMINATE EXECUTION.")
+                sys.exit(-1)
 
-        # Compute eigenvalues of molecular tensor
-        try:
-            eigenvalues = np.linalg.eigvals(input["matrix"])
+            # Compute eigenvalues of molecular tensor
+            try:
+                eigenvalues = np.linalg.eigvals(initial["matrix"])
 
-        except LinAlgError as e:
-            # Eigenvalues do not converge. Log this issue and exit execution.
-            log.critical("The eigenvalue computation of the input raman tensor '" + input["head"] + "' does not converge. Unable to validate monte-carlo-simulation!")
-            log.critical("TERMINATE EXECUTION.")
-            sys.exit(-1)
+            except LinAlgError as e:
+                # Eigenvalues do not converge. Log this issue and exit execution.
+                log.critical("The eigenvalue computation of the input raman tensor '" + initial["head"] + "' does not converge. Unable to validate monte-carlo-simulation!")
+                log.critical("TERMINATE EXECUTION.")
+                sys.exit(-1)
 
-        # Compute depolarisation ratio of the inital tensor via the eigenvalues. See Richard N. Zare: "Angluar Momentum", p.129.
-        isotropicPolarisability = sum(eigenvalues)/3
-        anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
-        initialDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
+            # Compute depolarisation ratio of the inital tensor via the eigenvalues. See Richard N. Zare: "Angluar Momentum", p.129.
+            isotropicPolarisability = sum(eigenvalues)/3
+            anisotropicPolarisability_squared = ( (eigenvalues[0]-eigenvalues[1])**2 + (eigenvalues[1]-eigenvalues[2])**2 + (eigenvalues[2]-eigenvalues[0])**2 )/2
+            initialDepolarisationRatio = 3*anisotropicPolarisability_squared / ( 45*isotropicPolarisability**2 + 4*anisotropicPolarisability_squared )
 
-        log.debug("Initial Depolarisation Ratio: " + str(initialDepolarisationRatio))
+            log.debug("Initial Depolarisation Ratio: " + str(initialDepolarisationRatio))
 
-        # Compute the depolarisation ratio of the final mueller matrix via raman scattering in Mueller-Formalism. See Richard N. Zare: "Angluar Momentum", p.129.
-        # Compute light intensities along x- and y-axis via stokes parameter:
-        # I_x = S_0 + S_1
-        # I_y = S_0 - S_1
-        # depolarisationRatio = I_y / I_x ; if the incoming light is polarised along the x-axis.
-        incomingLight  = np.array([1,1,0,0])
-        scatteredLight = output["muellerMatrix"] @ incomingLight
-        finalDepolarisationRatio = (scatteredLight[0]-scatteredLight[1])/(scatteredLight[0]+scatteredLight[1])
+            # Compute the depolarisation ratio of the final mueller matrix via raman scattering in Mueller-Formalism. See Richard N. Zare: "Angluar Momentum", p.129.
+            # Compute light intensities along x- and y-axis via stokes parameter:
+            # I_x = S_0 + S_1
+            # I_y = S_0 - S_1
+            # depolarisationRatio = I_y / I_x ; if the incoming light is polarised along the x-axis.
+            incomingLight  = np.array([1,1,0,0])
+            scatteredLight = final["muellerMatrix"] @ incomingLight
+            finalDepolarisationRatio = (scatteredLight[0]-scatteredLight[1])/(scatteredLight[0]+scatteredLight[1])
 
-        log.debug("Final Depolarisation Ratio: " + str(finalDepolarisationRatio))
+            log.debug("Final Depolarisation Ratio: " + str(finalDepolarisationRatio))
 
-        # Check results
-        if round(initialDepolarisationRatio, cliArgs.threshold) != round(finalDepolarisationRatio, cliArgs.threshold):
-            log.critical("Validation failed for matrix '" + output["head"] + "'!")
-            log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(finalDepolarisationRatio, cliArgs.threshold)))
-            log.critical("TERMINATE EXECUTION.")
-            sys.exit(-1)
+            #
+            #   CHECK RESULTS
+            #
+            #   Give the user the opportunity to run the simulation
+            #   again and use the computation time that's been spent so far
+            #
+            success = round(initialDepolarisationRatio, cliArgs.threshold) == round(finalDepolarisationRatio, cliArgs.threshold)
+            if success == True:
+                # Simulation is valid exit while loop
+                runMonteCarlo = False
+                log.info("Validation done.")
 
-    log.info("Validation done.")
+            else:
+                # The validation failed
+                log.critical("Validation failed for matrix '" + final["head"] + "'!")
+                log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(finalDepolarisationRatio, cliArgs.threshold)))
+                log.critical("Ask for user input. Should the simulation run again?")
+                # Ask user if he/she wants to run more iterations and try the validation again
+                response = input("The simulation did " + str(totalIterations) + " iterations. Do you wish to compute another "
+                                    + str(cliArgs.iterationLimit) + " iterations and try the validation again? [Y/n] ").lower()
+                log.critical("Users response: " + response)
+                if( response == "n" ):
+                    # User wants to exit
+                    runMonteCarlo = False
+                    log.critical("The user does not want to continue the computation.")
+                    log.critical("TERMINATE EXECUTION.")
+                    sys.exit(-1)
+                else:
+                    # User wants to continue
+                    runMonteCarlo = True
+                    # Save the number of computed iterations done so far
+                    iterationsSoFar = totalIterations
+                    # Compute new number of total iterations
+                    totalIterations = iterationsSoFar + cliArgs.iterationLimit
+                    # Rescale the calculated matrices.
+                    # There is following problem:   The programm does not save a list of all computed matrices.
+                    #                               It only saves the mean value. In order to use the current mean
+                    #                               value of the matrices to compute the mean you get when doing more
+                    #                               iterations, you have to multiply the matrices by the number of
+                    #                               iterations done so far and divide it by the total number of
+                    #                               iterations that will be done after rerunning the simulation.
+                    scalingFactor = iterationsSoFar / totalIterations
+                    convertedTensorlist = [ {"head"         : entry["head"],
+                                             "muellerMatrix": entry["muellerMatrix"] * scalingFactor,
+                                             "ramanTensor"  : entry["ramanTensor"]   * scalingFactor
+                                            } for entry in convertedTensorlist ]
+
+##### END OF MONTE-CARLO-SIMULATIONS WHILE LOOP
+
 
 # CONVERT RESULTS TO TEXT
 
@@ -216,7 +266,7 @@ def main(cliArgs):
     output_text  = "# polaram convert " + str(cliArgs.tensorfile.resolve())
     output_text += " --output " + str(cliArgs.outputfile.resolve())
     output_text += " --log " + str(cliArgs.logfile.resolve())
-    output_text += " --iterations " + str(cliArgs.iterationLimit)
+    output_text += " --iterations " + str(totalIterations)
     output_text += " --threshold " + str(cliArgs.threshold)
     output_text += "\n# Execution time: " + str(datetime.now())
 
