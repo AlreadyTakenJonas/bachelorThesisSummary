@@ -216,46 +216,52 @@ def main(cliArgs):
             #   Give the user the opportunity to run the simulation
             #   again and use the computation time that's been spent so far
             #
-            success = round(initialDepolarisationRatio, cliArgs.threshold) == round(finalDepolarisationRatio, cliArgs.threshold)
-            if success == True:
-                # Simulation is valid exit while loop
-                runMonteCarlo = False
-                log.info("Validation done.")
-
+            if round(initialDepolarisationRatio, cliArgs.threshold) != round(finalDepolarisationRatio, cliArgs.threshold):
+                success = False
+                break
             else:
-                # The validation failed
-                log.critical("Validation failed for matrix '" + final["head"] + "'!")
-                log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(finalDepolarisationRatio, cliArgs.threshold)))
-                log.critical("Ask for user input. Should the simulation run again?")
-                # Ask user if he/she wants to run more iterations and try the validation again
-                response = input("The simulation did " + str(totalIterations) + " iterations. Do you wish to compute another "
-                                    + str(cliArgs.iterationLimit) + " iterations and try the validation again? [Y/n] ").lower()
-                log.critical("Users response: " + response)
-                if( response == "n" ):
-                    # User wants to exit
-                    runMonteCarlo = False
-                    log.critical("The user does not want to continue the computation.")
-                    log.critical("TERMINATE EXECUTION.")
-                    sys.exit(-1)
-                else:
-                    # User wants to continue
-                    runMonteCarlo = True
-                    # Save the number of computed iterations done so far
-                    iterationsSoFar = totalIterations
-                    # Compute new number of total iterations
-                    totalIterations = iterationsSoFar + cliArgs.iterationLimit
-                    # Rescale the calculated matrices.
-                    # There is following problem:   The programm does not save a list of all computed matrices.
-                    #                               It only saves the mean value. In order to use the current mean
-                    #                               value of the matrices to compute the mean you get when doing more
-                    #                               iterations, you have to multiply the matrices by the number of
-                    #                               iterations done so far and divide it by the total number of
-                    #                               iterations that will be done after rerunning the simulation.
-                    scalingFactor = iterationsSoFar / totalIterations
-                    convertedTensorlist = [ {"head"         : entry["head"],
-                                             "muellerMatrix": entry["muellerMatrix"] * scalingFactor,
-                                             "ramanTensor"  : entry["ramanTensor"]   * scalingFactor
-                                            } for entry in convertedTensorlist ]
+                success = True
+
+        if success == True:
+            # Simulation is valid exit while loop
+            runMonteCarlo = False
+            log.info("Validation done.")
+
+        else:
+            # The validation failed
+            log.critical("Validation failed for matrix '" + final["head"] + "'!")
+            log.critical("Input: " + str(round(initialDepolarisationRatio, cliArgs.threshold)) + "      Simulation: " + str(round(finalDepolarisationRatio, cliArgs.threshold)))
+            log.critical("Ask for user input. Should the simulation run again?")
+            # Ask user if he/she wants to run more iterations and try the validation again
+            response = input("The simulation did " + str(totalIterations) + " iterations. Do you wish to compute another "
+                                + str(cliArgs.iterationLimit) + " iterations and try the validation again? [Y/n] ").lower()
+            log.critical("Users response: " + response)
+            if response == "n":
+                # User wants to exit
+                log.critical("The user does not want to continue the computation.")
+                log.critical("TERMINATE EXECUTION.")
+                sys.exit(-1)
+            else:
+                # User wants to continue
+                runMonteCarlo = True
+                log.info("Run Monte-Carlo-Simulation again.")
+                # Save the number of computed iterations done so far
+                iterationsSoFar = totalIterations
+                # Compute new number of total iterations
+                totalIterations = iterationsSoFar + cliArgs.iterationLimit
+                # Rescale the calculated matrices.
+                # There is following problem:   The programm does not save a list of all computed matrices.
+                #                               It only saves the mean value. In order to use the current mean
+                #                               value of the matrices to compute the mean you get when doing more
+                #                               iterations, you have to multiply the matrices by the number of
+                #                               iterations done so far and divide it by the total number of
+                #                               iterations that will be done after rerunning the simulation.
+                log.info("Prepare rerun of simulation by rescaling the mueller matrices mean.")
+                scalingFactor = iterationsSoFar / totalIterations
+                convertedTensorlist = [ {"head"         : entry["head"],
+                                         "muellerMatrix": entry["muellerMatrix"] * scalingFactor,
+                                         "ramanTensor"  : entry["ramanTensor"]   * scalingFactor
+                                        } for entry in convertedTensorlist ]
 
 ##### END OF MONTE-CARLO-SIMULATIONS WHILE LOOP
 
