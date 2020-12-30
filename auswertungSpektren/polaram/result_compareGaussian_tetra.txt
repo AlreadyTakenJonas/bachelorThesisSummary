@@ -1,5 +1,5 @@
 # polaram simulate /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/SMP.txt --output /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/result_compareGaussian_tetra.txt --log /home/jonas/code/python/PolaRam/log/muellersimulation.log --matrix /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/labratoryMatrixTetrachlormethan.txt
-# Execution time: 2020-12-11 13:54:48.762608
+# Execution time: 2020-12-30 14:56:08.260549
 
 # State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
 v_1_=_216.2523/cm  1. 0. 0. 0.       7.22807468e-02  4.89784935e-05 -2.14416080e-05  0.00000000e+00

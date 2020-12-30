@@ -26,19 +26,23 @@ write.table(phenylalanin.spectra.unprocessed, file="../tmp/phenylalanin_unproces
 
 # PREPROCESS
 phenylalanin.spectra <- phenylalanin.spectra.unprocessed
+plot(x = phenylalanin.spectra.unprocessed$wavenumber, 
+     y = phenylalanin.spectra.unprocessed$`0`, type="l", 
+     xlim = c(250, 2000), ylim=c(250, 2500) )
+
 
 #
 # Remove the laser peak from the spectrum
 #
-phenylalanin.spectra <- phenylalanin.spectra[phenylalanin.spectra$wavenumber>150 & phenylalanin.spectra$wavenumber<2000,]
+phenylalanin.spectra <- phenylalanin.spectra[phenylalanin.spectra$wavenumber>250 & phenylalanin.spectra$wavenumber<2000,]
 
 
 # Statistical Background Correction
 #
 # Peaks no longer available
-phenylalanin.spectra[,-1] <- sapply(phenylalanin.spectra[,-1], function(spec) spec-Peaks::SpectrumBackground(spec))
+#phenylalanin.spectra[,-1] <- sapply(phenylalanin.spectra[,-1], function(spec) spec-Peaks::SpectrumBackground(spec))
 phenylalanin.spectra[,-1] <- t( as.matrix(phenylalanin.spectra[,-1]) ) %>%
-  baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>%
+  baseline::baseline(., method="fillPeaks", lambda=0.01, it=20, hwi=100, int=2000) %>%
   baseline::getCorrected(.) %>% t(.)
 
 
@@ -56,8 +60,24 @@ phenylalanin.spectra[,-1] <- apply(phenylalanin.spectra[,-1], 2, function(spec) 
 # FIND THE LOCATION OF THE PEAKS
 # Plot single spectrum
 plot(x = phenylalanin.spectra$wavenumber, y = phenylalanin.spectra$`0`, type="l")
+abline(h=0)
 for(i in 3:10) { lines(phenylalanin.spectra[,c(1,i)], type="l", col=i) }
+locator()
 
-which(phenylalanin.spectra$`0`== max(phenylalanin.spectra[,2]))
+# Highest Peak
+phenylalanin.index.highestPeak <- which(phenylalanin.spectra$`0`== max(phenylalanin.spectra[,2]))
+# Peak next to highest peak
+phenylalanin.index.neighbouringPeak <- which( 
+  phenylalanin.spectra$`0` == max(phenylalanin.spectra$`0`[ which(1020 < phenylalanin.spectra$wavenumber & phenylalanin.spectra$wavenumber < 1050) ])
+)
+
+
+#
+# Plot change of peak height
+#
 plot(colnames(phenylalanin.spectra[,-1]), 
-     phenylalanin.spectra[176, -1]/max(phenylalanin.spectra[176, -1]), type="o")
+     phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1]/max(phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1]), 
+     type="o", xaxp  = c(0, 90, 9), col="blue")
+lines(colnames(phenylalanin.spectra[,-1]), 
+      phenylalanin.spectra[phenylalanin.index.highestPeak, -1]/max(phenylalanin.spectra[phenylalanin.index.highestPeak, -1]),
+      type="o", col="red")
