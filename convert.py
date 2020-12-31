@@ -119,9 +119,6 @@ def main(cliArgs):
                             "ramanTensor": np.diag([0, 0, 0]).astype(np.float)
                            } for tensor in tensorlist]
 
-    # Build a generator that returns the tensorlist that will be passed to every iteration of the monte-carlo-simulation
-    processArgs = ( tensorlist for i in range(cliArgs.iterationLimit) )
-
     # Set a flag to signal the while loop below wether or not to rerun the simulation if validation fails
     runMonteCarlo = True
 
@@ -141,6 +138,9 @@ def main(cliArgs):
 
         # !!!!! LOGGING IS OMITTED DURING THE SIMULATION DUE TO SEVERE PERFORMANCE ISSUES !!!!!!
 
+        # Build a generator that returns the tensorlist that will be passed to every iteration of the monte-carlo-simulation
+        processArgs = ( tensorlist for i in range(cliArgs.iterationLimit) )
+
         # Create a pool of workers sharing the computation task
         with multiprocessing.Pool(processes = cliArgs.processCount) as pool:
 
@@ -157,8 +157,8 @@ def main(cliArgs):
                                          desc = "Processes " + str(cliArgs.processCount) ):
                 # Tally the results of all processes up and divide by the iteration limit to get the mean of all computations
                 convertedTensorlist = [ {"head"         : tensor["head"],
-                                         "muellerMatrix": np.add(convertedTensorlist[index]["muellerMatrix"], tensor["muellerMatrix"]/cliArgs.iterationLimit),
-                                         "ramanTensor"  : np.add(convertedTensorlist[index]["ramanTensor"]  , tensor["ramanTensor"]  /cliArgs.iterationLimit)
+                                         "muellerMatrix": np.add(convertedTensorlist[index]["muellerMatrix"], tensor["muellerMatrix"]/totalIterations),
+                                         "ramanTensor"  : np.add(convertedTensorlist[index]["ramanTensor"]  , tensor["ramanTensor"]  /totalIterations)
                                         } for (index, tensor) in enumerate(result) ]
 
         log.info("STOPPED MONTE CARLO SIMULATION SUCCESSFULLY")
@@ -222,6 +222,9 @@ def main(cliArgs):
             else:
                 success = True
 
+        #
+        #   DECIDE TO CONTINUE OR END THE PROGRAM
+        #
         if success == True:
             # Simulation is valid exit while loop
             runMonteCarlo = False
@@ -258,10 +261,13 @@ def main(cliArgs):
                 #                               iterations that will be done after rerunning the simulation.
                 log.info("Prepare rerun of simulation by rescaling the mueller matrices mean.")
                 scalingFactor = iterationsSoFar / totalIterations
+                print(scalingFactor)
+                print(convertedTensorlist[1]["muellerMatrix"])
                 convertedTensorlist = [ {"head"         : entry["head"],
                                          "muellerMatrix": entry["muellerMatrix"] * scalingFactor,
                                          "ramanTensor"  : entry["ramanTensor"]   * scalingFactor
                                         } for entry in convertedTensorlist ]
+                print(convertedTensorlist[1]["muellerMatrix"])
 
 ##### END OF MONTE-CARLO-SIMULATIONS WHILE LOOP
 
