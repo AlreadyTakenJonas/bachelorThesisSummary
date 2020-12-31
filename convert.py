@@ -261,13 +261,10 @@ def main(cliArgs):
                 #                               iterations that will be done after rerunning the simulation.
                 log.info("Prepare rerun of simulation by rescaling the mueller matrices mean.")
                 scalingFactor = iterationsSoFar / totalIterations
-                print(scalingFactor)
-                print(convertedTensorlist[1]["muellerMatrix"])
                 convertedTensorlist = [ {"head"         : entry["head"],
                                          "muellerMatrix": entry["muellerMatrix"] * scalingFactor,
                                          "ramanTensor"  : entry["ramanTensor"]   * scalingFactor
                                         } for entry in convertedTensorlist ]
-                print(convertedTensorlist[1]["muellerMatrix"])
 
 ##### END OF MONTE-CARLO-SIMULATIONS WHILE LOOP
 
