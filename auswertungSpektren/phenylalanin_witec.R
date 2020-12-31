@@ -12,7 +12,6 @@ source("bauteilCharakterisierung/charakterisierungDetektor_utilities.R")
 # Load library for background correction
 # Peaks needs to be loaded this way for the internal C-scripts to be callable
 library.dynam("Peaks","Peaks",lib.loc=NULL)
-library("baseline")
 
 
 
@@ -81,3 +80,17 @@ plot(colnames(phenylalanin.spectra[,-1]),
 lines(colnames(phenylalanin.spectra[,-1]), 
       phenylalanin.spectra[phenylalanin.index.highestPeak, -1]/max(phenylalanin.spectra[phenylalanin.index.highestPeak, -1]),
       type="o", col="red")
+
+
+
+
+#
+# Plot Raman spectrum
+#
+ggplot(data = phenylalanin.spectra,
+       mapping = aes(x = wavenumber, y = `0`) ) +
+  theme_hot() +
+  geom_line() +
+  labs( x = expression(bold("Wellenzahl "*nu*" / cm"["-1"])),
+        y = "normiertes Ramansignal",
+        title = "Polarisationsabhängiges Ramanspektrum von Phenylalanin")
