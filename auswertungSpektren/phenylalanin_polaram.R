@@ -34,9 +34,9 @@ phenylalanin.stokes.postF2 <- data.frame( W  = F2.data.stokes$POST$W  %>% .[.   
 # CLI command to run PolaRam (env variable POLARAM contains the command specific for the running operating system)
 polaram                     <- Sys.getenv("POLARAM")
 # File contaning mueller matrices for phenylalanine
-phenylalanin.mueller.matrix <- "./auswertungSpektren/polaram/labratoryMatrixPhenylalanine.txt"
+phenylalanin.mueller.matrix <- "./auswertungSpektren/polaram/labratoryMatrixPhenylalanine.txt" #"./auswertungSpektren/polaram/unitymatrix.txt"
 # File containing simulation program for polaram
-polaram.witec               <- "./auswertungSpektren/polaram/witec.txt"
+polaram.witec               <- "./auswertungSpektren/polaram/witec.txt" #"./auswertungSpektren/polaram/SMP.txt"
 # Output file for polaram
 polaram.phenylalanin.output <- "./auswertungSpektren/polaram/result_witec_phenylalanine.txt"
 
@@ -51,6 +51,10 @@ polaram.args <- c("simulate", polaram.witec,
                   "--raw-output", "--silent")
 # Convert list of stokes vectors into a command line arguments for polaram
 polaram.lsr <- apply(phenylalanin.stokes.postF2[,-1], 1, function(stokes) paste(c("--laser", stokes), collapse=" ") )
+#polaram.lsr <- sapply(seq(from=0, to=2*pi, length.out=11), function(angle) {
+#  stokes <- c(1, cos(angle), sin(angle), 0) %>% format(., scientific=FALSE)
+#  paste(c("--laser", stokes), collapse=" ")
+#})
 
 # Run polaram with the cli arguments and the stokes vectors used to measure the raman spectra
 system( paste(c(polaram, polaram.args, polaram.lsr), collapse=" ") )
@@ -90,25 +94,61 @@ phenylalanin.polaram.peakRatio <- function(biasY) {
   peaks.wavenumber <- unique(phenylalanin.stokes.polaram$v)
   peakRatio <- sapply( peaks.wavenumber, function(wavenumber) {
     # Get waveplate positions and first two stokes components of simulation for a specific peak
-    stokes <- phenylalanin.stokes.polaram[which(phenylalanin.stokes.polaram$v == wavenumber), c("W", "S0.post", "S1.post")]
+    stokes <- phenylalanin.stokes.polaram[which(phenylalanin.stokes.polaram$v == wavenumber), c("S0.post", "S1.post")]
     
     # Compute intensities in x- and y-direction
     I.x <- (stokes$S0.post + stokes$S1.post)/2
     I.y <- (stokes$S0.post - stokes$S1.post)/2
     # Compute detector response with bias
     signal <- (I.x + biasY*I.y) / (1+biasY)
-    
     # Compute the ratio of the maximal and minimal peak height
-    peakRatio <- max(signal) / min(signal)
+    peakRatio <- max(signal)/min(signal)
     
     return(peakRatio)
   })
   
-  rownames(peakRatio) <- peaks.wavenumber
+  names(peakRatio) <- peaks.wavenumber
   
   return(peakRatio)
 }
+
+
+# Plot the computed and measured spectra to check which peaks are interesting
+polaram.as.spectrum(x = phenylalanin.spectra$wavenumber, 
+                    stokes.S0 = phenylalanin.stokes.polaram$S0.post[phenylalanin.stokes.polaram$W == 0],
+                    stokes.S1 = phenylalanin.stokes.polaram$S1.post[phenylalanin.stokes.polaram$W == 0], 
+                    peaks.wavenumber = phenylalanin.stokes.polaram$v[phenylalanin.stokes.polaram$W == 0],
+                    scaleX = 1, scaleY = 1, normalise = T, gamma=8) %>% 
+  plot(x = phenylalanin.spectra$wavenumber, y = ., type="l", col="red")
+  lines(phenylalanin.spectra[,c(1,2)], col="blue")
+  abline(v=c(1001.1721,1016.3137, 1033.0237, 1054.9629) )
+# Save wavenumbers of interesting peaks
+phenylalanin.selectedPeaks <- c("peak.1016.2137", "peak.1033.0237")
+  
 # The ratio is computed for a series of detector sensibilities to create data that can be fitted
-phenylalanin.test.sensitivity    <- seq(from=1.2, to=1.5, by=0.05)
+phenylalanin.test.sensitivity    <- seq(from=0.96, to=1.5, by=0.01)
 phenylalanin.polaram.fittingData <- data.frame( sensitivity = phenylalanin.test.sensitivity,
-                                                phenylalanin.polaram.peakRatio(biasY) %>% t(.) )
+                                                peak = sapply(phenylalanin.test.sensitivity, phenylalanin.polaram.peakRatio) %>% t(.)
+                                              ) %>% .[,c("sensitivity", phenylalanin.selectedPeaks)]
+
+
+plot(x=phenylalanin.polaram.fittingData$sensitivity,
+     y=phenylalanin.polaram.fittingData[,2], type="n",
+     ylim=c( min(phenylalanin.polaram.fittingData),
+             max(phenylalanin.polaram.fittingData) ) )
+for(i in 2:ncol(phenylalanin.polaram.fittingData)) lines(x=phenylalanin.polaram.fittingData$sensitivity, 
+                                                          y=phenylalanin.polaram.fittingData[,i],
+                                                          type = "l", col=i)
+abline(v=1)
+
+# Find the relationship between the peak height ratio and the detectors sensibility
+phenylalanin.polaram.fit <- matrix( c( lm(peak.1016.2137 ~ sensitivity, data=phenylalanin.polaram.fittingData)$coeff,
+                                       lm(peak.1033.0237 ~ sensitivity, data=phenylalanin.polaram.fittingData)$coeff ), 
+                                    byrow=T, ncol=2 ) %>% as.data.frame
+colnames(phenylalanin.polaram.fit) <- c("intercept", "slope")
+# Label data with peaks wavenumbers
+phenylalanin.polaram.fit$peak <- c(1016.2137, 1033.0237)
+
+# COMPARE DETECTOR SENSIBILITY BETWEEN SIMULATION AND MEASURED RAMAN SPECTRA
+phenylalanin.simulated.sensitivity <- data.frame( wavenumber  = phenylalanin.polaram.fit$peak,
+                                                  sensitivity = ( phenylalanin.sensitivity$sensitivity-phenylalanin.polaram.fit$intercept ) / phenylalanin.polaram.fit$slope )

@@ -1,5 +1,5 @@
 # polaram simulate /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/witec.txt --output /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/result_witec_tetra.txt --log /home/jonas/code/python/PolaRam/log/muellersimulation.log --matrix /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/auswertungSpektren/polaram/labratoryMatrixTetrachlormethan.txt
-# Execution time: 2020-12-30 14:52:28.847887
+# Execution time: 2021-01-02 16:21:24.946482
 
 # State.Header   Initial.State.S0  Initial.State.S1  Initial.State.S2  Initial.State.S3     Final.State.S0  Final.State.S1  Final.State.S2  Final.State.S3
 v_1_=_216.2523/cm  1.0215836  0.84271433 0.11953466 0.               0.07294062  0.00669003 -0.00257858  0.        

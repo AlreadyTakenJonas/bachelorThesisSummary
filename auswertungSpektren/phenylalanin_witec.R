@@ -72,6 +72,16 @@ phenylalanin.index.neighbouringPeak <- which(
 
 
 #
+# COMPUTE PEAK CHANGE RATIO
+#
+# sensitivity is the maximum of the peak height divided by its minimum
+phenylalanin.sensitivity <- data.frame( wavenumber  = phenylalanin.spectra$wavenumber[c(phenylalanin.index.highestPeak, phenylalanin.index.neighbouringPeak)],
+                                        sensitivity = c( max(phenylalanin.spectra[phenylalanin.index.highestPeak, -1])/min(phenylalanin.spectra[phenylalanin.index.highestPeak, -1]), 
+                                                         max(phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1])/min(phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1]) 
+                                                       )
+                                      )
+
+#
 # Plot change of peak height
 #
 plot(colnames(phenylalanin.spectra[,-1]), 

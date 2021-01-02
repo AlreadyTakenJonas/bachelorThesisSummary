@@ -77,37 +77,6 @@ tetra.stokes.polaram$W <- apply(tetra.stokes.polaram[, c("S0.pre", "S1.pre", "S2
   tetra.stokes.postF2$W[which(selectRow)]
 })
 
-
-#
-# COMPUTE RAMAN SPECTRA AND FIT THE SIMULATION TO THE EXPERIMENTAL SPECTRA
-#
-# Compute the height of all peaks for all waveplate positions
-tetra.polaram.spectra <- function(scaleX) {
-  tetra.polaram.spectra <- sapply( unique(tetra.stokes.polaram$W), function(waveplate) {
-    stokes <- tetra.stokes.polaram[which(tetra.stokes.polaram$W == waveplate), c("v", "S0.post", "S1.post")]
-    polaram.as.spectrum( x = unique(stokes$v),
-                         stokes.S0 = stokes$S0.post,
-                         stokes.S1 = stokes$S1.post,
-                         peaks.wavenumber = stokes$v,
-                         gamma = 10,
-                         scaleX = scaleX,
-                         normalise = T)
-  })
-  return(tetra.polaram.spectra)
-}
-# Compute the ratio of a peaks maximum and minimum depending on the waveplate position
-# The ratio is computed for a series of detector sensibilities to create data that can be fitted
-tetra.test.sensitivity    <- seq(from=1.2, to=1.5, by=0.05)
-tetra.polaram.fittingData <- data.frame( sensitivity = tetra.test.sensitivity,
-                                         peakRatio   = sapply(tetra.test.sensitivity, function(scaleX) {
-                                                          # Compute a series of spectra for different detector sensibilities
-                                                          spectra <- tetra.polaram.spectra(scaleX)
-                                                          # Compute the ratio of maximal and minimal height of the peaks
-                                                          apply(spectra, 1, function(peak) {
-                                                            max(peak)/min(peak)
-                                                          })
-                                                        }) %>% t(.) )
-
 # Compare both measured and simulated spectrum
 plot( x = tetra.spectra$wavenumber, 
       y = polaram.as.spectrum(tetra.spectra$wavenumber, 
@@ -116,17 +85,49 @@ plot( x = tetra.spectra$wavenumber,
                               tetra.stokes.polaram$v) %>% `/`(., max(.)), type = "l", col="blue" )
 lines(tetra.spectra[,1],tetra.spectra[,2]/max(tetra.spectra[,2]), col="red")
 
+#
+# COMPUTE RAMAN SPECTRA AND FIT THE SIMULATION TO THE EXPERIMENTAL SPECTRA
+#
+# Compute the height of all peaks for all waveplate positions and use them to
+# Compute the ratio of a peaks maximum and minimum depending on the waveplate position
+tetra.polaram.peakRatio <- function(biasY) {
+  peaks.wavenumber <- unique(tetra.stokes.polaram$v)
+  peakRatio <- sapply( peaks.wavenumber, function(wavenumber) {
+    # Get waveplate positions and first two stokes components of simulation for a specific peak
+    stokes <- tetra.stokes.polaram[which(tetra.stokes.polaram$v == wavenumber), c("S0.post", "S1.post")]
+    
+    # Compute intensities in x- and y-direction
+    I.x <- (stokes$S0.post + stokes$S1.post)/2
+    I.y <- (stokes$S0.post - stokes$S1.post)/2
+    # Compute detector response with bias
+    signal <- (I.x + biasY*I.y) / (1+biasY)
+    # Compute the ratio of the maximal and minimal peak height
+    peakRatio <- max(signal)/min(signal)
+    
+    return(peakRatio)
+  })
+  
+  names(peakRatio) <- peaks.wavenumber
+  
+  return(peakRatio)
+}
+# Compute the ratio of a peaks maximum and minimum depending on the waveplate position
+# The ratio is computed for a series of detector sensibilities to create data that can be fitted
+tetra.test.sensitivity    <- seq(from=0.94, to=1.5, by=0.05)
+tetra.polaram.fittingData <- data.frame( sensitivity = tetra.test.sensitivity,
+                                         peakRatio   = sapply(tetra.test.sensitivity, tetra.polaram.peakRatio) %>% t(.) )
+
 # Plot that shit for eyeballing the interval that shall be used for fitting
-plot(tetra.polaram.fittingData[,c(1,2)], type="l")
+plot(tetra.polaram.fittingData[,c(1,2)], type="l", ylim = c(1,1.3))
 lines(tetra.polaram.fittingData[,c(1,3)], type="l")
 lines(tetra.polaram.fittingData[,c(1,4)], type="l")
 lines(tetra.polaram.fittingData[,c(1,5)], type="l")
 
 # Find the relationship between the peak height ratio and the detectors sensibility
-tetra.polaram.fit <- matrix( c( lm(peakRatio.1 ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
-                                lm(peakRatio.2 ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
-                                lm(peakRatio.3 ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
-                                lm(peakRatio.4 ~ sensitivity, data=tetra.polaram.fittingData)$coeff ), byrow=T, ncol=2 ) %>%
+tetra.polaram.fit <- matrix( c( lm(peakRatio.216.2523 ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
+                                lm(peakRatio.315.143  ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
+                                lm(peakRatio.450.2798 ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
+                                lm(peakRatio.743.3157 ~ sensitivity, data=tetra.polaram.fittingData)$coeff ), byrow=T, ncol=2 ) %>%
                       as.data.frame
 colnames(tetra.polaram.fit) <- c("intercept", "slope")
 # Label data with peaks wavenumbers
