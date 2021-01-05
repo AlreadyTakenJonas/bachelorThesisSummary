@@ -183,3 +183,12 @@ plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n",
 # Plot peak change
 for (index in seq_along(tetra.peakChange[,-1])) lines(x=tetra.peakChange$waveplate, y=tetra.peakChange[,index+1], col=index+5, type="o")
 
+
+
+# TEST
+which(tetra.spectra$wavenumber == 222.911)
+
+plot(x=colnames(tetra.spectra[5,-1]), y = tetra.spectra[5,-1] / max(tetra.spectra[5,-1]) , type="o")
+lines(x = tetra.stokes.polaram[which(tetra.stokes.polaram$v == 216.2523), "W"],
+      y = tetra.polaram.peakRatio(2)[[1]]/max(tetra.polaram.peakRatio(2)[[1]]),
+      col="red", type="o")

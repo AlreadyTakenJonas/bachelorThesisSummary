@@ -102,15 +102,18 @@ tetra.polaram.peakRatio <- function(biasY) {
     # Compute detector response with bias
     signal <- (I.x + biasY*I.y) / (1+biasY)
     # Compute the ratio of the maximal and minimal peak height
-    peakRatio <- max(signal)/min(signal)
+   # peakRatio <- max(signal)/min(signal)
     
-    return(peakRatio)
+    return(signal)
+    #return(peakRatio)
   })
   
   names(peakRatio) <- peaks.wavenumber
   
   return(peakRatio)
 }
+
+
 # Compute the ratio of a peaks maximum and minimum depending on the waveplate position
 # The ratio is computed for a series of detector sensibilities to create data that can be fitted
 tetra.test.sensitivity    <- seq(from=0.94, to=1.5, by=0.05)

@@ -102,7 +102,7 @@ phenylalanin.polaram.peakRatio <- function(biasY) {
     # Compute detector response with bias
     signal <- (I.x + biasY*I.y) / (1+biasY)
     # Compute the ratio of the maximal and minimal peak height
-    peakRatio <- max(signal)/min(signal)
+    peakRatio <- signal[1]/signal[6]#max(signal)/min(signal)
     
     return(peakRatio)
   })
@@ -126,7 +126,8 @@ polaram.as.spectrum(x = phenylalanin.spectra$wavenumber,
 phenylalanin.selectedPeaks <- c("peak.1016.2137", "peak.1033.0237")
   
 # The ratio is computed for a series of detector sensibilities to create data that can be fitted
-phenylalanin.test.sensitivity    <- seq(from=0.96, to=1.5, by=0.01)
+#phenylalanin.test.sensitivity    <- seq(from=0.96, to=1.5, by=0.01)
+phenylalanin.test.sensitivity    <- seq(from=0, to=3, by=0.01)
 phenylalanin.polaram.fittingData <- data.frame( sensitivity = phenylalanin.test.sensitivity,
                                                 peak = sapply(phenylalanin.test.sensitivity, phenylalanin.polaram.peakRatio) %>% t(.)
                                               ) %>% .[,c("sensitivity", phenylalanin.selectedPeaks)]
@@ -135,7 +136,8 @@ phenylalanin.polaram.fittingData <- data.frame( sensitivity = phenylalanin.test.
 plot(x=phenylalanin.polaram.fittingData$sensitivity,
      y=phenylalanin.polaram.fittingData[,2], type="n",
      ylim=c( min(phenylalanin.polaram.fittingData),
-             max(phenylalanin.polaram.fittingData) ) )
+             max(phenylalanin.polaram.fittingData) )
+    )#  xlim = c(0.9, 1.1) )
 for(i in 2:ncol(phenylalanin.polaram.fittingData)) lines(x=phenylalanin.polaram.fittingData$sensitivity, 
                                                           y=phenylalanin.polaram.fittingData[,i],
                                                           type = "l", col=i)
