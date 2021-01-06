@@ -239,6 +239,11 @@ ggplot(data = tetra.plotable.combined.peakChange,
 
 
 
+#
+#
+# OLD UNMAINTAINED CODE. WAS USED TO CHECK SOMETHING.
+#
+#
 
 #
 # CHECK IF POLARAM AND GAUSSIAN CALCULATE THE SAME SPECTRA

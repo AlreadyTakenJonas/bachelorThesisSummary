@@ -51,6 +51,7 @@ tetra.spectra[,-1] <- apply(tetra.spectra[,-1], 2, function(spec) spec / sqrt(su
 # FIND THE LOCATION OF THE PEAKS
 # Plot single spectrum
 plot(x = tetra.spectra$wavenumber, y = tetra.spectra$`0`, type="l")
+abline(h=0)
 locator()
 # Guess the general area (wavenumbers) where the peak lays in
 tetra.peakMargins   <- list( c(100, 250),
@@ -91,78 +92,32 @@ get.tetra.peakChange <- function() {
   return(tetra.peakChange)
 }
 tetra.peakChange <- get.tetra.peakChange()
-# Normalise the peakChange with the maximum
-# tetra.peakChange[,-1] <- apply(tetra.peakChange[,-1], 2, function(vec) vec / max(vec))
 
 
 # HOW ARE THE OPTICAL AXIS OF THE DETECTOR ALIGNED?
-# This is important for comparing raman spectra and white lamp spectra
-#
-# The wave plates position of the maximal detector response
-# Loop over all peaks and compare the height between the different spectra
-# sapply(seq_along(tetra.peakChange[,-1]), function(index) {
-#   # The maximal height of the current peak
-#   peakHeight <- max(tetra.peakChange[,index+1])
-#   # Get the index of the maximum
-#   select <- which(peakHeight==tetra.peakChange[,index+1])
-#   # If there are multiple maxima its propably the peak I normalised with
-#   # Just return NA in this case
-#   if (length(select)>1) return(NA)
-#   # Return the wave plates position
-#   return( tetra.peakChange[ select,1 ] )
-# }) 
-#
-# The wave plates position of the minimal detector response
-# Loop over all peaks and compare the height between the different spectra
-# sapply(seq_along(tetra.peakChange[,-1]), function(index) {
-#    # The minimal height of the current peak
-#    peakHeight <- min(tetra.peakChange[,index+1])
-#    # Get the index of the minimal
-#    select <- which(peakHeight==tetra.peakChange[,index+1])
-#    # If there are multiple minima its propably the peak I normalised with
-#    # Just return NA in this case
-#    if (length(select)>1) return(NA)
-#    # Return the wave plates position
-#    return( tetra.peakChange[ select,1 ] )
-# })
 # Find the minimal value of all spectra and return the wave number position
 # of the spectrum containing the value
 tetra.minimal.waveplate <- sapply(tetra.spectra[,-1], function(spec) { 
      min(tetra.spectra[,-1]) %in% spec 
    }) %>% which %>% names %>% as.numeric
- 
-
-
-
-
-
-# COMPUTE DETECTORS SENSITIBLITY FOR LIGHT POLARISED ALONG DIFFERENT OPTICAL AXIS
-# tetra.sensibility <- sapply(tetra.peakChange[,-1], function(peakheight) max(peakheight)/min(peakheight))
-# tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.numeric,
-#                                 quotient   = tetra.sensibility %>% unname)
-
-
 
 #
 # PLOT THE RESULTS
 #
 # Plot ALL SPECTRA OVERLAYERD as 2d plot
-tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[tetra.spectra$wavenumber>100,-c(21:24)], 
+tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[-c(21:24)], 
                                                            colorFunc=function(waveplateRotation) 
                                                            { mod(waveplateRotation-(tetra.minimal.waveplate), 90) %>% 
                                                                `-`(., 45) %>% abs } ),
-                                # mapping = aes(x = wavenumber, ymax = signal, ymin=0, group = P, fill = color) ) +
                                 mapping = aes(x = wavenumber, y = signal, group = P, color = color) ) +
-  scale_fill_gradientn(colors = c("green", "orange", "red"),
-                       breaks = seq(from=0, to=45, length.out=4) ) +
-  scale_color_gradientn(colors = c("green", "orange", "red"),
+  scale_color_gradientn(colors = c("red", "orange", "green"),
                         breaks = seq(from=0, to=45, length.out=4) ) +
   theme_hot() +
   labs(title = "Influence Of Light Polarisation On Raman Spectrum Of Tetrachloromethane",
        y = "normalised intensity",
        x = expression(bold("wavenumber / cm"^"-1")),
        subtitle = "the color gradient encodes the absolute deviation D of the wave plates position \nfrom the detectors least sensitive axis",
-       fill = "D / °") +
+       color = "D / °") +
    geom_line(size=0.4)
 # Plot all wavenumbers
 tetra.plot.allSpetra
