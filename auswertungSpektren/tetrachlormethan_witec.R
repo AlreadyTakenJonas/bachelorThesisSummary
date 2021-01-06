@@ -128,18 +128,18 @@ tetra.peakChange <- get.tetra.peakChange()
 # Find the minimal value of all spectra and return the wave number position
 # of the spectrum containing the value
 tetra.minimal.waveplate <- sapply(tetra.spectra[,-1], function(spec) { 
-    min(tetra.spectra[,-1]) %in% spec 
-  }) %>% which %>% names %>% as.numeric
-
+     min(tetra.spectra[,-1]) %in% spec 
+   }) %>% which %>% names %>% as.numeric
+ 
 
 
 
 
 
 # COMPUTE DETECTORS SENSITIBLITY FOR LIGHT POLARISED ALONG DIFFERENT OPTICAL AXIS
-tetra.sensibility <- sapply(tetra.peakChange[,-1], function(peakheight) max(peakheight)/min(peakheight))
-tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.numeric,
-                                quotient   = tetra.sensibility %>% unname)
+# tetra.sensibility <- sapply(tetra.peakChange[,-1], function(peakheight) max(peakheight)/min(peakheight))
+# tetra.sensibility <- data.frame(wavenumber = names(tetra.sensibility) %>% as.numeric,
+#                                 quotient   = tetra.sensibility %>% unname)
 
 
 

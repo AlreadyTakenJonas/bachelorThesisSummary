@@ -1,5 +1,6 @@
 library("RHotStuff")
 library("magrittr")
+require(ggplot2)
 
 # Check the RHotStuff version
 check.version("1.6.0")
@@ -85,62 +86,157 @@ plot( x = tetra.spectra$wavenumber,
                               tetra.stokes.polaram$v) %>% `/`(., max(.)), type = "l", col="blue" )
 lines(tetra.spectra[,1],tetra.spectra[,2]/max(tetra.spectra[,2]), col="red")
 
+
+
 #
 # COMPUTE RAMAN SPECTRA AND FIT THE SIMULATION TO THE EXPERIMENTAL SPECTRA
 #
-# Compute the height of all peaks for all waveplate positions and use them to
-# Compute the ratio of a peaks maximum and minimum depending on the waveplate position
-tetra.polaram.peakRatio <- function(biasY) {
-  peaks.wavenumber <- unique(tetra.stokes.polaram$v)
-  peakRatio <- sapply( peaks.wavenumber, function(wavenumber) {
-    # Get waveplate positions and first two stokes components of simulation for a specific peak
-    stokes <- tetra.stokes.polaram[which(tetra.stokes.polaram$v == wavenumber), c("S0.post", "S1.post")]
-    
-    # Compute intensities in x- and y-direction
-    I.x <- (stokes$S0.post + stokes$S1.post)/2
-    I.y <- (stokes$S0.post - stokes$S1.post)/2
-    # Compute detector response with bias
-    signal <- (I.x + biasY*I.y) / (1+biasY)
-    # Compute the ratio of the maximal and minimal peak height
-   # peakRatio <- max(signal)/min(signal)
-    
-    return(signal)
-    #return(peakRatio)
-  })
+
+# PREPARE DATA FOR FITTING
+#
+# Compute how the intensity in x- and y-direction are changing with the waveplate position
+# for every peak of the spectrum
+tetra.polaram.intensityChange <- lapply(unique(tetra.stokes.polaram$v), function(peak) {
+  # Subset the data set containing the polaram results
+  # Get the results for one single peak
+  stokes <- tetra.stokes.polaram[which(tetra.stokes.polaram$v == peak), c("W", "S0.post", "S1.post")]
   
-  names(peakRatio) <- peaks.wavenumber
+  # Normalise Stokes parameters
+  stokes[,c("S0.post", "S1.post")] <- stokes[,c("S0.post", "S1.post")] / stokes[,"S0.post"]
+
+  # Compute the light intensity along the x- and y-direction depending on the wave plate position
+  intensity <- data.frame( W = stokes$W,
+                           I.x = (stokes$S0.post + stokes$S1.post)/2,
+                           I.y = (stokes$S0.post - stokes$S1.post)/2 )
   
-  return(peakRatio)
+  # Compute the mean of intensities for degenerate peaks
+  intensity <- sapply(unique(intensity$W), function(waveplate){
+    # Get the light intensities for each waveplate position 
+    degeneratePeakIntensity <- intensity[which(intensity$W == waveplate),]
+    # Compute the mean intensity in x- and y-direction
+    meanIntensity <- colMeans(degeneratePeakIntensity)
+    return(meanIntensity)
+  
+  }) %>% 
+    # Convert matrix to data.frame
+    t %>% data.frame
+})
+# Name the list by wavenumber of peak
+names(tetra.polaram.intensityChange) <- unique(tetra.stokes.polaram$v)
+
+# Organise data by wavenumber and combine data of simulation and experiment in one data frame
+#
+# Convert the peak location of the experimental spectrum into the peak location in the simualtion
+tetra.convert.peakLocations <- data.frame(
+  # Wavenumbers of all peaks in the experimental spectrum
+  exp.wavenumber = colnames(tetra.peakChange.deviation[,-1]),
+  # Wavenumber of all peaks in the calculated spectrum
+  # (the last peak is included twice, because it's a double peak in the experimental spectrum)
+  sim.wavenumber = names(tetra.polaram.intensityDeviation)[c(1:4,4)]
+)
+
+# Subset the measured peak height change by selecting only waveplate position that where simulated by polaram
+tetra.witec.peakChange <- tetra.peakChange[which(tetra.peakChange$waveplate %in% tetra.polaram.intensityChange[[1]]$W),]
+
+tetra.combined.peakChange <- lapply(unique(colnames(tetra.witec.peakChange[,-1])), function(peak) {
+  # Get the wavenumber of the peak in the simulated spectrum
+  sim.peak <- tetra.convert.peakLocations[tetra.convert.peakLocations$exp.wavenumber==peak, "sim.wavenumber"]
+  # Get the simulated change of intensity for the peak
+  simulation <- tetra.polaram.intensityChange[[sim.peak]]
+  # Get the experimental peak hight change
+  experiment <- tetra.witec.peakChange[,c("waveplate", peak)]
+  
+  # Do the waveplate axis of the two data sets match?
+    if(all(simulation$W == experiment$waveplate) == FALSE) stop("Simulation and Experiment have different waveplate axis!")
+  
+  # Combine the experimental and simulated data
+  # Shift the simulated intensities to match experimental signal height
+  data <- data.frame(
+            # Rotation of the half wave plate -> Rotation of the plane of polarisation
+            waveplate = experiment$waveplate,
+            # Experimental peak height depending on the rotation of the half wave plate
+            exp.signal = experiment[,2],
+            # Wavenumer of the current peak
+            wavenumber = peak,
+            # Intensity along the x-axis shifted to match the general experimental peak height
+            sim.I.x   = simulation$I.x - mean(simulation$I.x) + mean(experiment[,2]),
+            # Intensity along the y-axis shifted to match the general experimental peak height
+            sim.I.y   = simulation$I.y - mean(simulation$I.y) + mean(experiment[,2]) )
+  return(data)
+})
+names(tetra.combined.peakChange) <- unique(colnames(tetra.witec.peakChange[,-1]))
+
+tetra.detectorBias <- sapply(tetra.combined.peakChange, function(peak) {
+  fit <- nls( formula = exp.signal ~ (sim.I.x + biasY*sim.I.y)/(1+biasY),
+              start   = list(biasY = 1),
+              data    = peak )
+  fit$m$getPars()
+})
+names(tetra.detectorBias) <- names(tetra.combined.peakChange)
+
+#
+# END SPECTRUM FITTING/SIMULATION -------------------------------------------------------
+#
+
+#
+# PLOT THAT SHIT
+#
+
+# Rearrange data for plotting and calculate the simulated peak change with result of nls fit
+tetra.plotable.combined.peakChange <- lapply(tetra.combined.peakChange, function(signalChange) {
+  # Get the fitted bias
+  bias <- tetra.detectorBias[signalChange$wavenumber[1]]
+  # Compute the simulated signal change
+  signalChange$sim.signal <- ( signalChange$sim.I.x + bias*signalChange$sim.I.y )/(1+bias)
+  # Return results
+  return(signalChange[,c("waveplate", "exp.signal", "wavenumber", "sim.signal")])
+}) %>% 
+  # Collapse list of data frames into one data frame
+  dplyr::bind_rows(.) %>% 
+  # Combine experimentally measured peak change and simulated peak change
+  # into one column and add new column for grouping the data
+  tidyr::pivot_longer(., cols=c(exp.signal, sim.signal),
+                      names_to="source", values_to="signal",
+                      names_pattern="(\\w+)")
+# Format wavenumbers. Add unit and decimal comma
+tetra.plotable.combined.peakChange$wavenumber <- 
+  paste(tetra.plotable.combined.peakChange$wavenumber, "/ cm") %>%
+  gsub("\\.", ",", .)
+# Copy the whole data set and row bind the copy with the original data
+# This allows ggplot to show one plot for each peak and one extra plot
+# with all peaks
+{
+  # Create new column to group the data when plotting
+  tetra.plotable.combined.peakChange$group <- paste0(tetra.plotable.combined.peakChange$wavenumber, 
+                                                     tetra.plotable.combined.peakChange$source)
+  # Copy the data set ...
+  copy <- tetra.plotable.combined.peakChange
+  # ..., set the wavenumber of all peaks in the copy to a describtive name and ...
+  copy$wavenumber = "Zusammenfassung"
+  # ... combine original data set with copy.
+  tetra.plotable.combined.peakChange <- rbind(tetra.plotable.combined.peakChange, copy)
 }
 
+# Write the formatted results to a file. Will be uploaded to overleaf
+write.table(tetra.plotable.combined.peakChange, row.names = F,
+            file = "../overleaf/externalFilesForUpload/data/tetra_simulatedPeakChange.csv")
 
-# Compute the ratio of a peaks maximum and minimum depending on the waveplate position
-# The ratio is computed for a series of detector sensibilities to create data that can be fitted
-tetra.test.sensitivity    <- seq(from=0.94, to=1.5, by=0.05)
-tetra.polaram.fittingData <- data.frame( sensitivity = tetra.test.sensitivity,
-                                         peakRatio   = sapply(tetra.test.sensitivity, tetra.polaram.peakRatio) %>% t(.) )
+# Plot the data
+ggplot(data = tetra.plotable.combined.peakChange,
+      mapping = aes( x = waveplate, y = signal, group = group, color = source ) ) +
+  facet_wrap(facets = vars(wavenumber), scales="free_y", ncol=3 ) +
+  geom_line() + geom_point() + 
+  theme_hot() + 
+  theme(strip.text.x = element_text(face="bold"),
+        legend.position = "bottom") +
+  scale_color_manual(name   = element_blank(), 
+                     labels = c("Messung", "Simulation"),
+                     values = scales::hue_pal()(2)) +
+  labs(x = expression(bold("Rotation der Halbwellenplatte "*omega*" / °")),
+       y = "normierte Intensität",
+       title = "Vergleich von gemessenen und simulierten Ramanspektren")
 
-# Plot that shit for eyeballing the interval that shall be used for fitting
-plot(tetra.polaram.fittingData[,c(1,2)], type="l", ylim = c(1,1.3))
-lines(tetra.polaram.fittingData[,c(1,3)], type="l")
-lines(tetra.polaram.fittingData[,c(1,4)], type="l")
-lines(tetra.polaram.fittingData[,c(1,5)], type="l")
 
-# Find the relationship between the peak height ratio and the detectors sensibility
-tetra.polaram.fit <- matrix( c( lm(peakRatio.216.2523 ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
-                                lm(peakRatio.315.143  ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
-                                lm(peakRatio.450.2798 ~ sensitivity, data=tetra.polaram.fittingData)$coeff,
-                                lm(peakRatio.743.3157 ~ sensitivity, data=tetra.polaram.fittingData)$coeff ), byrow=T, ncol=2 ) %>%
-                      as.data.frame
-colnames(tetra.polaram.fit) <- c("intercept", "slope")
-# Label data with peaks wavenumbers
-tetra.polaram.fit$peak <- unique(tetra.stokes.polaram$v)
-# Double the last peak, because this peak is split in the measured spectrum
-tetra.polaram.fit[5,] <- tetra.polaram.fit[4,]
-
-# COMPARE DETECTOR SENSIBILITY BETWEEN SIMULATION AND MEASURED RAMAN SPECTRA
-tetra.simulated.sensitivity <- data.frame( wavenumber  = tetra.polaram.fit$peak,
-                                           sensitivity = ( tetra.sensibility$quotient - tetra.polaram.fit$intercept ) / tetra.polaram.fit$slope )
 
 
 
