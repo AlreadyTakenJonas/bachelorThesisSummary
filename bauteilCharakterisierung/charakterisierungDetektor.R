@@ -34,6 +34,9 @@ detector.spectra <- lapply(detector.spectra, function(spec) {
   # Convert raman shift in wavenumbers into absolute wavelength
   spec$wavelength <- 1/( 1/laser.wavelength - spec$wavenumber*1e-7 )
   
+  # Cut out rayleigh filter
+  spec <- spec[spec$wavenumber>200,]
+  
   # Vector normalisation of the spectra
   spec[, data.selector] <- apply(spec[, data.selector], 2, function(spec) { spec / sum(spec^2) }) 
   
@@ -45,6 +48,8 @@ detector.spectra <- lapply(detector.spectra, function(spec) {
                    which(colnames(spec) == "wavelength"), 
                    which(colnames(spec) == "mean"), 
                    data.selector )]
+
+  
   # Return
   return(spec)
 })
@@ -68,6 +73,8 @@ detector.relDifference <- lapply(detector.spectra, function(spectra) {
   # Return result
   return(diffSpectra)
 })
+
+
 
 # Which spectra have the largest and smallest values
 lapply(detector.absDifference, function(spectra) {
@@ -101,40 +108,109 @@ plot.detector.allSpectra(detector.spectra[[2]][,-c(2:3,21:24)], theta=240)
 
 # Plot the ABSOLUTE DIFFERENCE between the white lamp spectra and their mean
 # with microscope
-plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[1]][, -c(2:3)], 
-                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[1]][, -c(2:3)],
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ),
                         title="Absolute Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
-                        ylab="abs. count difference") +
-  coord_cartesian(ylim = c(-1.25e-7, 1.25e-7))
+                        ylab="abs. count difference")
 # with microscope, only the extrema
-plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[1]][, c(1, 7, 16)], 
-                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[1]][, c(1, 7, 16)],
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ),
                         title="Relative Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
                         ylab="rel. count difference")
 # without microscope
-plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[2]][, -c(2:3)], 
-                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.absDifference[[2]][, -c(2:3)],
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ),
                         title="Absolute Difference between Polarised White Lamp Spectra and Their Mean (without detector)",
                         ylab="abs. count difference")
 
 # Plot the RELATIVE DIFFERENCE between the white lamp spectra and their mean
 # with microscope
-plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[1]][, -c(2:3)], 
-                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[1]][, -c(2:3)],
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ),
+                        title="Relative Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
+                        ylab="rel. count difference") +
+  coord_cartesian(ylim = c(-0.3, 0.3))
+
+# with microscope, only the extrema
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[1]][, c(1, 7, 16)],
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ),
                         title="Relative Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
                         ylab="rel. count difference")  +
-  coord_cartesian(ylim = c(-0.15, 0.15))
-# with microscope, only the extrema
-plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[1]][, c(1, 7, 16)], 
-                                                 colorFunc=function(polariserRotation) {mod(polariserRotation+45, 180) %>% `-`(.,90) %>% abs(.)} ), 
-                        title="Relative Difference between Polarised White Lamp Spectra and Their Mean (with detector)",
-                        ylab="rel. count difference")
+  coord_cartesian(ylim = c(-0.3, 0.3))
 # without microscope
-plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[2]][, -c(2:3)], 
-                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ), 
+plot.detector.whitelamp(data=makeSpectraPlotable(detector.relDifference[[2]][, -c(2:3)],
+                                                 colorFunc=function(polariserRotation) {mod(polariserRotation, 180) %>% `-`(.,90) %>% abs(.)} ),
                         title="Relative Difference between Polarised White Lamp Spectra and Their Mean (without detector)",
                         ylab="rel. count difference")
 
 
+#
+# PLOTS FOR OVERLEAF
+#
+# Restructure data to make it easier to plot that shit
+# Relative deviation form the mean spectrum
+detector.plotable.relDifference <- 
+  list( "Mit Mikroskop" = makeSpectraPlotable(detector.relDifference[[1]][, -c(2:3)], 
+                                              colorFunc=function(polariserRotation) {
+                                                mod(polariserRotation+45, 180) %>% 
+                                                `-`(.,90) %>% abs(.)
+                                              }),
+        "Ohne Mikroskop" = makeSpectraPlotable(detector.relDifference[[2]][, -c(2:3)], 
+                                               colorFunc=function(polariserRotation) {
+                                                  mod(polariserRotation, 180) %>% 
+                                                  `-`(.,90) %>% abs(.)
+                                                }) 
+      )  %>% dplyr::bind_rows(.id="exp")
+# Bring white lamp spectra in plottable form
+detector.plotable.spectra <-
+  list( "Mit Mikroskop" = makeSpectraPlotable(detector.spectra[[1]][, -c(2:3)],
+                                              colorFunc=function(polariserRotation) {
+                                                mod(polariserRotation+45, 180) %>% 
+                                                  `-`(.,90) %>% abs(.)
+                                              }),
+        "Ohne Mikroskop" = makeSpectraPlotable(detector.spectra[[2]][, -c(2:3)],
+                                               colorFunc=function(polariserRotation) {
+                                                 mod(polariserRotation, 180) %>% 
+                                                   `-`(.,90) %>% abs(.)
+                                              })
+        ) %>% dplyr::bind_rows(.id="exp")
 
+# Write table to file -> Upload to overleaf
+write.table(detector.plotable.relDifference, file="../overleaf/externalFilesForUpload/data/detector_relDiff.csv", row.names = F)
+write.table(detector.plotable.spectra, file="../overleaf/externalFilesForUpload/data/detector_spectra.csv", row.names = F)
+
+# Create plots
+# Relative difference
+ggplot(detector.plotable.relDifference,
+       mapping = aes(x=wavenumber, y=signal, color=color, group=P) ) +
+  geom_line() +
+  facet_wrap(facets=vars(exp)) +
+  theme_hot() + 
+  theme(strip.text = element_text(face="bold"), 
+        legend.position = "right") +
+  scale_color_gradient(low    = "blue", 
+                       high   = "red", 
+                       breaks = seq(from=0, to=90, by=45) ) +
+  scale_x_continuous(breaks = seq(from=500, to=4000, by=1000)) +
+  labs(x = expression(bold("Wellenzahl "*nu*" / cm"^"-1")),
+       y = expression(bold("Abweichung "*Delta["rel"])),
+       title = "Anisotropie des Ramanspektrometes",
+       color = expression(bold(delta*" / °")))
+
+# All spectra
+ggplot(detector.plotable.spectra,
+       mapping = aes(x=wavenumber, y=signal, color=color, group=P) ) +
+  geom_line() +
+  facet_wrap(facets=vars(exp), scales = "free_y") +
+  theme_hot() + 
+  theme(strip.text = element_text(face="bold"), 
+        legend.position = "right") +
+  scale_color_gradient(low    = "blue", 
+                       high   = "red", 
+                       breaks = seq(from=0, to=90, by=45) ) +
+  scale_x_continuous(breaks = seq(from=500, to=4000, by=1000)) +
+  labs(x = expression(bold("Wellenzahl "*nu*" / cm"^"-1")),
+       y = expression(bold("normierte Intensität")),
+       title = "Polarisationsabhängige Weißlichtspektren",
+       color = expression(bold(delta*" / °")))
 
