@@ -174,6 +174,10 @@ tetra.detectorBias <- sapply(tetra.combined.peakChange, function(peak) {
 })
 names(tetra.detectorBias) <- names(tetra.combined.peakChange)
 
+# Format calculated biases and write them to file -> upload to overleaf
+write.table(data.frame(wavenumber = as.numeric(names(tetra.detectorBias)),
+                       biasY      = tetra.detectorBias),
+            file = "../overleaf/externalFilesForUpload/data/tetra_fittedBiasY.csv", row.names=F)
 #
 # END SPECTRUM FITTING/SIMULATION -------------------------------------------------------
 #
