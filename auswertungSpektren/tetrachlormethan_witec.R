@@ -142,6 +142,7 @@ ggplot(data = tetra.spectra,
        mapping = aes(x=wavenumber, y=`0`) ) +
   geom_line() +
   theme_hot() +
+  scale_x_continuous(limits = c(200,850)) +
   labs(x = expression(bold(nu*" / cm"^"-1")),
        y = "normierte Intensität",
        title = "Ramanspektrum von Tetrachlormethan")
