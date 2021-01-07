@@ -200,8 +200,7 @@ tetra.plotable.combined.peakChange <- lapply(tetra.combined.peakChange, function
                       names_pattern="(\\w+)")
 # Format wavenumbers. Add unit and decimal comma
 tetra.plotable.combined.peakChange$wavenumber <- 
-  paste(tetra.plotable.combined.peakChange$wavenumber, "/ cm") %>%
-  gsub("\\.", ",", .)
+  paste(stringr::str_extract(tetra.plotable.combined.peakChange$wavenumber, "(\\d+)"), "/ cm")
 # Copy the whole data set and row bind the copy with the original data
 # This allows ggplot to show one plot for each peak and one extra plot
 # with all peaks
