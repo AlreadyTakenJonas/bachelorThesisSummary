@@ -93,6 +93,12 @@ get.tetra.peakChange <- function() {
 }
 tetra.peakChange <- get.tetra.peakChange()
 
+#
+# PRINT RESULTS TO FILE -> UPLOAD THEM TO OVERLEAF
+#
+write.table(tetra.spectra, file = "../overleaf/externalFilesForUpload/data/tetra_spectra.csv", row.names = F)
+write.table(tetra.peakChange, file = "../overleaf/externalFilesForUpload/data/tetra_realPeakChange.csv", row.names = F)
+
 
 # HOW ARE THE OPTICAL AXIS OF THE DETECTOR ALIGNED?
 # Find the minimal value of all spectra and return the wave number position
@@ -105,12 +111,13 @@ tetra.minimal.waveplate <- sapply(tetra.spectra[,-1], function(spec) {
 # PLOT THE RESULTS
 #
 # Plot ALL SPECTRA OVERLAYERD as 2d plot
-tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[-c(21:24)], 
-                                                           colorFunc=function(waveplateRotation) 
-                                                           { mod(waveplateRotation-(tetra.minimal.waveplate), 90) %>% 
-                                                               `-`(., 45) %>% abs } ),
+tetra.plotable.allSpectra <- makeSpectraPlotable(tetra.spectra[-c(21:24)], 
+                                                 colorFunc=function(waveplateRotation) 
+                                                 { mod(waveplateRotation-(tetra.minimal.waveplate), 90) %>% 
+                                                     `-`(., 45) %>% abs } ) 
+tetra.plot.allSpetra <- ggplot( data = tetra.plotable.allSpectra,
                                 mapping = aes(x = wavenumber, y = signal, group = P, color = color) ) +
-  scale_color_gradientn(colors = c("red", "orange", "green"),
+  scale_color_gradientn(colors = c("green", "orange", "red"),
                         breaks = seq(from=0, to=45, length.out=4) ) +
   theme_hot() +
   labs(title = "Influence Of Light Polarisation On Raman Spectrum Of Tetrachloromethane",
@@ -118,7 +125,7 @@ tetra.plot.allSpetra <- ggplot( data = makeSpectraPlotable(tetra.spectra[-c(21:2
        x = expression(bold("wavenumber / cm"^"-1")),
        subtitle = "the color gradient encodes the absolute deviation D of the wave plates position \nfrom the detectors least sensitive axis",
        color = "D / °") +
-   geom_line(size=0.4)
+   geom_line(size=0.2)
 # Plot all wavenumbers
 tetra.plot.allSpetra
 # Show just the interesting part
@@ -127,6 +134,31 @@ tetra.plot.allSpetra + coord_cartesian(xlim = c(150, 850))
 # Plot ALL SPECTRA as 3d SURFACE
 plot.detector.allSpectra.interactable(tetra.spectra[ which(tetra.spectra$wavenumber>100 & tetra.spectra$wavenumber<1000), ], 
                                       title=expression(bold("Normalised Raman Spectra Of Tetrachloromethane For Different Polarised Light")))
+
+#
+# PLOT SINGLE SPECTRUM
+#
+ggplot(data = tetra.spectra,
+       mapping = aes(x=wavenumber, y=`0`) ) +
+  geom_line() +
+  theme_hot() +
+  labs(x = expression(bold(nu*" / cm"^"-1")),
+       y = "normierte Intensität",
+       title = "Ramanspektrum von Tetrachlormethan")
+#
+# PLOT CHANGING HEIGHT OF PEAKS
+#
+ggplot(data = tidyr::pivot_longer(tetra.peakChange, cols=!waveplate,
+                                  names_to="wavenumber", values_to="signal",
+                                  names_pattern="(\\d+)"),
+       mapping = aes(x=waveplate, y=signal, group=wavenumber, color=wavenumber) ) +
+  geom_line() + geom_point() +
+  theme_hot() + theme(legend.position="right") +
+  scale_x_continuous(breaks = seq(from=0, to=180, by=45)) +
+  labs(x = expression(bold("Rotation der Halbwellenplatte "*omega*" / °")),
+       y = "normierte Intensität",
+       title = "Polarisationsahängige Bandenhöhen von Tetrachlormethan",
+       color = expression(bold(nu*" / cm"^"-1")) )
 
 # Plot the HEIGHT OF PEAKS against the wave plates position
 plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n",
@@ -137,13 +169,3 @@ plot(x=tetra.peakChange$waveplate, y=tetra.peakChange[,2], type="n",
               max(tetra.peakChange[,-1])) )
 # Plot peak change
 for (index in seq_along(tetra.peakChange[,-1])) lines(x=tetra.peakChange$waveplate, y=tetra.peakChange[,index+1], col=index+5, type="o")
-
-
-
-# TEST
-which(tetra.spectra$wavenumber == 222.911)
-
-plot(x=colnames(tetra.spectra[5,-1]), y = tetra.spectra[5,-1] / max(tetra.spectra[5,-1]) , type="o")
-lines(x = tetra.stokes.polaram[which(tetra.stokes.polaram$v == 216.2523), "W"],
-      y = tetra.polaram.peakRatio(2)[[1]]/max(tetra.polaram.peakRatio(2)[[1]]),
-      col="red", type="o")
