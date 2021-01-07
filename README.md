@@ -9,6 +9,21 @@ devtools::install_github("AlreadyTakenJonas/RHotStuff", ref="main")
 ```
 and the package is installed. You will need to install the appropriate version of Rtools first.
 
+## Trouble Shooting
+
+### Missing SSL Certificates
+
+If the API server lacks the proper ssl certificates to open a https connection following error will occur:
+```
+Fehler in curl::curl_fetch_memory(url, handle = handle) : 
+  SSL certificate problem: self signed certificate
+```
+This can be fixed by telling the `httr` package to give a fuck and connect anyway. This can be done by running
+```
+httr::set_config(httr::config(ssl_verifypeer = 0L))
+```
+This will make `httr` ignore certificates in all https connections of the R-session. Be careful! This effects all https connections not only those to the eLab server. 
+
 ## Available Functions
 
 Function                  | Description
