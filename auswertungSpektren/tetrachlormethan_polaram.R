@@ -45,7 +45,7 @@ polaram.tetra.output <- "./auswertungSpektren/polaram/result_witec_tetra.txt"
 system(paste(polaram, "-v"))
 
 # Assemble polaram command line call
-polaram.args <- c("simulate", "./auswertungSpektren/polaram/OF3.txt",#polaram.witec, 
+polaram.args <- c("simulate", polaram.witec, 
                   paste("--output", polaram.tetra.output),
                   paste("--matrix", tetra.mueller.matrix),
                   "--unpolarised-scattering", "--verbose",
@@ -77,13 +77,6 @@ tetra.stokes.polaram$W <- apply(tetra.stokes.polaram[, c("S0.pre", "S1.pre", "S2
   # Return the waveplate position of the matching stokes vectors
   tetra.stokes.postF2$W[which(selectRow)]
 })
-
-
-plot(y = 180/pi*better.acos(tetra.stokes.polaram$S0.post, tetra.stokes.polaram$S1.post, tetra.stokes.polaram$S2.post),
-     x = tetra.stokes.polaram$W, type="l")
-
-
-
 
 # Compare both measured and simulated spectrum
 plot( x = tetra.spectra$wavenumber, 
