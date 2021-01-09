@@ -38,7 +38,7 @@ detector.spectra <- lapply(detector.spectra, function(spec) {
   spec <- spec[spec$wavenumber>200,]
   
   # Vector normalisation of the spectra
-  spec[, data.selector] <- apply(spec[, data.selector], 2, function(spec) { spec / sum(spec^2) }) 
+  spec[, data.selector] <- apply(spec[, data.selector], 2, function(spec) { spec / sqrt(sum(spec^2)) }) 
   
   # Compute mean spectrum and add it to the data.frame
   spec$mean <- rowMeans(spec[, data.selector])
@@ -188,7 +188,7 @@ ggplot(detector.plotable.relDifference,
   theme_hot() + 
   theme(strip.text = element_text(face="bold"), 
         legend.position = "right") +
-  scale_color_gradient(low    = "blue", 
+  scale_color_gradient2(low    = "blue", mid="green", midpoint = 45,
                        high   = "red", 
                        breaks = seq(from=0, to=90, by=45) ) +
   scale_x_continuous(breaks = seq(from=500, to=4000, by=1000)) +
@@ -205,7 +205,7 @@ ggplot(detector.plotable.spectra,
   theme_hot() + 
   theme(strip.text = element_text(face="bold"), 
         legend.position = "right") +
-  scale_color_gradient(low    = "blue", 
+  scale_color_gradient2(low    = "blue", mid="green", midpoint = 45, 
                        high   = "red", 
                        breaks = seq(from=0, to=90, by=45) ) +
   scale_x_continuous(breaks = seq(from=500, to=4000, by=1000)) +
