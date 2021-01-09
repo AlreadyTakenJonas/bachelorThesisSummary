@@ -185,13 +185,17 @@ names(tetra.detectorBias) <- names(tetra.combined.peakChange)
 write.table(data.frame(
     wavenumber  = as.numeric(names(tetra.detectorBias)),
     biasY.tetra = tetra.detectorBias,
+    # Calculate the bias with the white lamp spectra
     bias.detector = sapply(detector.bias, function(detector) {
                         bias <- approx( x    = detector$wavenumber, 
                                         y    = detector$bias, 
                                         xout = as.numeric(names(tetra.detectorBias)) )
                         return(bias$y)
                       })
-  ), file = "../overleaf/externalFilesForUpload/data/anisotropy.csv", row.names=F)
+  ), 
+  file = "../overleaf/externalFilesForUpload/data/anisotropy.csv", 
+  row.names=F, 
+  col.names=c("wavenumber", "bias.tetra", "bias.whitelamp.microscope", "bias.whitelamp.freespace"))
 #
 # END SPECTRUM FITTING/SIMULATION -------------------------------------------------------
 #
