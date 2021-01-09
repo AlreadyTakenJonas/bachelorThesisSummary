@@ -67,6 +67,7 @@ detector.spectra <- lapply(detector.spectra, function(spec) {
 #
 # HOW DOES THE INFLUENCE OF THE POLARISATION CHANGE WITH THE WAVENUMBER?
 #
+# Absolute Abweichung von Mittelwertsspektrum
 detector.absDifference <- lapply(detector.spectra, function(spectra) {
   # Copy white lamp spectrum
   diffSpectra <- spectra
@@ -75,6 +76,7 @@ detector.absDifference <- lapply(detector.spectra, function(spectra) {
   # Return result
   return(diffSpectra)
 })
+# Relative Abweichung vom Mittelwertsspektrum
 detector.relDifference <- lapply(detector.spectra, function(spectra) {
   # Copy white lamp spectrum
   diffSpectra <- spectra
@@ -83,8 +85,15 @@ detector.relDifference <- lapply(detector.spectra, function(spectra) {
   # Return result
   return(diffSpectra)
 })
-
-
+# Anisotropiekonstante (maximale Detektorantwort geteilt durch minimale Intensität)
+detector.bias <- lapply(detector.spectra, function(spectra) {
+  bias <- apply( spectra[, -(1:3)], 1, function(pixel) {
+    max(pixel)/min(pixel)
+  })
+  data.frame( wavenumber = spectra$wavenumber,
+              wavelength = spectra$wavelength,
+              bias       = bias)
+})
 
 # Which spectra have the largest and smallest values
 lapply(detector.absDifference, function(spectra) {

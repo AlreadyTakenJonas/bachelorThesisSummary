@@ -45,7 +45,7 @@ polaram.tetra.output <- "./auswertungSpektren/polaram/result_witec_tetra.txt"
 system(paste(polaram, "-v"))
 
 # Assemble polaram command line call
-polaram.args <- c("simulate", polaram.witec, 
+polaram.args <- c("simulate", "./auswertungSpektren/polaram/OF3.txt",#polaram.witec, 
                   paste("--output", polaram.tetra.output),
                   paste("--matrix", tetra.mueller.matrix),
                   "--unpolarised-scattering", "--verbose",
@@ -77,6 +77,13 @@ tetra.stokes.polaram$W <- apply(tetra.stokes.polaram[, c("S0.pre", "S1.pre", "S2
   # Return the waveplate position of the matching stokes vectors
   tetra.stokes.postF2$W[which(selectRow)]
 })
+
+
+plot(y = 180/pi*better.acos(tetra.stokes.polaram$S0.post, tetra.stokes.polaram$S1.post, tetra.stokes.polaram$S2.post),
+     x = tetra.stokes.polaram$W, type="l")
+
+
+
 
 # Compare both measured and simulated spectrum
 plot( x = tetra.spectra$wavenumber, 
@@ -175,9 +182,16 @@ tetra.detectorBias <- sapply(tetra.combined.peakChange, function(peak) {
 names(tetra.detectorBias) <- names(tetra.combined.peakChange)
 
 # Format calculated biases and write them to file -> upload to overleaf
-write.table(data.frame(wavenumber = as.numeric(names(tetra.detectorBias)),
-                       biasY      = tetra.detectorBias),
-            file = "../overleaf/externalFilesForUpload/data/tetra_fittedBiasY.csv", row.names=F)
+write.table(data.frame(
+    wavenumber  = as.numeric(names(tetra.detectorBias)),
+    biasY.tetra = tetra.detectorBias,
+    bias.detector = sapply(detector.bias, function(detector) {
+                        bias <- approx( x    = detector$wavenumber, 
+                                        y    = detector$bias, 
+                                        xout = as.numeric(names(tetra.detectorBias)) )
+                        return(bias$y)
+                      })
+  ), file = "../overleaf/externalFilesForUpload/data/anisotropy.csv", row.names=F)
 #
 # END SPECTRUM FITTING/SIMULATION -------------------------------------------------------
 #
