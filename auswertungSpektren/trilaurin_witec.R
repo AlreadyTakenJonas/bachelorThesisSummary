@@ -38,9 +38,9 @@ trilaurin.spectra <- trilaurin.spectra[trilaurin.spectra$wavenumber>230,]
 #
 # Peaks no longer available
 # trilaurin.spectra[,-1] <- sapply(trilaurin.spectra[,-1], function(spec) spec-Peaks::SpectrumBackground(spec))
-trilaurin.spectra[,-1] <- t( as.matrix(trilaurin.spectra[,-1]) ) %>%
-  baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>%
-  baseline::getCorrected(.) %>% t(.)
+# trilaurin.spectra[,-1] <- t( as.matrix(trilaurin.spectra[,-1]) ) %>%
+#   baseline::baseline(., method="fillPeaks", lambda=1, it=10, hwi=50, int=2000) %>%
+#   baseline::getCorrected(.) %>% t(.)
 
 
 #
@@ -60,10 +60,30 @@ locator()
 
 
 
-
-
 # Plot ALL SPECTRA as 3d SURFACE
 plot.detector.allSpectra.interactable(trilaurin.spectra, 
                                       title=expression(bold("Normalised Raman Spectra Of Trilaurin For Different Polarised Light")))
 
-plot(trilaurin.spectra[,c(1,2)], type="l", col=1)
+
+#
+# PLOT FOR OVERLEAF
+#
+# Reorganise data
+trilaurin.plotable.spectra <- 
+  tidyr::pivot_longer(trilaurin.spectra, cols=!wavenumber,
+                      names_to="waveplate", values_to="signal")
+# Write data to file
+write.table(trilaurin.plotable.spectra,
+            file = "../overleaf/externalFilesForUpload/data/trilaurin_spectra.csv",
+            row.names=F)
+# Plot that shit
+ggplot(trilaurin.plotable.spectra,
+       mapping = aes(x=wavenumber, y=signal, color=as.numeric(waveplate), group=waveplate)) +
+  geom_line() +
+  scale_color_gradientn(colours=scales::hue_pal()(2), 
+                        breaks=seq(from=0, to=90, by=30)) +
+  theme_hot() +
+  labs(x = expression(bold("Wellenzahl "*nu*" / cm"^"-1")),
+       y = "normierte Intensität",
+       title = "Polarisationsabhängige Ramanspektren von Trilaurin",
+       color = expression(bold(omega*" / °")))

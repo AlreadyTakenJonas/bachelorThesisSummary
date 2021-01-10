@@ -75,11 +75,11 @@ phenylalanin.index.neighbouringPeak <- which(
 # COMPUTE PEAK CHANGE RATIO
 #
 # sensitivity is the maximum of the peak height divided by its minimum
-phenylalanin.sensitivity <- data.frame( wavenumber  = phenylalanin.spectra$wavenumber[c(phenylalanin.index.highestPeak, phenylalanin.index.neighbouringPeak)],
-                                        sensitivity = c( max(phenylalanin.spectra[phenylalanin.index.highestPeak, -1])/min(phenylalanin.spectra[phenylalanin.index.highestPeak, -1]), 
-                                                         max(phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1])/min(phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1]) 
-                                                       )
-                                      )
+# phenylalanin.sensitivity <- data.frame( wavenumber  = phenylalanin.spectra$wavenumber[c(phenylalanin.index.highestPeak, phenylalanin.index.neighbouringPeak)],
+#                                         sensitivity = c( max(phenylalanin.spectra[phenylalanin.index.highestPeak, -1])/min(phenylalanin.spectra[phenylalanin.index.highestPeak, -1]), 
+#                                                          max(phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1])/min(phenylalanin.spectra[phenylalanin.index.neighbouringPeak, -1]) 
+#                                                        )
+#                                       )
 
 #
 # Plot change of peak height
@@ -93,14 +93,26 @@ lines(colnames(phenylalanin.spectra[,-1]),
 
 
 
+#
+# PLOT THE SPECTRA FOR OVERLEAF
+#
+# Reorganise data
+phenylalanin.plotable.spectra <- 
+  tidyr::pivot_longer(phenylalanin.spectra, cols=!wavenumber,
+                      names_to="waveplate", values_to="signal")
+# Write data to file
+write.table(phenylalanin.plotable.spectra,
+            file="../overleaf/externalFilesForUpload/data/phe_spectra.csv",
+            row.names=F)
 
-#
-# Plot Raman spectrum
-#
-ggplot(data = phenylalanin.spectra,
-       mapping = aes(x = wavenumber, y = `0`) ) +
-  theme_hot() +
+# Plot that shit
+ggplot(data = phenylalanin.plotable.spectra,
+       mapping = aes(x = wavenumber, y = signal, color=as.numeric(waveplate), group=waveplate) ) +
   geom_line() +
-  labs( x = expression(bold("Wellenzahl "*nu*" / cm"["-1"])),
-        y = "normiertes Ramansignal",
-        title = "Polarisationsabhängiges Ramanspektrum von Phenylalanin")
+  scale_color_gradientn(colours=scales::hue_pal()(2), 
+                        breaks=seq(from=0, to=90, by=30)) +
+  theme_hot() +
+  labs( x = expression(bold("Wellenzahl "*nu*" / cm"^"-1")),
+        y = "normierte Intensität",
+        color = expression(bold(omega*" / °")),
+        title = "Polarisationsabhängige Ramanspektren von Phenylalanin")
