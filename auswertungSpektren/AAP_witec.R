@@ -63,6 +63,47 @@ plot(x=colnames(AAP.spectra[246,-1]), y=AAP.spectra[246,-1], type="o")
 
 plot(x = AAP.spectra$wavenumber, y = AAP.spectra[,2], typ="n", xlim=c(1150,1700))
 for(i in 2:ncol(AAP.spectra)) lines(x = AAP.spectra$wavenumber, y = AAP.spectra[,i], col=i)
+locator()
+
+findPeak <- function(interval, spectrum) {
+  # Subset the spectrum to region around searched peak
+  peakInterval <- spectrum[interval[1]<spectrum$wavenumber & spectrum$wavenumber<interval[2],]
+  # Get the wavenumber of the maxium of the subset
+  wavenumberPeak <- peakInterval$wavenumber[which.max(peakInterval[,2])]
+  return(wavenumberPeak)
+} 
+
+#
+# ESTIMATE DETECTOR ANISOTROPY WITH 4-AAP SPECTRA
+# Divide for every wavenumber maximimal and minimal intensity
+# Compare the resulting curve to results derived from white lamp spectra and
+# Peak locations of 4-AAP spectrum
+#
+AAP.plotable.bias <- data.frame(
+            # Wavenumber axis 
+            wavenumber = AAP.spectra$wavenumber,
+            # Detector bias derived from 4-AAP
+            AAP.bias   = apply( AAP.spectra[,-1], 1, function(pixel) max(pixel)/min(pixel) ),
+            # Detector bias derived from white lamp
+            detector.bias = sapply(detector.bias, function(detector) {
+                                bias <- approx( x    = detector$wavenumber, 
+                                                y    = detector$bias, 
+                                                xout = AAP.spectra$wavenumber )
+                                return(bias$y)
+                              }),
+            # Single 4-AAP spectrum scaled to match common y-axis
+            spectrum = AAP.spectra$`0`/max(AAP.spectra$`0`)+0.5
+) %>% tidyr::pivot_longer(., cols=!wavenumber, names_to="exp", values_to="bias")
+# Add new column for grouping the data into different plots
+AAP.plotable.bias$facets = sapply(AAP.plotable.bias$exp, function(pixel) pixel=="spectrum" )
+# Plot detector bias and spectrum
+ggplot(AAP.plotable.bias, mapping=aes(x=wavenumber, y=bias, color=exp, group=exp)) +
+  geom_line() + 
+  facet_wrap(vars(facets), ncol=1, scales="free_y") +
+  theme(strip.text = element_blank()) +
+  coord_cartesian(ylim=c(0.5,1.5), xlim=c(500,1700))
+
+
 
 # Plot ALL SPECTRA as 3d SURFACE
 plot.detector.allSpectra.interactable(AAP.spectra, 
@@ -81,11 +122,11 @@ write.table(AAP.plotable.spectra,
 ggplot(AAP.plotable.spectra,
        mapping = aes(x=wavenumber, y=signal, group=waveplate, color=as.numeric(waveplate)) ) +
   geom_line() +
-  scale_color_gradientn(colours=scales::hue_pal()(2), 
+  scale_color_gradientn(colours=scales::hue_pal()(3), 
                         breaks=seq(from=0, to=90, by=30)) +
   theme_hot() +
   labs(x = expression(bold("Wellenzahl "*nu*" / cm"^"-1")),
        y = "normierte Intensität",
        color = expression(bold(omega*" / °")),
-       title = "Polarisationsabhängige Ramanspektren von 4-AAP") +
-  scale_x_continuous(limits=c(1150, 1700))
+       title = "Polarisationsabhängige Ramanspektren von 4-AAP") #+
+  #scale_x_continuous(limits=c(1150, 1700))

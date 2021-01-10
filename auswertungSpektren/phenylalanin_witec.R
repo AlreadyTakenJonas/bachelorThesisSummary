@@ -109,7 +109,7 @@ write.table(phenylalanin.plotable.spectra,
 ggplot(data = phenylalanin.plotable.spectra,
        mapping = aes(x = wavenumber, y = signal, color=as.numeric(waveplate), group=waveplate) ) +
   geom_line() +
-  scale_color_gradientn(colours=scales::hue_pal()(2), 
+  scale_color_gradientn(colours=scales::hue_pal()(3), 
                         breaks=seq(from=0, to=90, by=30)) +
   theme_hot() +
   labs( x = expression(bold("Wellenzahl "*nu*" / cm"^"-1")),
