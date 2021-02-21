@@ -1,7 +1,0 @@
-# Input file for PolaRam
-# Describes the setup for measuring the raman spectra 
-
-# single-mode fiber (optical fiber before the sample is omitted, because it's not linear)
-SMP # Raman active sample
-OF3 # Multi-mode fiber F3 leading from the microscope to the detector
-

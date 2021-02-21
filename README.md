@@ -1,1 +1,0 @@
-![](MrwasgehtdasanFuehrerschein.webp)
