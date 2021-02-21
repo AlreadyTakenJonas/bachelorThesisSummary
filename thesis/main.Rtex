@@ -1,0 +1,118 @@
+%
+%   MASTER FILE
+%
+\documentclass[a4paper,12pt,twoside,parskip=no,headsepline,open=right,ngerman,export]{scrreprt}
+					
+%
+%   Include shared preamble
+%   Preamble is put into seperate file to be used in files included with \input
+%   Made possible with standalone package
+%
+\input{sup/preamble}
+
+
+
+
+%
+%   EINSTELLUNG TITLE PAGE
+%
+\titlehead{%
+  {Friedrich-Schiller-Universität Jena\\
+   Chemisch-Geowissenschaftliche Fakultät\\
+   Institut für Physikalische Chemie}}
+ 
+\subject{Bachelorarbeit zur Erlangung \\des akademischen Grades B. Sc.}
+\title{Eine Untersuchung der Polarisationsabhängigkeit von Ramanspektren \\
+\vspace{1cm} \includegraphics[width=.8\textwidth]{./img/Logo_UniJena}}
+\author{\Large{Jonas Eichhorn} \\ 
+\normalsize{geboren am 16.09.1998 in Bamberg} \\
+\small{Matrikel Nr.: 171 273}
+}
+\date{\large{eingereicht am: \textit{22. Januar 2021}}}
+\publishers{
+  \normalsize{1. Gutachter: PD Dr. Thomas Bocklitz} \\
+  \normalsize{2. Gutachter: apl. Prof. Dr. Michael Schmitt}\\
+}
+
+
+%
+%   DOCUMENT
+%
+\begin{document}
+
+    %
+    %   TITLE PAGE
+    %
+    \maketitle 
+    \cleardoublepage
+    \pagenumbering{gobble}
+
+    %
+    %   DANKSAGUNG
+    %
+    %\chapter*{Danksagung}
+    %MSSNG
+
+    %
+    % TABLE OF CONTENTS, FIGURES, TABLES, ABREVEATIONS
+    %
+    \tableofcontents
+    \addtocontents{toc}{~\hfill\textbf{Seite}\par} %Beschriftung Seite
+
+    \thispagestyle{empty}
+    \cleardoublepage
+
+    %\printacronyms[name=Abkürzungsverzeichnis, 
+	    			%heading=chapter*]
+    %\thispagestyle{empty}
+
+
+    %
+    %   INHALT
+    %
+    
+    % Start page numbering
+    \pagenumbering{arabic}
+    
+    % Chapter : Motivation
+    \input{motivation}
+    % Chapter: Theoretische Grundlagen -> Ramanstreuung, Müllerformalismus, Stokesvektor, Optische Elemente, Optische Fasern
+    \input{theorie}
+    % Chapter: Auswertung, Bauteilcharakterisierung, Ramanspektren, Muellerformalismus für partiell polarisiertes Licht
+    \input{results}
+    % Chapter: Zusammenfassung
+    \input{summary}
+
+    %
+    %   ERKLÄRUNG
+    %
+    \chapter*{Eigenständigkeitserklärung}
+
+    Hiermit erkläre ich, dass ich die vorliegende Arbeit selbstständig und nur unter Verwendung der angegebenen Hilfsmittel angefertigt habe. Insbesondere versichere ich, dass keine anderen als die angegebenen Quellen genutzt wurden und alle wörtlich oder sinngemäß aus anderen Werken übernommenen Aussagen als solche gekennzeichnet wurden. Weiterhin versichere ich, dass alle gezeigten Messdaten lediglich in der beschriebenen Art und Weise verarbeitet wurden. Die vorliegende Arbeit ist nicht anderweitig als Prüfungsleistung verwendet worden oder in deutscher oder einer anderen Sprache veröffentlicht worden. Seitens des Verfassers bestehen keine Einwände, die vorliegende Arbeit für die öffentliche Nutzung zur Verfügung zu stellen. 
+
+    \bigskip \bigskip
+
+    \parbox{4cm}{\hrule
+    \strut \centering\normalsize Jena, 22.01.2021}
+    
+    %
+    %   LITERATUR
+    %
+    \printbibliography
+    
+    %
+    %   ANHANG
+    %
+    %\cleardoublepage
+    \appendix
+    \pagenumbering{roman}
+    \setcounter{page}{0}
+
+    % Chapter: Beschreibung Versuchsvorschriften und Geräte
+    \input{method}
+    
+    % Chapter: Charakterisierung von Polarisator und Wellenplatte
+    \input{characterisation}
+
+\end{document}
+	

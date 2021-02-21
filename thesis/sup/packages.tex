@@ -1,0 +1,128 @@
+%
+%   USED PACKAGES AND STYLES
+%
+
+%
+%   KEINE AHNUNG; IST KRAM DEN JULIAN IN SEINEM TEMPLATE HATTE
+%
+\usepackage{newunicodechar}
+\usepackage{comment}
+%\usepackage{acro} %Abkürzungen
+\usepackage{xcolor} %Farben
+\usepackage{rotating}
+\usepackage{lmodern}
+%\usepackage{parskip}
+%\usepackage[crop=off]{auto-pst-pdf} %Einbinden von .eps-Dateien in PDFTeX
+\usepackage{paralist}
+
+%
+%   UTILITIES
+%
+%\usepackage{hyperref}
+
+%
+%   LANGUAGE, FONT
+%
+\usepackage[utf8]{inputenc} % Eingabe-Codierung
+\usepackage[ngerman]{babel} % Spracheinstellung
+\usepackage[T1]{fontenc}    % Anpassung auf europäischen Zeichensatz
+\usepackage{xspace}         % Leerzeichen für Silbentrennung
+\usepackage{hyphenat}       % Korrekte Silbentrennung
+
+
+%
+%   MULTIPLE FILES
+%
+\usepackage{pdfpages}   % Include pdf files
+\usepackage{standalone} % Include .tex/.Rtex documents that have their own preamble and \begin{documents}
+
+%
+%   INHALTSVERZEICHNIS UND ÄHNLICHES
+%
+%%Umbennenung Inhaltsverzeichnis
+\addto\captionsenglish{%
+\renewcommand{\contentsname}{Inhaltsverzeichnis}}
+
+%
+%   FIGURES AND TABLES
+%
+\usepackage{subfig}                     % Mutli image figures
+\usepackage[format=plain]{caption} %Einstellen der caption-Breite
+\captionsetup[table]{skip=10pt}
+\usepackage{wrapfig} %Floats von Text umflossen
+\usepackage{float} %Position von figure/table erzwingen
+\usepackage{flafter} %Floats nach Definition!
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multicol}
+\usepackage{multirow}
+
+
+%
+%   LITERATUR
+%
+\usepackage[style=chem-angew,
+            doi=true,
+			sorting=none,
+			backend=biber,
+			autocite=superscript,    % Zitate
+			minbibnames=3,
+			maxbibnames=5
+			]{biblatex}
+\usepackage{csquotes}                % Formattieren von Zitaten (Anfürhungszeichen)
+
+
+%
+%   MATHEMATIK
+%
+\usepackage{amsmath} %mathematischer Satz
+\usepackage{amsfonts} %mathematische Schriftart
+\usepackage{amssymb} %mathematische Symbole
+\usepackage[output-decimal-marker={,},
+            group-separator = {.}, 
+            group-digits=true,
+            detect-weight]{siunitx}     % korrekte Formatierung von Einheiten nach SI-Kriterien
+\usepackage{nicefrac}
+\usepackage{mathtools}  % pmatrix* environment for aligning matrix elements
+
+%
+%   CHEMIE
+%
+%\usepackage{chemgreek}
+%\usepackage{chemnum} %Nummerierung der Verbindung aus ChemDraw
+\usepackage[version=4]{mhchem} %Darstellung von chemischen Formeln
+\usepackage{chemmacros}         % Abkürzungen (pH, pKa, ...) und Ladungen
+
+%
+%   FORMATTING, PAGE STYLE
+%
+\usepackage{setspace} %Zeilenabstand
+%\usepackage{titlesec} %Verändern von Überschrift-Formatierungen
+\usepackage[headsepline]{scrlayer-scrpage}
+
+%
+% INCLUDE SOURCE CODE
+%
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage{listings} %Programmiersprachen einbinden
+\lstloadlanguages{R}
+\lstset{frame=tb,
+  language=R,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4
+}
+
+

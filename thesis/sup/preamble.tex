@@ -1,0 +1,40 @@
+%
+%   PREAMBLE SHARED BY MASTER FILE AND ALL SUBFILES
+%
+\input{./sup/packages.tex}
+\input{./sup/hniopeksCommands.tex}	
+\input{./sup/commands.tex}
+%\input{./sup/abreviations.tex}
+\input{./sup/hyphenations.tex}
+
+
+%
+%   LITERATUR
+%
+\addbibresource{./sup/lit.bib}	
+\AtEveryBibitem{\clearfield{note}}    % clears notes
+
+%
+%   SEITENEINSTELLUNG
+%
+%Druckbereich wählen (\areaset[BCOR]{breite}{höhe})
+\areaset[13 mm]{140mm}{250mm}
+\pagestyle{scrheadings}
+
+
+%
+%   KOPFZEILE
+%
+\chead{\leftmark}
+\ihead{}
+\ohead{}
+\ofoot{\thepage}
+\automark{chapter}
+
+
+%
+%   SEITENSTIL
+%
+\setstretch{1.15} %Zeilenabstand einstellen
+\pagenumbering{arabic}
+\setcounter{page}{1}

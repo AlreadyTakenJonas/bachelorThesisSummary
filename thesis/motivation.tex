@@ -1,0 +1,32 @@
+%
+%   CHAPTER : MOTIVATION
+%
+\documentclass[a4paper,12pt,twoside,parskip=no,headsepline,open=right,ngerman,export]{scrreprt}
+
+%
+%   Include shared preamble
+%   Preamble is put into seperate file to be used in files included with \input
+%   Made possible with standalone package
+%
+\input{sup/preamble}
+
+%
+%   DOCUMENT
+%
+\begin{document}
+
+    \chapter{Motivation}
+        
+        Die Ramanspektroskopie ist eine nicht-invasive, zerstörungsfreie Messmethode, die molekulare Informationen liefern kann. Dies macht sie prinzipiell dazu geeignet, in der klinischen Praxis zur Identifikation von Pathogenen, Mikroorganismen oder auch zur Segmentierung von Gewebeschnitten eingesetzt zu werden~\cite{eberhardt_advantages_2015, cialla-may_recent_2017, krafft_raman_2009}.
+        Da biologische Proben einen sehr komplexen Aufbau haben (variable Zusammensetzung aus Proteinen, Kohlenhydraten, Fetten, Nucleinsäuren, etc.), ist es im Allgemeinen nötig maschinelle Lernmethoden einzusetzen~\cite{krafft_label-free_2017}. Zur Verwendung solcher Methoden wird zunächst ein Modell trainiert, in dem ein ausreichend großer Datensatz an Spektren bekannter Proben aufgenommen wird. Das so generierte Modell kann dann auf die Ramanspektren unbekannter Proben angewendet werden und die gewünschte Zielgröße vorhersagen.
+
+        Ein Problem dieses Verfahrens ist der Einfluss des Ramanspektrometers auf das aus den Trainingsdaten generierte Modell. Dadurch wird die Einsetzbarkeit des Modells stark eingeschränkt, weil es korrekte Vorhersagen nur mit Spektren treffen kann, die mit dem selben Ramanspektrometer gemessen wurden wie die Trainingsspektren. Eine großflächige klinische Anwendung ist deshalb nur schwer möglich und macht die Anwendung von Modelltransfermethoden nötig~\cite{guo_model_2018}. 
+        
+        Modelltransfermethoden versuchen dabei die Unterschiede zwischen den verschiedenen Ramanspektrometern anhand von Kalibrationsspektren zu schätzen und so den Geräteeinfluss zu minimieren bzw. idealerweise zu eliminieren.
+        Zur Verbesserung von Transfermethoden ist es nötig die Prozesse, die zu Abweichungen zwischen verschiedenen Spektrometern führen, zu untersuchen, um so bessere, physikalische Modelle zur Kompensation entwickeln zu können.
+        
+        Weil polarisationsabhängiges Reflexions- und Transmissionsverhalten von optischen Gittern bekannt ist, ist zu vermuten, dass ein solcher Prozess die Abweichung der Polarisation der Anregungslaser oder Gitter verschiedener Anisotropie zwischen zwei Geräten ist~\cite{kho_reduction_2005}.
+        
+        Im Rahmen dieser Arbeit wird deshalb der Einfluss von Polarisationseffekten auf Ramanspektren untersucht. Dabei beschränkt sich ihre Relevanz nicht auf maschinelles Lernen, sondern betrifft allgemein Spektrenauswertung. Hierzu wird die Polarisationsempfindlichkeit der Komponenten eines typischen, fasergekoppelten Ramanmikroskops charakterisiert und das Ausmaß der Polarisationsabhängigkeit auf die Ramanspektren einfacher Beispielproben untersucht. Die so erhalten Ergebnisse werden mit Simulationen im Rahmen des Müllerformalismus verglichen, der einen Ansatz zur inversen Modellierung des Polarisationseinflusses darstellt und so einen Modelltransfer ermöglichen könnte.
+        
+\end{document}

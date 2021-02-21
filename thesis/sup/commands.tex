@@ -1,0 +1,53 @@
+%
+%   SOME CUSTOM COMMANDS AND SHORTCUTS
+%
+
+% MATHEMATICS AND FORMULAS
+\newcommand{\ring}[1]{\text{\r{#1}}}	    % Shortcut for writing circle above character
+\newcommand{\vc}[1]{\vec{#1}}               % Shortcut for uniformly formatting vectors
+\newcommand{\mx}[1]{\boldsymbol#1}          % Shrotcut for uniformly formatting matrices
+\newcommand{\tildenu}{\tilde{\nu}}          % Shortcut for wave number symbol
+
+% FORMATTING
+\newcommand{\optelem}[1]{\textbf{#1}}       % Shortcut for uniforly formate optical elements
+\newcommand{\chemical}[1]{\textbf{#1}}      % Shortcut for uniforly formate chemical abreviations
+
+% REMINDERS
+\def\quelle{~\textbf{[QUELLE]}}
+
+% -----------------------------------------
+% Makros used to make integral sign match matrix/fraction height
+%
+\def\tmp#1 #2\relax{#1}
+\setbox0=\hbox{$\xdef\intfont{%
+    \expandafter\tmp\fontname\textfont3\expandafter\space\space\relax}$}
+\font\tmp=\intfont\space at10pt\relax
+\setbox0=\hbox{$\textfont3=\tmp \displaystyle \int$}
+\dimen0=\ht0 \advance\dimen0 by\dp0 \divide\dimen0 by10 
+\xdef\intsize{\the\dimen0}
+
+\def\dividedimen (#1/#2){\expandafter\ignorept\the
+   \dimexpr\numexpr\number\dimexpr#1\relax
+   *65536/\number\dimexpr#2\relax\relax sp\relax
+}
+{\lccode`\?=`\p \lccode`\!=`\t  \lowercase{\gdef\ignorept#1?!{#1}}}
+% Makros used to make integral sign match matrix/fraction height
+\def\flexibleint{\def\fxintL{}\def\fxintU{}\futurelet\next\fxintA}
+\def\fxintA{\ifx\next_\expandafter\fxintB\else\expandafter\fxintC\fi}
+\def\fxintB_#1{\def\fxintL{#1}\fxintC}
+\def\fxintC{\futurelet\next\fxintD}
+\def\fxintD{\ifx\next^\expandafter\fxintE\else\expandafter\fxintF\fi}
+\def\fxintE^#1{\def\fxintU{#1}\fxintF}
+\def\fxintF#1{\begingroup
+   \setbox0=\hbox{$\displaystyle{#1}$}%
+   \dimen0=\ht0 \advance\dimen0 by\dp0
+   \setbox1=\hbox{$\vcenter{\copy0}$}%
+   \font\tmp=\intfont\space at\dividedimen(\dimen0/\intsize)pt
+   \lower\dimexpr\dp0-\dp1\hbox{%
+      $\textfont3=\tmp \displaystyle\int_{\fxintL}^{\fxintU}$}
+   \box0
+   \endgroup
+}
+%
+% END: makros for making integral match fraction/matrix height
+% --------------------------------------------
