@@ -1,0 +1,36 @@
+Trilaurin_Temp60degC_W060deg_000
+
+General:
+System ID:	100-1200-914
+Time:	8:11:57 PM
+Date:	Monday, December 14, 2020
+User Name:	user
+Sample Name:	
+Configuration:	Raman 514
+
+UHTS300:
+Excitation Wavelength [nm]:	514.624
+Grating:	G1: 600 g/mm BLZ=500nm
+Center Wavelength [nm]:	580.327
+Spectral Center [rel. 1/cm]:	2200.002
+
+DV401_BV:
+Width [Pixels]:	1024
+Height [Pixels]:	127
+Temperature [°C]:	-59
+Integration Time [s]:	60.03490
+Camera Serial Nr.:	16555
+AD Converters:	AD1 (16Bit)
+Vertical Shift Speed [µs]:	[8.25]
+Horizontal Shift Speed [MHz]:	0.1
+Preamplifier Gain:	1
+ReadMode:	Single Track (Row 52 -> 72)
+
+Number Of Accumulations:	10
+Integration Time [s]:	60.03490
+
+Sample Location (global position):
+Position X [µm]:	996.479
+Position Y [µm]:	-0.021
+Position Z [µm]:	0.000
+

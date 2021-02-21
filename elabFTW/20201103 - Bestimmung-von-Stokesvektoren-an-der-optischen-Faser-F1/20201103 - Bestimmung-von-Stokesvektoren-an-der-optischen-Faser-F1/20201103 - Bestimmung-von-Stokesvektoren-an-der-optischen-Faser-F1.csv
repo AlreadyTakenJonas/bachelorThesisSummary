@@ -1,0 +1,376 @@
+﻿id,date,title,content,status,elabid,url
+58,20201103,"Bestimmung von Stokesvektoren an der optischen Faser F1","Stokesvektorbestimmung vor und nach einer optischen Faser
+Es soll bestimmt werden, welchen Einfluss eine optische Faser auf die Polarisation des Laserlichtes hat. Dafür wird der lineare Anteil des Stokesvektors des Lasers vor und nach dem Passieren der optischen Faser ermittelt.
+Aufbau
+
+
+
+Aufbau
+
+
+Ramanspektrometer
+WiTec (ZAF)
+
+
+Powermeter
+ThorLabs PM100D/S130C
+
+
+Wellenplatte
+W1
+
+
+Linearpolarisator
+P3
+
+
+Fiberbenches
+ThorLabs FBP-A-FC
+
+
+Zu charakterisierende Faser
+F1 (PM-Faser, blau, P1-488PM-EC-1)
+
+
+
+Der Laserstrahl wird in die erste Fiberbench (B1) geleitet. Dort wird eine Wellenplatte im Strahlengang platziert. Bevor der Laserstrahl durch den Linearpolarisator und danach auf das Powermeter gelenkt wird, kann der Strahl mit der zu charakterisierenden Faser in die andere Fiberbench (B2) geleitet werden.
+Messung
+Der Stokesvektor wird für verschiedene Orientierungen der Ausgangspolarisation bestimmt. Dafür wird zunächst der Linearpolarisator und das Powermeter in den Strahlengang der ersten Fiberbench platziert. Der Linearpolarisator wird so gedreht, dass die gemessene Leistung maximal wird. Die Position des Polarisators wird notiert.
+Die erste Messung wird vorgenommen. Dafür wird der Aufbau zunächst ohne die zu charakterisierende Faser verwendet. Die Wellenplatte wird beliebig gedreht und ihre Position notiert. Die gemessene Laserleistung wird notiert. Anschließend wird die Laserleistung ohne Linearpolarisator gemessen. Nun wird die Messung mit der zu charakterisierenden Faser wiederholt, ohne die Wellenplatte zu rotieren. Der Linearpolarisator wird für die zweite Fiberbench neu eingestellt. Dabei wird der Laser über die erste Fiberbench (ohne Wellenplatte) und die zu charakterisierende Faser in die zweite Fiberbench geleitet. Die Position des Linearpolarisators wird notiert. Die Leistung wird für den vollständigen Messaufbau mit und ohne Linearpolarisator gemessen.
+Vor der zweiten Messung wird der Linearpolarisator und das Powermeter in den Strahlengang der ersten Fiberbench platziert. Der Linearpolarisator wird so gedreht, dass die gemessene Leistung minimal ist. Die Position wird notiert.
+Die zweite Messung wird vorgenommen. Sie erfolgt analog zur ersten Messung. Nur die Positionen des Linearpolarisators unterscheiden sich.
+Vor der dritten Messung wird der Linearpolarisator auf die Position gedreht, die in der Mitte zwischen den Positionen der ersten und zweiten Messung liegt. Die Position wird notiert.
+Die dritte Messung wird vorgenommen. Sie erfolgt analog zur ersten Messung. Nur die Position des Linearpolarisators unterscheidet sich.
+Vor der vierten Messung wird der Linearpolarisator und das Powermeter in den Strahlengang der ersten Fiberbench platziert. Der Linearpolarisator wird auf die Position gedreht, die in der Mitte zwischen der Positionen der zweiten Messung und dem nächsten Maximum (nicht das Maximum der ersten Messung) liegt. Die Position wird notiert.
+Die vierte Messung wird vorgenommen. Sie erfolgt analog zur ersten Messung. Nur die Position des Linearpolarisators unterscheidet sich.
+Die Messungen werden für diverse Positionen der Wellenplatte wiederholt.
+
+
+
+Metadaten
+
+
+Maximale Laserleistung / mW
+maxLaserPower.csv
+
+
+Gemessene Leistung ohne Laser / mW
+labNoise.csv
+
+
+Position Linearpolarisator Fiberbench B1 (Maximum, Messung 1) / °
+6
+
+
+Position Linearpolarisator Fiberbench B1 (Minimum, Messung 2) / °
+96
+
+
+Position Linearpolarisator Fiberbench B1 (Messung 3) / °
+51
+
+
+Position Linearpolarisator Fiberbench B1 (Messung 4) / °
+141
+
+
+Position Linearpolarisator Fiberbench B2 (Maximum, Messung 1) / °
+16
+
+
+Position Linearpolarisator Fiberbench B2 (Minimum, Messung 2) / °
+102
+
+
+Position Linearpolarisator Fiberbench B2 (Messung 3) / °
+59
+
+
+Position Linearpolarisator Fiberbench B2 (Messung 4) / °
+149
+
+
+
+ 
+
+
+
+Messdaten Messung 1
+
+
+Position Wellenplatte / °
+Messung 1 ohne Polarisator ohne Faser / mW
+Messung 1 mit Polarisator ohne Faser / mW
+Messung 1 ohne Polarisator mit Faser / mW
+Messung 1 mit Polarisator mit Faser / mW
+
+
+0
+W000deg_background_noFiber.csv
+W000deg_P000deg_noFiber.csv
+W000deg_background_fiber.csv
+W000deg_P000deg_fiber.csv
+
+
+45
+W045deg_background_noFiber.csv
+W045deg_P000deg_noFiber.csv
+W045deg_background_fiber.csv
+W045deg_P000deg_fiber.csv
+
+
+90
+W090deg_background_noFiber.csv
+W090deg_P000deg_noFiber.csv
+W090deg_background_fiber.csv
+W090deg_P000deg_fiber.csv
+
+
+135
+W135deg_background_noFiber.csv
+W135deg_P000deg_noFiber.csv
+W135deg_background_fiber.csv
+W135deg_P000deg_fiber.csv
+
+
+180
+W180deg_background_noFiber.csv
+W180deg_P000deg_noFiber.csv
+W180deg_background_fiber.csv
+W180deg_P000deg_fiber.csv
+
+
+225
+W225deg_background_noFiber.csv
+W225deg_P000deg_noFiber.csv
+W225deg_background_fiber.csv
+W225deg_P000deg_fiber.csv
+
+
+270
+W270deg_background_noFiber.csv
+W270deg_P000deg_noFiber.csv
+W270deg_background_fiber.csv
+W270deg_P000deg_fiber.csv
+
+
+315
+W315deg_background_noFiber.csv
+W315deg_P000deg_noFiber.csv
+W315deg_background_fiber.csv
+W315deg_P000deg_fiber.csv
+
+
+
+
+
+
+Messdaten Messung 2
+
+
+Position Wellenplatte / °
+Messung 2 ohne Polarisator ohne Faser / mW
+Messung 2 mit Polarisator ohne Faser / mW
+Messung 2 ohne Polarisator mit Faser / mW
+Messung 2 mit Polarisator mit Faser / mW
+
+
+0
+W000deg_background_noFiber.csv
+W000deg_P090deg_noFiber.csv
+W000deg_background_fiber.csv
+W000deg_P090deg_fiber.csv
+
+
+45
+W045deg_background_noFiber.csv
+W045deg_P090deg_noFiber.csv
+W045deg_background_fiber.csv
+W045deg_P090deg_fiber.csv
+
+
+90
+W090deg_background_noFiber.csv
+W090deg_P090deg_noFiber.csv
+W090deg_background_fiber.csv
+W090deg_P090deg_fiber.csv
+
+
+135
+W135deg_background_noFiber.csv
+W135deg_P090deg_noFiber.csv
+W135deg_background_fiber.csv
+W135deg_P090deg_fiber.csv
+
+
+180
+W180deg_background_noFiber.csv
+W180deg_P090deg_noFiber.csv
+W180deg_background_fiber.csv
+W180deg_P090deg_fiber.csv
+
+
+225
+W225deg_background_noFiber.csv
+W225deg_P090deg_noFiber.csv
+W225deg_background_fiber.csv
+W225deg_P090deg_fiber.csv
+
+
+270
+W270deg_background_noFiber.csv
+W270deg_P090deg_noFiber.csv
+W270deg_background_fiber.csv
+W270deg_P090deg_fiber.csv
+
+
+315
+W315deg_background_noFiber.csv
+W315deg_P090deg_noFiber.csv
+W315deg_background_fiber.csv
+W315deg_P090deg_fiber.csv
+
+
+
+
+
+
+Messdaten Messung 3
+
+
+Position Wellenplatte / °
+Messung 3 ohne Polarisator ohne Faser / mW
+Messung 3 mit Polarisator ohne Faser / mW
+Messung 3 ohne Polarisator mit Faser / mW
+Messung 3 mit Polarisator mit Faser / mW
+
+
+0
+W000deg_background_noFiber.csv
+W000deg_P045deg_noFiber.csv
+W000deg_background_fiber.csv
+W000deg_P045deg_fiber.csv
+
+
+45
+W045deg_background_noFiber.csv
+W045deg_P045deg_noFiber.csv
+W045deg_background_fiber.csv
+W045deg_P045deg_fiber.csv
+
+
+90
+W090deg_background_noFiber.csv
+W090deg_P045deg_noFiber.csv
+W090deg_background_fiber.csv
+W090deg_P045deg_fiber.csv
+
+
+135
+W135deg_background_noFiber.csv
+W135deg_P045deg_noFiber.csv
+W135deg_background_fiber.csv
+W135deg_P045deg_fiber.csv
+
+
+180
+W180deg_background_noFiber.csv
+W180deg_P045deg_noFiber.csv
+W180deg_background_fiber.csv
+W180deg_P045deg_fiber.csv
+
+
+225
+W225deg_background_noFiber.csv
+W225deg_P045deg_noFiber.csv
+W225deg_background_fiber.csv
+W225deg_P045deg_fiber.csv
+
+
+270
+W270deg_background_noFiber.csv
+W270deg_P045deg_noFiber.csv
+W270deg_background_fiber.csv
+W270deg_P045deg_fiber.csv
+
+
+315
+W315deg_background_noFiber.csv
+W315deg_P045deg_noFiber.csv
+W315deg_background_fiber.csv
+W315deg_P045deg_fiber.csv
+
+
+
+
+
+
+Messdaten Messung 4
+
+
+Position Wellenplatte / °
+Messung 4 ohne Polarisator ohne Faser / mW
+Messung 4 mit Polarisator ohne Faser / mW
+Messung 4 ohne Polarisator mit Faser / mW
+Messung 4 mit Polarisator mit Faser / mW
+
+
+0
+W000deg_background_noFiber.csv
+W000deg_P135deg_noFiber.csv
+W000deg_background_fiber.csv
+W000deg_P135deg_fiber.csv
+
+
+45
+W045deg_background_noFiber.csv
+W045deg_P135deg_noFiber.csv
+W045deg_background_fiber.csv
+W045deg_P135deg_fiber.csv
+
+
+90
+W090deg_background_noFiber.csv
+W090deg_P135deg_noFiber.csv
+W090deg_background_fiber.csv
+W090deg_P135deg_fiber.csv
+
+
+135
+W135deg_background_noFiber.csv
+W135deg_P135deg_noFiber.csv
+W135deg_background_fiber.csv
+W135deg_P135deg_fiber.csv
+
+
+180
+W180deg_background_noFiber.csv
+W180deg_P135deg_noFiber.csv
+W180deg_background_fiber.csv
+W180deg_P135deg_fiber.csv
+
+
+225
+W225deg_background_noFiber.csv
+W225deg_P135deg_noFiber.csv
+W225deg_background_fiber.csv
+W225deg_P135deg_fiber.csv
+
+
+270
+W270deg_background_noFiber.csv
+W270deg_P135deg_noFiber.csv
+W270deg_background_fiber.csv
+W270deg_P135deg_fiber.csv
+
+
+315
+W315deg_background_noFiber.csv
+W315deg_P135deg_noFiber.csv
+W315deg_background_fiber.csv
+W315deg_P135deg_fiber.csv
+
+
+
+Beobachtung
+Leistung schwankt manchmal um zwei verschiedene Werte abwechselnd. Die Messung 2 mit der Faser zeigt oft eine starke Tendenz nach oben oder während der 30-Sekunden-Messungen.",Success,20201102-f67d4dda00f8b3e05fe5ef3fa2d142df76df055b,https://elab.ipht-jena.de/experiments.php?mode=view&id=58

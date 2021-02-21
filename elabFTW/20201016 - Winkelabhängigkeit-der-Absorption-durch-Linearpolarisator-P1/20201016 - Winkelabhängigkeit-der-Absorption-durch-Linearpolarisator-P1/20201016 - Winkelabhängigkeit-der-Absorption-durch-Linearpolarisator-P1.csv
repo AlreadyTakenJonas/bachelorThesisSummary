@@ -1,0 +1,125 @@
+﻿id,date,title,content,status,elabid,url
+29,20201016,"Winkelabhängigkeit der Absorption durch Linearpolarisator P1","Winkelabhängigkeit der Absorption durch Linearpolarisator P1
+Ist die Absorptionsrate eines Linearpolarisators abhängig von seiner Orientierung im Laborkoordinatensystem? Es ist bekannt, dass die Absorption des Lasers abhängig von der Orientierung des Polarisators relativ zum Laser ist. Die Frage ist nun: Ändert sich das Absorptionsverhalten des Polarisators, wenn die Polarisationsebene des Lasers gedreht wird?
+Aufbau
+
+
+
+Ramanspektrometer
+WiTec (ZAF)
+
+
+Powermeter
+ThorLabs PM100D/S130C
+
+
+Auxiliarer Linearpolarisator
+P2
+
+
+Wellenplatte
+W1
+
+
+Zu charackterisierender Linearpolarisator
+P1
+
+
+
+Der Laserstrahl wird durch eine Fiberbench geleitet. Er passiert in der Fiberbench die Wellenplatte, danach den auxiliaren Linearpolarisator, anschließend den zu charaketisierenden Polarisator und trifft zuletzt auf die Messsonde des Powermeters. Die Vorbereitung einer Messung erfolgt so: Für verschiedene Positionen der Wellenplatte wird der auxiliare Polarisator so gedreht, dass die messbare Laserleistung maximal ist. Die Laserleistung wird vermerkt. Danach wird der zu charakterisierende Linearpolarisator dem Aufbau hinzugefügt. Er wird so gedreht, dass die messbare Laserleistung maximal ist. Die gemessene Leistung wird vermerkt.
+Messung
+Laserperformance und Noise:
+
+
+
+Maximale Laserleistung / mW
+55,1
+
+
+Gemessene Leistung ohne Laser / mW
+1,1e-6
+
+
+
+Erhobene Messdaten:
+
+
+
+Position Wellenplatte / °
+Position auxiliarer Polarisator / °
+Gemessene Leistung ohne zu charakterisierenden Polarisator / mW
+Position zu charakterisierender Polarisator / °
+Gemessene Leistung mit zu charakterisierenden Polarisator / mW
+
+
+0
+344
+1,646
+10
+1,411
+
+
+20
+20
+1,640
+46
+1,409
+
+
+40
+46
+1,617
+82
+1,389
+
+
+60
+102
+1,631
+128
+1,391
+
+
+80
+138
+1,663
+164
+1,422
+
+
+100
+178
+1,668
+202
+1,423
+
+
+120
+220
+1,653
+246
+1,413
+
+
+140
+262
+1,634
+278
+1,398
+
+
+160
+302
+1,631
+328
+1,396
+
+
+180
+342
+1,624
+10
+1,391
+
+
+","Need to be redone",20201016-a437bc1b06779ed0dec6144cfb288f85130ca014,https://elab.ipht-jena.de/experiments.php?mode=view&id=29

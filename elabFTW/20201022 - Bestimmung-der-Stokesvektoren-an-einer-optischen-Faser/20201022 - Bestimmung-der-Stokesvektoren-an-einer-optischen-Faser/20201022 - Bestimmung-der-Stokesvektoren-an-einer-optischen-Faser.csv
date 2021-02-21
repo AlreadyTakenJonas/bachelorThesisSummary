@@ -1,0 +1,416 @@
+﻿id,date,title,content,status,elabid,url
+43,20201022,"Bestimmung der Stokesvektoren an einer optischen Faser","Stokesvektorbestimmung vor und nach einer optischen Faser
+Es soll bestimmt werden, welchen Einfluss eine optische Faser auf die Polarisation des Laserlichtes hat. Dafür wird der lineare Anteil des Stokesvektors des Lasers vor und nach dem Passieren der optischen Faser ermittelt.
+Aufbau
+
+
+
+Aufbau
+
+
+Ramanspektrometer
+WiTec (ZAF)
+
+
+Powermeter
+ThorLabs PM100D/S130C
+
+
+Wellenplatte
+W1
+
+
+Linearpolarisator
+P1
+
+
+Zu charakterisierende Faser
+ThorLabs P1-460B-FC-1 TP02351771
+
+
+
+Der Laserstrahl wird in die erste Fiberbench geleitet. Dort wird eine Wellenplatte im Strahlengang platziert. Bevor der Laserstrahl durch den Linearpolarisator und danach auf das Powermeter gelenkt wird, kann der Strahl mit der zu charakterisierenden Faser in die andere Fiberbench geleitet werden.
+Messung
+Der Stokesvektor wird für verschiedene Orientierungen der Ausgangspolarisation bestimmt. Dafür wird zunächst der Linearpolarisator und das Powermeter in den Strahlengang der ersten Fiberbench platziert. Der Linearpolarisator wird so gedreht, dass die gemessene Leistung maximal wird. Die Rotation des Polarisators wird für die erste Messungen nicht verändert. Die Position des Polarisators wird notiert.
+Die erste Messung wird vorgenommen. Dafür wird der Aufbau zunächst ohne die zu charakterisierende Faser verwendet. Die Wellenplatte wird beliebig gedreht und seine Position notiert. Die gemessene Laserleistung wird notiert. Anschließend wird die Laserleistung ohne Linearpolarisator gemessen. Nun wird die Messung mit der zu charakterisierenden Faser wiederholt, ohne den Linearpolarisator oder die Wellenplatte zu rotieren. Die Leistung wird für den Aufbau mit und ohne Linearpolarisator gemessen.
+Vor der zweiten Messung wird der Linearpolarisator und das Powermeter in den Strahlengang der ersten Fiberbench platziert. Der Linearpolarisator wird so gedreht, dass die gemessene Leistung minimal ist. Die Position wird notiert und der Polarisator während der zweiten Messung nicht verändert.
+Die zweite Messung wird vorgenommen. Sie erfolgt analog zur ersten Messung. Nur die Position des Linearpolarisators unterscheidet sich.
+Vor der dritten Messung wird der Linearpolarisator auf die Position gedreht, die in der Mitte zwischen den Positionen der ersten und zweiten Messung liegt. Die Position wird notiert und der Polarisator während der dritten Messung nicht verändert.
+Die dritte Messung wird vorgenommen. Sie erfolgt analog zur ersten Messung. Nur die Position des Linearpolarisators unterscheidet sich.
+Vor der vierten Messung wird der Linearpolarisator und das Powermeter in den Strahlengang der ersten Fiberbench platziert. Der Linearpolarisator wird auf die Position gedreht, die in der Mitte zwischen der Positionen der zweiten Messung und dem nächsten Maximum (nicht das Maximum der ersten Messung) liegt. Die Position wird notiert und der Polarisator während der vierten Messung nicht verändert.
+Die vierte Messung wird vorgenommen. Sie erfolgt analog zur ersten Messung. Nur die Position des Linearpolarisators unterscheidet sich.
+Die Messungen werden für diverse Positionen der Wellenplatte wiederholt.
+
+
+
+Metadaten
+
+
+Maximale Laserleistung / mW
+50,1
+
+
+Gemessene Leistung ohne Laser / mW
+44,8e-6
+
+
+Position Linearpolarisator (Maximum) / °
+6
+
+
+Position Linearpolarisator (Minimum) / °
+ 
+
+
+
+ 
+
+
+
+Messdaten Messung 1
+
+
+Position Linearpolarisator / °
+Position Wellenplatte / °
+Messung 1 ohne Polarisator ohne Faser / mW
+Messung 1 mit Polarisator ohne Faser / mW
+Messung 1 ohne Polarisator mit Faser / mW
+Messung 1 mit Polarisator mit Faser / mW
+
+
+6
+0
+3,22
+2,96
+0,485
+0,385
+
+
+6
+10
+3,20
+2,82
+0,482
+0,234
+
+
+6
+20
+3,20
+2,200
+0,480
+236,0e-3
+
+
+6
+30
+3,19
+1,521
+0,475
+177,0e-3
+
+
+6
+40
+3,15
+1,052
+0,480
+187,0e-3
+
+
+6
+50
+3,18
+1,000
+0,496
+242,5e-3
+
+
+6
+60
+3,20
+1,386
+0,481
+0,324
+
+
+6
+70
+3,21
+2,108
+0,480
+0,420
+
+
+6
+80
+3,23
+2,664
+0,470
+0,440
+
+
+
+
+
+
+Messdaten Messung 2
+
+
+Position Linearpolarisator / °
+Position Wellenplatte / °
+Messung 2 ohne Polarisator ohne Faser / mW
+Messung 2 mit Polarisator ohne Faser / mW
+Messung 2 ohne Polarisator mit Faser / mW
+Messung 2 mit Polarisator mit Faser / mW
+
+
+96
+0
+3,22
+0,994
+0,487
+324,0e-3
+
+
+96
+10
+3,15
+1,159
+0,487
+0,287
+
+
+96
+20
+3,12
+1,804
+0,475
+0,370
+
+
+96
+30
+3,14
+2,452
+0,470
+0,410
+
+
+96
+40
+3,18
+2,88
+0,480
+0,410
+
+
+96
+50
+3,29
+2,86
+0,475
+0,355
+
+
+96
+60
+3,27
+2,475
+0,470
+0,321
+
+
+96
+70
+3,19
+1,725
+0,485
+0,260
+
+
+96
+80
+3,06
+1,107
+0,500
+0,261
+
+
+
+
+
+
+Messdaten Messung 3
+
+
+Position Linearpolarisator / °
+Position Wellenplatte / °
+Messung 3 ohne Polarisator ohne Faser / mW
+Messung 3 mit Polarisator ohne Faser / mW
+Messung 3 ohne Polarisator mit Faser / mW
+Messung 3 mit Polarisator mit Faser / mW
+
+
+ 
+0
+ 
+ 
+ 
+ 
+
+
+ 
+10
+ 
+ 
+ 
+ 
+
+
+ 
+20
+ 
+ 
+ 
+ 
+
+
+ 
+30
+ 
+ 
+ 
+ 
+
+
+ 
+40
+ 
+ 
+ 
+ 
+
+
+ 
+50
+ 
+ 
+ 
+ 
+
+
+ 
+60
+ 
+ 
+ 
+ 
+
+
+ 
+70
+ 
+ 
+ 
+ 
+
+
+ 
+80
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+Messdaten Messung 4
+
+
+Position Linearpolarisator / °
+Position Wellenplatte / °
+Messung 4 ohne Polarisator ohne Faser / mW
+Messung 4 mit Polarisator ohne Faser / mW
+Messung 4 ohne Polarisator mit Faser / mW
+Messung 4 mit Polarisator mit Faser / mW
+
+
+ 
+0
+ 
+ 
+ 
+ 
+
+
+ 
+10
+ 
+ 
+ 
+ 
+
+
+ 
+20
+ 
+ 
+ 
+ 
+
+
+ 
+30
+ 
+ 
+ 
+ 
+
+
+ 
+40
+ 
+ 
+ 
+ 
+
+
+ 
+50
+ 
+ 
+ 
+ 
+
+
+ 
+60
+ 
+ 
+ 
+ 
+
+
+ 
+70
+ 
+ 
+ 
+ 
+
+
+ 
+80
+ 
+ 
+ 
+ 
+
+
+
+Beobachtung
+Die Leistung schwankt im bis zu 0,030mW beim Messung hinter der optischen Faser.","Need to be redone",20201022-9d0ea75a9ea7c170c2cbf452a4b628dcb0159851,https://elab.ipht-jena.de/experiments.php?mode=view&id=43

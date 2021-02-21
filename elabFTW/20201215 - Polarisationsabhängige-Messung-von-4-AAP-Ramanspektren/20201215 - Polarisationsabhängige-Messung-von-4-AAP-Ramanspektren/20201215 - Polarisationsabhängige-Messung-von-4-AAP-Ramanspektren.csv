@@ -1,0 +1,131 @@
+﻿id,date,title,content,status,elabid,url
+85,20201215,"Polarisationsabhängige Messung von 4-AAP-Ramanspektren","Polarisationsabhängige Messung von Ramanspektren für 4-Acetaminophenol
+Ändert sich das Ramanspektrum für unterschiedlich linearpolarisierte Anregungslaser?
+Aufbau
+Der Laser wird in Fiberbench geleitet und passiert eine Wellenplatte. Anschließend wird der Laser über die Anregungsfaser von der Fiberbench ins Mikroskop des WiTec gekoppelt. Der Strahl wechselwirkt mit der Probe und wird über die Detektorfaser zum Detektor des WiTec geleitet.
+
+
+
+Aufbau
+
+
+Ramanspektrometer
+WiTec (ZAF)
+
+
+Fiberbench
+B1 (ThorLabs FBP-A-FC)
+
+
+Anregungsfaser
+F2 (single-mode)
+
+
+Detektorfaser
+F3 (multi-mode)
+
+
+Wellenplatte
+W1
+
+
+Probe
+Fein gemahlenes und anschließend gepresstes 4-AAP
+
+
+Powermeter
+Thorlabs PM100D/S121C
+
+
+
+Messung
+
+
+
+Metadaten
+
+
+Maximale Laserleistung / mW
+maxLaserPower.csv
+
+
+Gemessene Leistung ohne Laser / mW
+labNoise.csv
+
+
+
+Für verschiedene Positionen der Wellenplatte werden die Ramanspektren von 4-AAP gemessen. Die Laserleistung wird für jedes Spektrum am Mikroskoptisch gemessen.
+
+
+
+Messdaten
+
+
+Position Wellenplatte / °
+Laserleistung / mW
+Ramanspektrum
+Metadaten Ramanspektrum
+
+
+0
+W000deg_laser.csv
+4-AAP_finelyGroundAndPressed_W000deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W000deg_000-Information.txt
+
+
+10
+W010deg_laser.csv
+4-AAP_finelyGroundAndPressed_W010deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W010deg_000-Information.txt
+
+
+20
+W020deg_laser.csv
+4-AAP_finelyGroundAndPressed_W020deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W020deg_000-Information.txt
+
+
+30
+W030deg_laser.csv
+4-AAP_finelyGroundAndPressed_W030deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W030deg_000-Information.txt
+
+
+40
+W040deg_laser.csv
+4-AAP_finelyGroundAndPressed_W040deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W040deg_000-Information.txt
+
+
+50
+W050deg_laser.csv
+4-AAP_finelyGroundAndPressed_W050deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W050deg_000-Information.txt
+
+
+60
+W060deg_laser.csv
+4-AAP_finelyGroundAndPressed_W060deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W060deg_000-Information.txt
+
+
+70
+W070deg_laser.csv
+4-AAP_finelyGroundAndPressed_W070deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W070deg_000-Information.txt
+
+
+80
+W080deg_laser.csv
+4-AAP_finelyGroundAndPressed_W080deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W080deg_000-Information.txt
+
+
+90
+W090deg_laser.csv
+4-AAP_finelyGroundAndPressed_W090deg_000_Spec.Data-1.txt
+4-AAP_finelyGroundAndPressed_W090deg_000-Information.txt
+
+
+
+Anmerkung",Success,20201215-1d8709bbe13930c31fe53ca20309d33882373c84,https://elab.ipht-jena.de/experiments.php?mode=view&id=85

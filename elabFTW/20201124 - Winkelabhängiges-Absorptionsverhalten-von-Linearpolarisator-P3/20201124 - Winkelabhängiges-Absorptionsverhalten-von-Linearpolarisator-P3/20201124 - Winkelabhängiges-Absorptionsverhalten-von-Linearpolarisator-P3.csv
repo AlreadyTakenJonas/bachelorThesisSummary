@@ -1,0 +1,241 @@
+﻿id,date,title,content,status,elabid,url
+78,20201124,"Winkelabhängiges Absorptionsverhalten von Linearpolarisator P3","Winkelabhängigkeit des Absorptionsverhaltens von P3
+Ändert sich die Durchlässigkeit des Polarisators für Licht, dass parallel zur Polarisationsachse polarisiert ist, mit der Ausrichtung des Polarisators?
+Aufbau
+Der Laser wird in eine Fiberbench geleitet. Der Fiberport ist mit dem Depolarisator versehen. Danach wird der Laser in eine sehr lange Faser eingekoppelt, um den Laserstrahl weiter zu depolarisieren, und in eine zweite Fiberbench geleitet. Folgend wird von dem Depolarisator zusammen mit der sehr langen Faser als Depolarisator gesprochen. Anschließend passiert der Laserstrahl den auxiliaren Linearpolarisator, den zucharakterisierenden Linearpolarisator und zuletzt trifft er auf das Powermeter.
+
+
+
+Aufbau
+
+
+Ramanspektrometer
+WiTec (ZAF)
+
+
+Powermeter
+ThorLabs PM100D/S130C
+
+
+Depolarisator
+ThorLabs DPP25-A
+
+
+Auxiliar Polarisator
+P4
+
+
+Zu charakterisierender Linearpolarisator
+P3
+
+
+
+Messung
+
+
+
+Metadaten Laser
+
+
+Messung
+Gemessene Leistung / mW
+
+
+Maximale Laserleistung
+maxLaserPower.csv
+
+
+Gemessene Leistung ohne Laser
+labNoise.csv
+
+
+
+Der Depolarisator wird wie folgt überprüft: Ein Linearpolarisator wird direkt hinter den Depolarisator platziert. Hinter dem Polarisator folgt das Powermeter. Der Polarisator wird so gedeht, dass die messbare Leistung minimal bzw. maximal wird. Die Position des Polarisators und die gemessene Leistung wird notiert. Die Messungen werden ohne Depolarisator wiederholt.
+
+
+
+Metadaten Depolarisator
+
+
+Polarisation des Lichts
+Position Linearpolarisator P3 / °
+gemessene Laserleistung / mW
+
+
+Maximale Laserleistung hinter Depolarisator
+120
+depolarised_max.csv
+
+
+Minimale Laserleistung hinter Depolarisator
+34
+depolarised_min.csv
+
+
+Maximale Laserleistung vor Depolarisator
+2
+polarised_max.csv
+
+
+Minimale Lasserleistung vor Depolarisator
+92
+polarised_min.csv
+
+
+
+Für beliebige Position des Polarisators wird der Auxilliarpolarisator so gedreht, dass die gemessene Laserleistung maximal ist. Anschließend wird die Laserleistung hinter dem Auxiliarpolarisator und dem zu charakterisierenden Polarisator gemessen.
+
+
+
+
+Messdaten
+
+
+
+Position Linearpolarisator / °
+Position Auxiliar Linearpolarisator / °
+Leistung ohne Polarisator / mW
+Leistung mit Polarisator / mW
+
+
+0
+114
+P000deg_background.csv
+P000deg_withPolariser.csv
+
+
+10
+125
+P010deg_background.csv
+P010deg_withPolariser.csv
+
+
+20
+133
+P020deg_background.csv
+P020deg_withPolariser.csv
+
+
+30
+143
+P030deg_background.csv
+P030deg_withPolariser.csv
+
+
+40
+156
+P040deg_background.csv
+P040deg_withPolariser.csv
+
+
+50
+170
+P050deg_background.csv
+P050deg_withPolariser.csv
+
+
+60
+178
+P060deg_background.csv
+P060deg_withPolariser.csv
+
+
+70
+194
+P070deg_background.csv
+P070deg_withPolariser.csv
+
+
+80
+203
+P080deg_background.csv
+P080deg_withPolariser.csv
+
+
+90
+214
+P090deg_background.csv
+P090deg_withPolariser.csv
+
+
+100
+220
+P100deg_background.csv
+P100deg_withPolariser.csv
+
+
+110
+230
+P110deg_background.csv
+P110deg_withPolariser.csv
+
+
+120
+238
+P120deg_background.csv
+P120deg_withPolariser.csv
+
+
+130
+246
+P130deg_background.csv
+P130deg_withPolariser.csv
+
+
+140
+254
+P140deg_background.csv
+P140deg_withPolariser.csv
+
+
+150
+265
+P150deg_background.csv
+P150deg_withPolariser.csv
+
+
+160
+274
+P160deg_background.csv
+P160deg_withPolariser.csv
+
+
+170
+281
+P170deg_background.csv
+P170deg_withPolariser.csv
+
+
+180
+296
+P180deg_background.csv
+P180deg_withPolariser.csv
+
+
+225
+346
+P225deg_background.csv
+P225deg_withPolariser.csv
+
+
+270
+38
+P270deg_background.csv
+P270deg_withPolariser.csv
+
+
+315
+72
+P315deg_background.csv
+P315deg_withPolariser.csv
+
+
+360
+112
+P360deg_background.csv
+P360deg_withPolariser.csv
+
+
+
+Beobachtung
+Das Finden der Maxima ist manchmal sehr schwer.",Success,20201124-f86074e0a4d5a3cd75ceafe082e5eaa6a36f6ff6,https://elab.ipht-jena.de/experiments.php?mode=view&id=78

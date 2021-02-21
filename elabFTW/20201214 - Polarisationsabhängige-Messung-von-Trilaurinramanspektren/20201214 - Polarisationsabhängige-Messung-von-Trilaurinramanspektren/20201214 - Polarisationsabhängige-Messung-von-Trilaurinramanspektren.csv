@@ -1,0 +1,132 @@
+﻿id,date,title,content,status,elabid,url
+84,20201214,"Polarisationsabhängige Messung von Trilaurinramanspektren","Polarisationsabhängige Messung von Ramanspektren für Trilaurin
+Ändert sich das Ramanspektrum für unterschiedlich linearpolarisierte Anregungslaser?
+Aufbau
+Der Laser wird in Fiberbench geleitet und passiert eine Wellenplatte. Anschließend wird der Laser über die Anregungsfaser von der Fiberbench ins Mikroskop des WiTec gekoppelt. Der Strahl wechselwirkt mit der Probe und wird über die Detektorfaser zum Detektor des WiTec geleitet.
+
+
+
+Aufbau
+
+
+Ramanspektrometer
+WiTec (ZAF)
+
+
+Fiberbench
+B1 (ThorLabs FBP-A-FC)
+
+
+Anregungsfaser
+F2 (single-mode)
+
+
+Detektorfaser
+F3 (multi-mode)
+
+
+Wellenplatte
+W1
+
+
+Probe
+Tropfen flüssiges Trilaurin auf einer Heizplatte (60°C)
+
+
+Powermeter
+Thorlabs PM100D/S121C
+
+
+
+Messung
+
+
+
+Metadaten
+
+
+Maximale Laserleistung / mW
+maxLaserPower.csv
+
+
+Gemessene Leistung ohne Laser / mW
+labNoise.csv
+
+
+
+Für verschiedene Positionen der Wellenplatte werden die Ramanspektren von 4-AAP gemessen. Die Laserleistung wird für jedes Spektrum am Mikroskoptisch gemessen.
+
+
+
+Messdaten
+
+
+Position Wellenplatte / °
+Laserleistung / mW
+Ramanspektrum
+Metadaten Ramanspektrum
+
+
+0
+W000deg_laser.csv
+Trilaurin_Temp60degC_W000deg_001_Spec.Data-1.txt
+Trilaurin_Temp60degC_W000deg_001-Information.txt
+
+
+10
+W010deg_laser.csv
+Trilaurin_Temp60degC_W010deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W010deg_000-Information.txt
+
+
+20
+W020deg_laser.csv
+Trilaurin_Temp60degC_W020deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W020deg_000-Information.txt
+
+
+30
+W030deg_laser.csv
+Trilaurin_Temp60degC_W030deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W030deg_000-Information.txt
+
+
+40
+W040deg_laser.csv
+Trilaurin_Temp60degC_W040deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W040deg_000-Information.txt
+
+
+50
+W050deg_laser.csv
+Trilaurin_Temp60degC_W050deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W050deg_000-Information.txt
+
+
+60
+W060deg_laser.csv
+Trilaurin_Temp60degC_W060deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W060deg_000-Information.txt
+
+
+70
+W070deg_laser.csv
+Trilaurin_Temp60degC_W070deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W070deg_000-Information.txt
+
+
+80
+W080deg_laser.csv
+Trilaurin_Temp60degC_W080deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W080deg_000-Information.txt
+
+
+90
+W090deg_laser.csv
+Trilaurin_Temp60degC_W090deg_000_Spec.Data-1.txt
+Trilaurin_Temp60degC_W090deg_000-Information.txt
+
+
+
+Anmerkung
+Nach der Messung des ersten Spektrums Trilaurin_Temp60degC_W000deg_000_Spec.Data-1.txt taucht in den restlichen Spektren ein großer Untergrund auf. Ich weiß nicht warum. Den Fokus neu einzustellen, hat nicht geholfen. Das erste Spektrum wurde wiederholt und es hat den selben Hintergrund. Metadaten zum aller ersten Spektrum sind in Trilaurin_Temp60degC_W000deg_000-Information.txt.",Success,20201214-6f90788cbd57bbbf3b1abe5b21442192d28e38a5,https://elab.ipht-jena.de/experiments.php?mode=view&id=84
