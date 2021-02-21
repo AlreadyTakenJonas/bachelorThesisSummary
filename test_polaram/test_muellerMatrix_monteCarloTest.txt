@@ -1,0 +1,13 @@
+# polaram convert /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/test_polaram/test_ramanTensor.txt --output /home/jonas/Dokumente/uni/semester7/bachelorarbeit/scripts/test_polaram/test_muellerMatrix_monteCarloTest.txt --log /home/jonas/code/python/PolaRam/log/convertRamanTensor.log --iterations 1000000 --threshold 2
+# Execution time: 2020-12-27 09:18:37.670775
+
+! test
+ 8.37158657e-01 -1.30142060e-03  2.21945421e-04  0.00000000e+00
+-1.30142060e-03  2.80179779e-01 -5.96691078e-05  0.00000000e+00
+ 2.21945421e-04 -5.96691078e-05  2.80186263e-01  0.00000000e+00
+ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00
+
+#! test (Mean Of Rotated Raman Tensors)
+#-4.31493852e-01 -3.97845889e-04 -3.44489972e-05
+#-3.97845889e-04 -4.33848755e-01 -1.77812258e-04
+#-3.44489972e-05 -1.77812258e-04 -4.34657393e-01
